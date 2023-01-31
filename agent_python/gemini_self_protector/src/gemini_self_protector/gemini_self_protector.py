@@ -1,60 +1,34 @@
-import jwt
+from ._gemini import _Gemini
 from functools import wraps
-from ._logger import logger
-from flask import request
-from ._utils import _Utils
 
 
-class _Gemini(object):
+class GeminiManager(object):
 
-    def verify_license_key(license_key):
-        if license_key:
-            logger.info("[+] Gemini License Key: {}".format(license_key))
-            if license_key == '988907ce-9803-11ed-a8fc-0242ac120002':
-                # call api and return access_token
-                access_token = jwt.encode(
-                    {"license": license_key}, "secret", algorithm="HS256")
-                return access_token
-            else:
-                logger.error("[x_x] Invalid License Key")
-                return False
-        else:
-            return False
+    def __init__(self, license_key, protect_mode):
+        self.license_key = license_key
+        self.verify_license_key = _Gemini.verify_license_key(self.license_key)
+        self.global_protect_mode = _Gemini.verify_protect_mode(protect_mode)
 
-    def verify_protect_mode(protect_mode):
-        if protect_mode == 'on':
-            logger.info("[+] Gemini-Self-Protector is On")
-            return protect_mode
-        if protect_mode == 'monitor':
-            logger.info("[+] Gemini-Self-Protector run on mode: MONITORING")
-            return protect_mode
-        elif protect_mode == 'block':
-            logger.info("[+] Gemini-Self-Protector run on mode: BLOCKING")
-            return protect_mode
-        elif protect_mode == 'off':
-            logger.info("[+] Gemini-Self-Protector is Off")
-            return protect_mode
-        else:
-            logger.error(
-                "[x_x] Invalid Protect Mode. Protect mode must be: on - monitor - block - off")
-            logger.warning(
-                "[!] Your App Currently Running Without Gemini-Self-Protector.")
-            return None
+    def flask_protect_extended(self, protect_mode=None):
 
-    def __load_protect__(gemini_protect_mode):
-        if gemini_protect_mode == 'on':
-            logger.error(
-                "[x_x] Protect mode for Method must be: monitor - block - off")
-        elif gemini_protect_mode == 'monitor':
-            logger.info("[+] Gemini-Self-Protector Mode MONITORING")
-            data = request.data
-            payload = _Utils.decoder(data.decode("utf-8"))
-            predict = _Utils.web_vuln_detect_predict(payload)
-            logger.info("[+] Accuracy: {}".format(predict))
-        elif gemini_protect_mode == 'block':
-            logger.info("[+] Gemini-Self-Protector Mode BLOCKING")
-        elif gemini_protect_mode == 'off':
-            logger.info("[+] Gemini-Self-Protector is Off")
-        else:
-            logger.error(
-                "[x_x] Invalid Protect Mode. Protect mode must be: monitor - block - off")
+        def _gemini_self_protect(f):
+            @wraps(f)
+            def __gemini_self_protect(*args, **kwargs):
+                if protect_mode is None:
+                    gemini_protect_mode = self.global_protect_mode
+                elif protect_mode is not None and self.global_protect_mode == 'off':
+                    gemini_protect_mode = 'off'
+                else:
+                    gemini_protect_mode = protect_mode
+
+                protect = _Gemini.__load_protect__(gemini_protect_mode)
+
+                if protect:
+                    return f(*args, **kwargs)
+                else:
+                    return 'Malicious Request - SOS', 200
+            return __gemini_self_protect
+        return _gemini_self_protect
+
+    def django_protect_extended(self):
+        return True

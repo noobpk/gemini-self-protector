@@ -1,7 +1,7 @@
 import jwt
 from functools import wraps
 from ._logger import logger
-from flask import request
+from flask import request, jsonify
 from ._utils import _Utils
 
 
@@ -47,14 +47,34 @@ class _Gemini(object):
                 "[x_x] Protect mode for Method must be: monitor - block - off")
         elif gemini_protect_mode == 'monitor':
             logger.info("[+] Gemini-Self-Protector Mode MONITORING")
+            # Get request body
             data = request.data
+            # Decode body
             payload = _Utils.decoder(data.decode("utf-8"))
+            # Predict body with Web_Vuln_Detection
             predict = _Utils.web_vuln_detect_predict(payload)
             logger.info("[+] Accuracy: {}".format(predict))
+            if predict > 50:
+                return True
+            else:
+                return True
         elif gemini_protect_mode == 'block':
             logger.info("[+] Gemini-Self-Protector Mode BLOCKING")
+            # Get request body
+            data = request.data
+            # Decode body
+            payload = _Utils.decoder(data.decode("utf-8"))
+            # Predict body with Web_Vuln_Detection
+            predict = _Utils.web_vuln_detect_predict(payload)
+            logger.info("[+] Accuracy: {}".format(predict))
+            if predict > 50:
+                # Block request
+                return False
+            else:
+                return True
         elif gemini_protect_mode == 'off':
             logger.info("[+] Gemini-Self-Protector is Off")
+            pass
         else:
             logger.error(
                 "[x_x] Invalid Protect Mode. Protect mode must be: monitor - block - off")
