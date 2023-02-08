@@ -4,6 +4,9 @@ from colorlog import ColoredFormatter
 
 
 def setup_logging():
+    """
+    It sets up the logging module.
+    """
     logger = logging.getLogger()
     logger.setLevel(logging.INFO)
     color_formatter = ColoredFormatter(
