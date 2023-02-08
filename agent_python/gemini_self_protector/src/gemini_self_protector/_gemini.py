@@ -3,6 +3,7 @@ from functools import wraps
 from ._logger import logger
 from flask import request, jsonify
 from ._utils import _Utils
+from ._template import _Template
 from datetime import datetime, timezone
 
 
@@ -60,6 +61,9 @@ class _Gemini(object):
                 "[x_x] Invalid Sensitive Value. Sensitive value from 0 to 100")
             return 0
 
+    def init_gemini_dashboard_template():
+        _Template.create_template()
+        
     def __load_protect_flask__(gemini_protect_mode, sensitive_value):
         # It's checking if the protect_mode is on. If it is, then it will return an error.
         if gemini_protect_mode == 'on':

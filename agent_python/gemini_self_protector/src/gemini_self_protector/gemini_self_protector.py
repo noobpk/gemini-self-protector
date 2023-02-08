@@ -1,6 +1,7 @@
 from ._gemini import _Gemini
 from functools import wraps
-from flask import Flask, request, make_response
+from flask import Flask, request, make_response, render_template, Blueprint
+from ._logger import logger
 
 class GeminiManager(object):
 
@@ -22,7 +23,17 @@ class GeminiManager(object):
             self.init_flask_app(flask_app)
 
     def init_flask_app(self, flask_app: Flask) -> None:
-        pass
+        _Gemini.init_gemini_dashboard_template()
+        gemini_page = Blueprint('gemini_page', __name__,
+                        template_folder='gemini_protector')
+
+        random_path = '12312312312312321'
+        logger.info("[+] Access Yourt Gemini Dashboard as Path: /{}/gemini/dashboard".format(random_path))
+        @gemini_page.route('/gemini/dashboard')
+        def gemini_dashboard():
+            return render_template('index.html')
+        
+        flask_app.register_blueprint(gemini_page)
 
     def flask_protect_extended(self, protect_mode=None):
         """
