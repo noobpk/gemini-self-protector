@@ -1,9 +1,11 @@
+import os
 import re
 import base64
 import html
 import urllib.parse
 import requests
 import uuid
+import binascii
 from flask import request
 
 class _Utils(object):
@@ -126,3 +128,8 @@ class _Utils(object):
         """
         incident_id = uuid.uuid4()
         return incident_id
+
+    def create_path():
+        random = binascii.b2a_hex(os.urandom(20)).decode('utf-8')
+        dashboard_path = str(random)+'/gemini'
+        return dashboard_path
