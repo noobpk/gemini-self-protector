@@ -26,42 +26,42 @@ def setup_logging():
     logging_handler.setFormatter(color_formatter)
     logger.addHandler(logging_handler)
 
-    # create running folder
+    # Creating a directory called gemini_protector/log in the current working directory.
     running_directory = os.getcwd()
-    final_directory = os.path.join(running_directory, r'gemini_protector')
-    if not os.path.exists(final_directory):
-        os.makedirs(final_directory)
+    gemini_log_directory = os.path.join(running_directory, r'gemini_protector', r'log')
+    if not os.path.exists(gemini_log_directory):
+        os.makedirs(gemini_log_directory)
 
-    # record error logg
+    # Creating a file handler for the error log.
     err_file_handler = logging.FileHandler(
-        'gemini_protector/gemini_protector_err.log')
+        'gemini_protector/log/gemini_protector_err.log')
     err_file_handler.setLevel(logging.ERROR)
     file_format = logging.Formatter(
         '%(asctime)s - %(levelname)s - %(message)s')
     err_file_handler.setFormatter(file_format)
     logger.addHandler(err_file_handler)
 
-    # record info logg
+    # Creating a file handler for the info log.
     info_file_handler = logging.FileHandler(
-        'gemini_protector/gemini_protetor_info.log')
+        'gemini_protector/log/gemini_protetor_info.log')
     info_file_handler.setLevel(logging.INFO)
     file_format = logging.Formatter(
         '%(asctime)s - %(levelname)s - %(message)s')
     info_file_handler.setFormatter(file_format)
     logger.addHandler(info_file_handler)
 
-    # record warning logg
+    # Creating a file handler for the warning log.
     warning_file_handler = logging.FileHandler(
-        'gemini_protector/gemini_protetor_warning.log')
+        'gemini_protector/log/gemini_protetor_warning.log')
     warning_file_handler.setLevel(logging.INFO)
     file_format = logging.Formatter(
         '%(asctime)s - %(levelname)s - %(message)s')
     warning_file_handler.setFormatter(file_format)
     logger.addHandler(warning_file_handler)
 
-    # record critical logg
+    # Creating a file handler for the critical log.
     critical_file_handler = logging.FileHandler(
-        'gemini_protector/gemini_protetor_critical.log')
+        'gemini_protector/log/gemini_protetor_critical.log')
     critical_file_handler.setLevel(logging.INFO)
     file_format = logging.Formatter(
         '%(asctime)s - %(levelname)s - %(message)s')
@@ -69,6 +69,6 @@ def setup_logging():
     logger.addHandler(critical_file_handler)
 
 
-# setup logging for script
+# Setting up the logging module.
 setup_logging()
 logger = logging.getLogger(__name__)
