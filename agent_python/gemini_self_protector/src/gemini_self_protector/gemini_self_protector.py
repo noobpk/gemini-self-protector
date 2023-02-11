@@ -1,5 +1,4 @@
 import os
-import yaml
 from ._gemini import _Gemini
 from functools import wraps
 from flask import Flask, request, make_response, render_template, session, redirect, url_for, flash
@@ -26,24 +25,13 @@ class GeminiManager(object):
             os.makedirs(gemini_working_directory)
         
         if not os.path.isfile(gemini_working_directory+'/config.yml'):
-            init_config_content = {
-                'gemini-self-protector': {
-                    'gemini_working_directory': gemini_working_directory,
-                    'gemini_secret_key': str(os.urandom(24)),
-                    'gemini_dashboard_path': None,
-                    'gemini_config_path': gemini_working_directory+'/config.yml',
-                    'gemini_log_path': gemini_working_directory+'/log',
-                    'gemini_normal_request': 0,
-                    'gemini_abnormal_request': 0,
-                }
-            }
-            _Gemini.init_config(gemini_working_directory, init_config_content)
-            _Gemini.verify_license_key(license_key)
+            _Gemini.init_gemini_config(gemini_working_directory)
+            _Gemini.validator_license_key(license_key)
 
-        _Gemini.update_config({
-            "gemini_global_protect_mode":_Gemini.verify_protect_mode(protect_mode),
-            "gemini_sensitive_value": _Gemini.verify_sensitive_value(sensitive_value)
-            })   
+        _Gemini.update_gemini_config({
+            "gemini_global_protect_mode": _Gemini.validator_protect_mode(protect_mode),
+            "gemini_sensitive_value": _Gemini.validator_sensitive_value(sensitive_value)
+        })   
 
         # Register this extension with the flask app now (if it is provided)
         if flask_app is not None:
@@ -51,15 +39,15 @@ class GeminiManager(object):
 
     def init_flask_app(self, flask_app: Flask) -> None:
         if flask_app.secret_key is None:
-            flask_app.secret_key = _Gemini.get_config('gemini_secret_key')
+            flask_app.secret_key = _Gemini.get_gemini_config('gemini_secret_key')
     
         if flask_app.template_folder and flask_app.static_folder:
-            if _Gemini.get_config('gemini_dashboard_path') is None:
+            if _Gemini.get_gemini_config('gemini_dashboard_path') is None:
                 _Gemini.init_gemini_dashboard_path()
                 _Gemini.init_gemini_dashboard_password()
 
             _Gemini.init_gemini_dashboard(flask_app.template_folder, flask_app.static_folder)
-            dashboard_path = _Gemini.get_config('gemini_dashboard_path')
+            dashboard_path = _Gemini.get_gemini_config('gemini_dashboard_path')
             logger.info("[+] Access Your Gemini Dashboard as Path: http://host:port/{}/dashboard".format(dashboard_path))
             logger.info("[+] Check the config file at gemini_protector/config.yml/config.yaml for the password.")
             
@@ -70,7 +58,7 @@ class GeminiManager(object):
                 elif request.method == 'POST':
                     error = None
                     password = request.form['password']
-                    secret_password = _Gemini.get_config('gemini_dashboard_password')
+                    secret_password = _Gemini.get_gemini_config('gemini_dashboard_password')
                     if password == secret_password:
                         logger.info("[+] Login sucessfully.!")
                         session['gemini_logged_in'] = True
@@ -83,10 +71,10 @@ class GeminiManager(object):
             @flask_app.route('/'+dashboard_path+'/dashboard')
             def gemini_dashboard():
                 if session.get('gemini_logged_in'):
-                    normal_request = _Gemini.get_config('gemini_normal_request')
-                    abnormal_request = _Gemini.get_config('gemini_abnormal_request')
-                    sensitive_value = _Gemini.get_config('gemini_sensitive_value')
-                    global_protect_mode = _Gemini.get_config('gemini_global_protect_mode')
+                    normal_request = _Gemini.get_gemini_config('gemini_normal_request')
+                    abnormal_request = _Gemini.get_gemini_config('gemini_abnormal_request')
+                    sensitive_value = _Gemini.get_gemini_config('gemini_sensitive_value')
+                    global_protect_mode = _Gemini.get_gemini_config('gemini_global_protect_mode')
                     load_data_log = _Gemini.load_gemini_log()
                     return render_template('gemini_protector_template/dashboard.html', 
                         _protect_mode=global_protect_mode,
@@ -109,8 +97,8 @@ class GeminiManager(object):
                     validate_protect_mode = ['on', 'off', 'block', 'monitor']
                     if protect_mode in validate_protect_mode and 0 <= int(sensitive_value) <= 100:
                         _Gemini.update_config({
-                            "gemini_global_protect_mode":_Gemini.verify_protect_mode(protect_mode),
-                            "gemini_sensitive_value": _Gemini.verify_sensitive_value(sensitive_value)
+                            "gemini_global_protect_mode":_Gemini.validator_protect_mode(protect_mode),
+                            "gemini_sensitive_value": _Gemini.validator_sensitive_value(sensitive_value)
                             })
                         logger.info("[+] Update configuration successfully.!")
                         flash('Update configuration successfully!')
@@ -140,7 +128,7 @@ class GeminiManager(object):
         def _gemini_self_protect(f):
             @wraps(f)
             def __gemini_self_protect(*args, **kwargs):
-                global_protect_mode = _Gemini.get_config('gemini_global_protect_mode')
+                global_protect_mode = _Gemini.get_gemini_config('gemini_global_protect_mode')
                 if protect_mode is None:
                     gemini_protect_mode = global_protect_mode
                 elif protect_mode is not None and global_protect_mode == 'off':

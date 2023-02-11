@@ -849,11 +849,13 @@ template_dashboard = """<!DOCTYPE html>
               </tr>
             </thead>
             <tbody>
+              {% for log in _gemini_log %}
               <tr>
-                <td>Row 1 Column 1</td>
-                <td>Row 1 Column 2</td>
-                <td>Row 1 Column 3</td>
+                <td>{{ log.time }}</td>
+                <td>{{ log.status }}</td>
+                <td>{{ log.message }}</td>
               </tr>
+              {% endfor %}
             </tbody>
           </table>
         </div>

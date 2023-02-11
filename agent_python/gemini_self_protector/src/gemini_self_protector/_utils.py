@@ -6,7 +6,10 @@ import urllib.parse
 import requests
 import uuid
 import binascii
+import jwt
 from flask import request
+from ._config import _Config
+from ._logger import logger
 
 class _Utils(object):
 
@@ -133,3 +136,59 @@ class _Utils(object):
         random = binascii.b2a_hex(os.urandom(20)).decode('utf-8')
         dashboard_path = str(random)+'/gemini'
         return dashboard_path
+    
+class _Validator(object):
+    def __init__(self):
+        pass
+
+    def validate_license_key(license_key):
+        try:
+            if license_key:
+                if license_key == '988907ce-9803-11ed-a8fc-0242ac120002':
+                    # call api and return access_token
+                    access_token = jwt.encode(
+                        {"license": license_key}, "secret", algorithm="HS256")
+      
+                    _Config.update_config({"gemini_license_key":license_key, "gemini_access_token": access_token})
+                    return True
+                else:
+                    logger.error("[x_x] Invalid License Key")
+                    return False
+            else:
+                return False
+        except Exception as e:
+            logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+    
+    def validate_protect_mode(protect_mode):
+        """
+        The function takes a string as an argument, and checks if the string is in a list of strings. If
+        it is, it returns the string. If it isn't, it returns None
+        
+        :param protect_mode: This is the mode of the protector
+        :return: The protect mode is being returned.
+        """
+        try:
+            global_protect_mode = None
+            arr_mode = ['monitor', 'block', 'off']
+            if protect_mode not in arr_mode:
+                logger.error(
+                    "[x_x] Invalid Protect Mode. Protect mode must be: monitor - block - off")
+                logger.warning(
+                    "[!] Your App Currently Running Without Gemini-Self-Protector.")
+            else:
+                global_protect_mode = protect_mode
+                logger.info("[+] Gemini-Self-Protector Mode: {}".format(global_protect_mode))
+                return global_protect_mode
+        except Exception as e:
+            logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+    
+    def validate_sensitive_value(sensitive_value):
+        try:
+            if 0 <= int(sensitive_value) <= 100:
+                return int(sensitive_value)
+            else:
+                logger.error(
+                    "[x_x] Invalid Sensitive Value. Sensitive value from 0 to 100")
+                return 0
+        except Exception as e:
+            logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
