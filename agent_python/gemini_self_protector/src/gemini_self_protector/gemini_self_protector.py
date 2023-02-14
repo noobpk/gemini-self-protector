@@ -28,6 +28,9 @@ class GeminiManager(object):
             _Gemini.init_gemini_config(gemini_working_directory)
             _Gemini.validator_license_key(license_key)
 
+        if not os.path.isfile(gemini_working_directory+'/data.data'):
+            _Gemini.init_gemini_data_store(gemini_working_directory)
+
         _Gemini.update_gemini_config({
             "gemini_global_protect_mode": _Gemini.validator_protect_mode(protect_mode),
             "gemini_sensitive_value": _Gemini.validator_sensitive_value(sensitive_value)
@@ -56,7 +59,6 @@ class GeminiManager(object):
                 if request.method == 'GET' and session.get('gemini_logged_in'):
                     return redirect(url_for('gemini_dashboard'))
                 elif request.method == 'POST':
-                    error = None
                     password = request.form['password']
                     secret_password = _Gemini.get_gemini_config('gemini_dashboard_password')
                     if password == secret_password:
@@ -96,7 +98,7 @@ class GeminiManager(object):
             
                     validate_protect_mode = ['on', 'off', 'block', 'monitor']
                     if protect_mode in validate_protect_mode and 0 <= int(sensitive_value) <= 100:
-                        _Gemini.update_config({
+                        _Gemini.update_gemini_config({
                             "gemini_global_protect_mode":_Gemini.validator_protect_mode(protect_mode),
                             "gemini_sensitive_value": _Gemini.validator_sensitive_value(sensitive_value)
                             })

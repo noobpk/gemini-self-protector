@@ -1,23 +1,14 @@
 import os
 import yaml
 from ._logger import logger
+import json
 
 class _Config(object):
-    def __init__(self, working_directory):
-        self.config_file = working_directory+'/config.yml'
-
-    def init_config(self, config_content):
-        """
-        It takes a working directory and a dictionary of key-value pairs and updates the config.yml file
-        in the working directory with the key-value pairs
-        
-        :param working_directory: The directory where the config.yml file is located
-        :param config_content: This is the new data that you want to add to the YAML file
-        """
+    def __init__(self, working_directory, config_content):
+        config_file = working_directory+'/config.yml'
         try:
-            with open(self.config_file, "w") as file:
+            with open(config_file, "w") as file:
                 yaml.dump(config_content, file)
-
         except Exception as e:
             logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
     
@@ -60,18 +51,28 @@ class _Config(object):
         except Exception as e:
             logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
 
-    def update_normal_request():
+    def init_data_store(working_directory):
+        data_file = working_directory+'/data.json'
         try:
-            current_value = _Config.get_config('gemini_normal_request')
-            _Config.update_config({'gemini_normal_request': current_value+1})
-            logger.info("[+] gemini_normal_request was updated")
+            # create an empty dictionary
+            data = {"gemini_data_stored":[]}
+
+            # Write the empty dictionary to the new file
+            with open(data_file, "w") as f:
+                # use pickle to dump the dictionary to the file
+                json.dump(data, f,  indent=4)
         except Exception as e:
             logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
 
-    def update_abnormal_request():
+    def update_data_store(_dict):
         try:
-            current_value = _Config.get_config('gemini_abnormal_request')
-            _Config.update_config({'gemini_abnormal_request': current_value+1})
-            logger.info("[+] gemini_abnormal_request was updated")
+            data_store_path = _Config.get_config('gemini_data_store_path')
+            with open(data_store_path, "r") as f:
+                existing_data = json.load(f)
+
+            existing_data["gemini_data_stored"].append(_dict)            
+            # Write the add new data back to the file
+            with open(data_store_path, "w") as f:
+                json.dump(existing_data, f, indent = 4)
         except Exception as e:
             logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))

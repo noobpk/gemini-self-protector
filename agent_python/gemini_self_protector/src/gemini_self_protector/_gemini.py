@@ -13,8 +13,8 @@ import secrets
 
 # It's a class that contains a bunch of methods that are used to interact with the Gemini API
 class _Gemini(object):
-    def __init__(self) -> None:
-        pass
+    # def __init__(self):
+    #     pass
 
     def init_gemini_config(working_directory):
         try:
@@ -24,19 +24,18 @@ class _Gemini(object):
                     'gemini_secret_key': str(os.urandom(24)),
                     'gemini_dashboard_path': None,
                     'gemini_config_path': working_directory+'/config.yml',
+                    'gemini_data_store_path': working_directory+'/data.json',
                     'gemini_log_path': working_directory+'/log',
                     'gemini_normal_request': 0,
                     'gemini_abnormal_request': 0,
                 }
             }
-            _Config(working_directory)
-            _Config.init_config(init_gemini_config_content)
+            _Config(working_directory, init_gemini_config_content)
 
         except Exception as e:
             logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
     
     def get_gemini_config(config_key):
-
         try:
             _gemini_return = _Config.get_config(config_key)  
             return _gemini_return
@@ -44,27 +43,44 @@ class _Gemini(object):
             logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
 
     def update_gemini_config(config_content):
-
         try:
             _Config.update_config(config_content)
         except Exception as e:
             logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
 
-    def __handle_normal_request__(payload, predit):
+    def init_gemini_data_store(working_directory):
         try:
-            current_value = _Gemini.get_gemini_config('gemini_normal_request')
-            _Gemini.update_gemini_config({'gemini_normal_request': current_value+1})
-            logger.info("[+] gemini_normal_request was updated")
-            _Gemini.store_gemini_payload()
+            _Config.init_data_store(working_directory)
         except Exception as e:
             logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
 
-    def __handle_abnormal_request__():
+    def get_gemini_data_store():
         try:
-            current_value = _Gemini.get_gemini_config('gemini_abnormal_request')
-            _Gemini.update_gemini_config({'gemini_abnormal_request': current_value+1})
-            logger.info("[+] gemini_abnormal_request was updated")
+            pass
+        except Exception as e:
+            logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
 
+    def update_gemini_data_store(_dict):
+        try:
+            _Config.update_data_store(_dict)
+        except Exception as e:
+            logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+
+    def __handle_normal_request__(data, predict):
+        try:
+            abnormal_request = _Gemini.get_gemini_config('gemini_normal_request')
+            _Gemini.update_gemini_config({'gemini_normal_request': abnormal_request+1})
+            _dict = {"Payload": data.decode('utf-8'), "Predict": predict}
+            _Gemini.update_gemini_data_store(_dict)
+        except Exception as e:
+            logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+
+    def __handle_abnormal_request__(data, predict):
+        try:
+            abnormal_request = _Gemini.get_gemini_config('gemini_abnormal_request')
+            _Gemini.update_gemini_config({'gemini_abnormal_request': abnormal_request+1})
+            _dict = {"Payload": data.decode('utf-8'), "Predict": predict}
+            _Gemini.update_gemini_data_store(_dict)
         except Exception as e:
             logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
 
@@ -178,7 +194,7 @@ class _Gemini(object):
                 # incident ID.
                 current_time = datetime.now(timezone.utc)
                 ip_address = request.remote_addr
-                incident_id = _Utils.generate_incident_id(data, predict)
+                incident_id = _Utils.generate_incident_id()
                 # It's checking if the predict value is less than the sensitive value. If it is, then it
                 # will return a status of True (safe). If it's not, then it will return a status of False (unsafe).
                 if predict < sensitive_value: 
@@ -187,7 +203,7 @@ class _Gemini(object):
                     return [status, current_time, ip_address, incident_id] 
                 else:
                     status = False
-                    _Gemini.__handle_abnormal_request__()
+                    _Gemini.__handle_abnormal_request__(data, predict)
                     return [status, current_time, ip_address, incident_id] 
             elif gemini_protect_mode == 'off':
                 logger.info("[+] Gemini-Self-Protector is Off")
