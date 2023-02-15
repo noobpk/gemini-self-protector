@@ -215,12 +215,18 @@ template_login = """<!DOCTYPE html>
 template_dashboard = """<!DOCTYPE html>
 <html>
   <head>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+    <script src="https://cdn.datatables.net/1.13.2/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.2/js/dataTables.bootstrap.min.js"></script>
     <link
       rel="stylesheet"
       type="text/css"
-      href="https://cdn.datatables.net/1.10.21/css/jquery.dataTables.min.css"
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
+    />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="https://cdn.datatables.net/1.13.2/css/dataTables.bootstrap.min.css"
     />
     <style>
       /* ===== Google Font Import - Poppins ===== */
@@ -254,7 +260,10 @@ template_dashboard = """<!DOCTYPE html>
       body {
         min-height: 100vh;
         background-color: var(--primary-color);
+        max-width: 100%;
+        overflow-x: hidden;
       }
+
       body.dark {
         --primary-color: #3a3b3c;
         --panel-color: #242526;
@@ -800,6 +809,12 @@ template_dashboard = """<!DOCTYPE html>
 
         <ul class="logout-mode">
           <li>
+            <a href="https://github.com/noobpk" target="_blank">
+              <i class="uil uil-signout"></i>
+              <span class="link-name">Auth</span>
+            </a>
+          </li>
+          <li>
             <a href="{{url_for('gemini_logout')}}">
               <i class="uil uil-signout"></i>
               <span class="link-name">Logout</span>
@@ -863,7 +878,7 @@ template_dashboard = """<!DOCTYPE html>
             <span class="text">Normal/Abnormal Request</span>
           </div>
 
-          <table id="abnormal_request" class="display" style="width: 100%">
+          <table id="abnormal_request" class="table table-striped table-bordered" style="width: 100%">
             <thead>
               <tr>
                 <th>Time</th>
@@ -886,10 +901,10 @@ template_dashboard = """<!DOCTYPE html>
         <div class="activity">
           <div class="title">
             <i class="uil uil-clock-three"></i>
-            <span class="text">Access List Controll</span>
+            <span class="text">Access List Control</span>
           </div>
 
-          <table id="acl" class="display" style="width: 100%">
+          <table id="acl" class="table table-striped table-bordered" style="width: 100%">
             <thead>
               <tr>
                 <th>Time</th>
@@ -915,7 +930,7 @@ template_dashboard = """<!DOCTYPE html>
             <span class="text">Activity Log</span>
           </div>
 
-          <table id="activity_log" class="display" style="width: 100%">
+          <table id="activity_log" class="table table-striped table-bordered" style="width: 100%">
             <thead>
               <tr>
                 <th>Time</th>
@@ -947,12 +962,11 @@ template_dashboard = """<!DOCTYPE html>
             <form method="POST" action="{{url_for('gemini_update_config')}}">
               <label for="username">Global Protect Mode:</label>
               <div class="form-group">
-                <input
-                  type="text"
-                  id="protect_mode"
-                  name="protect_mode"
-                  value="{{_protect_mode}}"
-                />
+                <select name="protect_mode">
+                  <option value="off" {% if _protect_mode == 'off' %}selected{% endif %}>Off</option>
+                  <option value="monitor" {% if _protect_mode == 'monitor' %}selected{% endif %}>Monitor</option>
+                  <option value="block" {% if _protect_mode == 'block' %}selected{% endif %}>Block</option>
+                </select>
               </div>
               <label for="username">Sensitive:</label>
               <div class="form-group">
@@ -1024,14 +1038,7 @@ template_dashboard = """<!DOCTYPE html>
       });
 
       $(document).ready(function () {
-        $("#activity_log").DataTable({
-          lengthMenu: [
-            [5, 10, 25, -1],
-            [5, 10, 25, "All"],
-          ],
-          pageLength: 5,
-          columnDefs: [{ orderable: false, targets: [0, 2] }],
-        });
+        $("#activity_log").DataTable();
       });
 
       $(document).ready(function () {
@@ -1041,7 +1048,6 @@ template_dashboard = """<!DOCTYPE html>
             [5, 10, 25, "All"],
           ],
           pageLength: 5,
-          columnDefs: [{ orderable: false, targets: [0, 2] }],
         });
       });
 
@@ -1052,7 +1058,6 @@ template_dashboard = """<!DOCTYPE html>
             [5, 10, 25, "All"],
           ],
           pageLength: 5,
-          columnDefs: [{ orderable: false, targets: [0, 2] }],
         });
       });
 

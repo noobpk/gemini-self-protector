@@ -14,12 +14,12 @@ class _Protect(object):
         :param predict: This is the prediction of the model
         """
         try:
-            abnormal_request = _Config.get_config('gemini_normal_request')
-            _Config.update_config({'gemini_normal_request': abnormal_request+1})
-            now = datetime.now()
-            current_time = now.strftime("%Y-%m-%d %H:%M:%S")
-            _dict = {"Time": current_time, "Request": _request, "Predict": predict}
-            _Config.update_data_store(_dict)
+            normal_request = _Config.get_config('gemini_normal_request')
+            _Config.update_config({'gemini_normal_request': normal_request+1})
+            # now = datetime.now()
+            # current_time = now.strftime("%Y-%m-%d %H:%M:%S")
+            # _dict = {"Time": current_time, "Request": _request, "Predict": predict}
+            # _Config.update_data_store(_dict)
         except Exception as e:
             logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
 
