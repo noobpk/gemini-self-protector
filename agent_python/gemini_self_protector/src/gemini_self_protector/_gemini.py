@@ -284,4 +284,13 @@ class _Gemini(object):
         :param gemini_protect_mode: This is the mode that you want to use to protect your flask app
         :return: The function _Protect.protect_flask(gemini_protect_mode)
         """
-        return _Protect.protect_flask(gemini_protect_mode)
+        try:
+            return _Protect.__protect_flask__(gemini_protect_mode)
+        except Exception as e:
+            logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+
+    def secure_response_headers(response):
+        try:
+            return _Protect.__handle_response_headers__(response)
+        except Exception as e:
+            logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e)) 

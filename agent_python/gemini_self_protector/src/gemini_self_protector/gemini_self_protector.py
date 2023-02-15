@@ -194,6 +194,7 @@ class GeminiManager(object):
                 if _Gemini.check_gemini_acl(_ip_address):
                     _ticket = _Gemini.generate_insident_ticket()
                     response = make_response("Your IP Address was blocked by Gemini \n The Runtime Application Self-Protection Solution \n\n Time: {} \n Your IP : {} \n\n Incident ID: {}".format(_ticket[0], _ticket[1], _ticket[2]), 200)
+                    response = _Gemini.secure_response_headers(response)
                     return response
                 else:
                     global_protect_mode = _Gemini.get_gemini_config('gemini_global_protect_mode')
@@ -207,14 +208,14 @@ class GeminiManager(object):
                     protect = _Gemini.__load_protect_flask__(gemini_protect_mode)
                     if protect[0]:
                         response = make_response(f(*args, **kwargs))
-                        response.headers['X-Gemini-Self-Protector'] = gemini_protect_mode
+                        response = _Gemini.secure_response_headers(response)
                         return response
                     else:
                         current_time = protect[1][0]
                         ip_address = protect[1][1]
                         incedent_id = protect[1][2]
                         response = make_response("This request was blocked by Gemini \n The Runtime Application Self-Protection Solution \n\n Time: {} \n Your IP : {} \n\n Incident ID: {}".format(current_time, ip_address, incedent_id), 200)
-                        response.headers['X-Gemini-Self-Protector'] = gemini_protect_mode
+                        response = _Gemini.secure_response_headers(response)
                         return response
             return __gemini_self_protect
         return _gemini_self_protect

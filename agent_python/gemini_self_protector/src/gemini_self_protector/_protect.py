@@ -6,6 +6,22 @@ from datetime import datetime, timezone
 
 class _Protect(object):
 
+    def __handle_response_headers__(response):
+        try:
+            global_protect_mode = _Config.get_config('gemini_global_protect_mode')
+            response.headers['X-Gemini-Self-Protector'] = global_protect_mode
+            response.headers['Referrer-Policy'] = 'no-referrer-when-downgrade'
+            response.headers['X-Content-Type-Options'] = 'nosniff'
+            response.headers['X-XSS-Protection'] = '1; mode=block'
+            response.headers['X-Frame-Options'] = 'SAMEORIGIN'
+            response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'
+            response.headers['X-Permitted-Cross-Domain-Policies'] = 'none'
+            response.headers['Expect-CT'] = 'enforce; max-age=31536000'
+            response.headers['Feature-Policy'] = "fullscreen 'self'"
+            return response
+        except Exception as e:
+            logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+
     def __handle_normal_request__(_request, predict):
         """
         This function is used to handle normal requests
@@ -42,7 +58,7 @@ class _Protect(object):
         except Exception as e:
             logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
 
-    def protect_flask(gemini_protect_mode):
+    def __protect_flask__(gemini_protect_mode):
         try:
             if gemini_protect_mode == 'monitor':
                 # It's getting the sensitive value from the config.yml file.
