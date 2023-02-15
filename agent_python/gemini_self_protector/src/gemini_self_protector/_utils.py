@@ -10,6 +10,7 @@ import jwt
 from flask import request
 from ._config import _Config
 from ._logger import logger
+from datetime import datetime, timezone
 
 class _Utils(object):
 
@@ -132,16 +133,36 @@ class _Utils(object):
         incident_id = uuid.uuid4()
         return incident_id
 
+    def insident_ticket():
+        """
+        It returns a list of three items: the IP address of the client, a unique incident ID, and the
+        current time
+        :return: A list of three items.
+        """
+        time = datetime.now(timezone.utc)
+        ip = _Utils.flask_client_ip()
+        incident_id = _Utils.generate_incident_id()
+        return [time, ip, incident_id]
+
     def create_path():
+        """
+        It creates a random string of 20 characters and appends the string 'gemini' to it
+        :return: A string
+        """
         random = binascii.b2a_hex(os.urandom(20)).decode('utf-8')
         dashboard_path = str(random)+'/gemini'
         return dashboard_path
     
 class _Validator(object):
-    def __init__(self):
-        pass
 
     def validate_license_key(license_key):
+        """
+        If the license key is valid, then update the config file with the license key and the access
+        token
+        
+        :param license_key: The license key that you received from the API
+        :return: True or False
+        """
         try:
             if license_key:
                 if license_key == '988907ce-9803-11ed-a8fc-0242ac120002':
@@ -167,6 +188,13 @@ class _Validator(object):
         :param protect_mode: This is the mode of the protector
         :return: The protect mode is being returned.
         """
+        """
+        The function takes a string as an argument, and checks if the string is in a list of strings. If
+        it is, it returns the string. If it isn't, it returns None
+        
+        :param protect_mode: This is the mode of the protector
+        :return: The protect mode is being returned.
+        """
         try:
             global_protect_mode = None
             arr_mode = ['monitor', 'block', 'off']
@@ -183,6 +211,13 @@ class _Validator(object):
             logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
     
     def validate_sensitive_value(sensitive_value):
+        """
+        If the value is an integer between 0 and 100, return the integer. Otherwise, return 0
+        
+        :param sensitive_value: This is the value that will be used to determine if the user is
+        sensitive to the keyword
+        :return: the value of the sensitive_value variable.
+        """
         try:
             if 0 <= int(sensitive_value) <= 100:
                 return int(sensitive_value)

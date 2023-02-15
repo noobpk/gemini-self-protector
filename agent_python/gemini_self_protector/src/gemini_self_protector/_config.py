@@ -2,9 +2,18 @@ import os
 import yaml
 from ._logger import logger
 import json
+from ipaddress import ip_address
 
 class _Config(object):
+
     def __init__(self, working_directory, config_content):
+        """
+        It takes a working directory and a config content, and then it writes the config content to a
+        file called config.yml in the working directory.
+        
+        :param working_directory: /home/user/project/
+        :param config_content: This is a dictionary that contains the configuration parameters
+        """
         config_file = working_directory+'/config.yml'
         try:
             with open(config_file, "w") as file:
@@ -13,6 +22,12 @@ class _Config(object):
             logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
     
     def get_config(config_key):
+        """
+        It reads a config file and returns the value of the key that is passed to it
+        
+        :param config_key: The key you want to get the value of
+        :return: The value of the key in the config.yml file.
+        """
         """
         It reads a config file and returns the value of the key that is passed to it
         
@@ -33,9 +48,10 @@ class _Config(object):
 
     def update_config(config_content):
         """
-        The function takes a dictionary as an argument, and updates the YAML file with the new data
+        It takes a dictionary as an argument, and updates the YAML file with the new data
         
-        :param config_content: This is the dictionary that contains the new configuration data
+        :param config_content: This is the dictionary that contains the new data that you want to update
+        in the YAML file
         """
         try:
             config_path = _Config.get_config('gemini_config_path')
@@ -52,6 +68,12 @@ class _Config(object):
             logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
 
     def init_data_store(working_directory):
+        """
+        It creates a new file called data.json in the working directory and writes an empty dictionary
+        to it
+        
+        :param working_directory: The directory where the data.json file will be stored
+        """
         data_file = working_directory+'/data.json'
         try:
             # create an empty dictionary
@@ -65,6 +87,12 @@ class _Config(object):
             logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
 
     def update_data_store(_dict):
+        """
+        It takes a dictionary as an argument, opens a json file, loads the json file into a variable,
+        appends the dictionary to the variable, and then writes the variable back to the json file
+        
+        :param _dict: This is the dictionary that you want to add to the existing data store
+        """
         try:
             data_store_path = _Config.get_config('gemini_data_store_path')
             with open(data_store_path, "r") as f:
@@ -74,5 +102,77 @@ class _Config(object):
             # Write the add new data back to the file
             with open(data_store_path, "w") as f:
                 json.dump(existing_data, f, indent = 4)
+        except Exception as e:
+            logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+
+    def init_acl(working_directory):
+        """
+        This function creates an empty dictionary and writes it to a file called acl.json
+        
+        :param working_directory: The directory where the file will be created
+        """
+        data_file = working_directory+'/acl.json'
+        try:
+            # create an empty dictionary
+            data = {"gemini_acl":[]}
+
+            # Write the empty dictionary to the new file
+            with open(data_file, "w") as f:
+                # use pickle to dump the dictionary to the file
+                json.dump(data, f,  indent=4)
+        except Exception as e:
+            logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+    
+    def update_acl(_dict):
+        """
+        It reads the existing JSON file, appends the new data to the existing data, and writes the new
+        data back to the file
+        
+        :param _dict: This is the dictionary that you want to add to the existing JSON file
+        """
+        try:
+            acl_path = _Config.get_config('gemini_acl_path')
+            with open(acl_path, "r") as f:
+                existing_data = json.load(f)
+
+            existing_data["gemini_acl"].append(_dict)            
+            # Write the add new data back to the file
+            with open(acl_path, "w") as f:
+                json.dump(existing_data, f, indent = 4)
+        except Exception as e:
+            logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+    
+    def check_acl(_ip_address):
+        """
+        It reads a JSON file, converts the IP addresses in the file to IP objects, and then checks if
+        the IP address passed to the function is in the list of IP objects
+        
+        :param _ip_address: The IP address that you want to check against the ACL
+        :return: True or False
+        """
+        try:
+            acl_path = _Config.get_config('gemini_acl_path')
+            with open(acl_path, "r") as f:
+                acl_data = json.load(f)
+
+            ip_list = [ip_address(entry['Ip']) for entry in acl_data['gemini_acl']]
+            if ip_address(_ip_address) in ip_list:
+                return True
+            else:
+                return False
+        except Exception as e:
+            logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+    
+    def remove_acl(_ip_address):
+        try:
+            acl_path = _Config.get_config('gemini_acl_path')
+            with open(acl_path, "r") as f:
+                acl_data = json.load(f)
+
+            for acl in acl_data["gemini_acl"]:
+                if acl.get("Ip") == _ip_address:
+                    acl_data["gemini_acl"].remove(acl)
+            with open(acl_path, "w") as f:
+                json.dump(acl_data, f, indent = 4)
         except Exception as e:
             logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))

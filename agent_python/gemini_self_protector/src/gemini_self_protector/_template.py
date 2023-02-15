@@ -234,7 +234,7 @@ template_dashboard = """<!DOCTYPE html>
 
       :root {
         /* ===== Colors ===== */
-        --primary-color: #0e4bf1;
+        --primary-color: #a366ff;
         --panel-color: #fff;
         --text-color: #000;
         --black-light-color: #707070;
@@ -275,13 +275,13 @@ template_dashboard = """<!DOCTYPE html>
         background: #f1f1f1;
       }
       ::-webkit-scrollbar-thumb {
-        background: var(--primary-color);
+        background: var(--black-light-color);
         border-radius: 12px;
         transition: all 0.3s ease;
       }
 
       ::-webkit-scrollbar-thumb:hover {
-        background: #0b3cc1;
+        background: #3a3b3c;
       }
 
       body.dark::-webkit-scrollbar-thumb:hover,
@@ -750,6 +750,20 @@ template_dashboard = """<!DOCTYPE html>
       button:hover {
         background-color: #3e8e41;
       }
+
+      #progress-bar-container {
+        width: 200px;
+        height: 10px;
+        background-color: #f0f0f0;
+        border-radius: 5px;
+        overflow: hidden;
+      }
+
+      #progress-bar {
+          height: 100%;
+          background-color: #2196f3;
+          transition: width 0.5s ease-in-out;
+      }
     </style>
   </head>
   <body>
@@ -774,6 +788,12 @@ template_dashboard = """<!DOCTYPE html>
             <a href="#">
               <i class="uil uil-files-landscapes"></i>
               <span class="link-name" id="configurationBtn">Configuration</span>
+            </a>
+          </li>
+          <li>
+            <a href="#">
+              <i class="uil uil-files-landscapes"></i>
+              <span class="link-name" id="aclBtn">ACL</span>
             </a>
           </li>
         </ul>
@@ -809,6 +829,9 @@ template_dashboard = """<!DOCTYPE html>
         {% endif %}
       {% endwith %}
       <div class="dash-content">
+      <div id="progress-bar-container">
+        <div id="progress-bar"></div>
+      </div>
         <div class="overview">
           <div class="title">
             <i class="uil uil-tachometer-fast-alt"></i>
@@ -837,10 +860,62 @@ template_dashboard = """<!DOCTYPE html>
         <div class="activity">
           <div class="title">
             <i class="uil uil-clock-three"></i>
-            <span class="text">Recent Activity</span>
+            <span class="text">Normal/Abnormal Request</span>
           </div>
 
-          <table id="example_table" class="display" style="width: 100%">
+          <table id="abnormal_request" class="display" style="width: 100%">
+            <thead>
+              <tr>
+                <th>Time</th>
+                <th>Request</th>
+                <th>Predict</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for row in _gemini_data_store%}
+              <tr>
+                <td>{{ row['Time'] }}</td>
+                <td>{{ row['Request'] }}</td>
+                <td>{{ row['Predict'] }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+        <div class="activity">
+          <div class="title">
+            <i class="uil uil-clock-three"></i>
+            <span class="text">Access List Controll</span>
+          </div>
+
+          <table id="acl" class="display" style="width: 100%">
+            <thead>
+              <tr>
+                <th>Time</th>
+                <th>Ip Address</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for acl in _gemini_acl %}
+              <tr>
+                <td style='text-align:center; vertical-align:middle'>{{ acl['Time'] }}</td>
+                <td style='text-align:center; vertical-align:middle'>{{ acl['Ip'] }}</td>
+                <td style='text-align:center; vertical-align:middle'><button class="remove-acl-btn" data-ip="{{ acl['Ip'] }}">Remove ACL</button></td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+        <div class="activity">
+          <div class="title">
+            <i class="uil uil-clock-three"></i>
+            <span class="text">Activity Log</span>
+          </div>
+
+          <table id="activity_log" class="display" style="width: 100%">
             <thead>
               <tr>
                 <th>Time</th>
@@ -860,12 +935,12 @@ template_dashboard = """<!DOCTYPE html>
           </table>
         </div>
       </div>
-      <!-- The Modal -->
-      <div id="myModal" class="modal">
+      <!-- The Config Modal -->
+      <div id="configModal" class="modal">
         <!-- Modal Content -->
         <div class="modal-content">
           <div class="modal-header">
-            <span class="close">&times;</span>
+            <span class="close configClose">&times;</span>
             <h2>Configuration</h2>
           </div>
           <div class="modal-body">
@@ -892,7 +967,32 @@ template_dashboard = """<!DOCTYPE html>
             </form>
           </div>
           <div class="modal-footer">
-            <p>Note: This is just a sample configuration popup.</p>
+          </div>
+        </div>
+      </div>
+      <!-- The ACL Modal -->
+      <div id="aclModal" class="modal">
+        <!-- Modal Content -->
+        <div class="modal-content">
+          <div class="modal-header">
+            <span class="close aclClose">&times;</span>
+            <h2>Access List Control</h2>
+          </div>
+          <div class="modal-body">
+            <form method="POST" action="{{url_for('gemini_update_acl')}}">
+              <label for="username">Deny IP:</label>
+              <div class="form-group">
+                <input
+                  type="text"
+                  id="ip_address"
+                  name="ip_address"
+                  placeholder="127.0.0.1"
+                />
+              </div>
+              <button type="submit">Submit</button>
+            </form>
+          </div>
+          <div class="modal-footer">
           </div>
         </div>
       </div>
@@ -924,7 +1024,29 @@ template_dashboard = """<!DOCTYPE html>
       });
 
       $(document).ready(function () {
-        $("#example_table").DataTable({
+        $("#activity_log").DataTable({
+          lengthMenu: [
+            [5, 10, 25, -1],
+            [5, 10, 25, "All"],
+          ],
+          pageLength: 5,
+          columnDefs: [{ orderable: false, targets: [0, 2] }],
+        });
+      });
+
+      $(document).ready(function () {
+        $("#abnormal_request").DataTable({
+          lengthMenu: [
+            [5, 10, 25, -1],
+            [5, 10, 25, "All"],
+          ],
+          pageLength: 5,
+          columnDefs: [{ orderable: false, targets: [0, 2] }],
+        });
+      });
+
+      $(document).ready(function () {
+        $("#acl").DataTable({
           lengthMenu: [
             [5, 10, 25, -1],
             [5, 10, 25, "All"],
@@ -935,30 +1057,99 @@ template_dashboard = """<!DOCTYPE html>
       });
 
       // Get the modal
-      var modal = document.getElementById("myModal");
+      var config_modal = document.getElementById("configModal");
+      var acl_modal = document.getElementById("aclModal");
 
       // Get the button that opens the modal
-      var btn = document.getElementById("configurationBtn");
+      var config_btn = document.getElementById("configurationBtn");
+      var acl_btn = document.getElementById("aclBtn");
 
       // Get the <span> element that closes the modal
-      var span = document.getElementsByClassName("close")[0];
+      var config_span = document.getElementsByClassName("configClose")[0];
+      var acl_span = document.getElementsByClassName("aclClose")[0];
 
       // When the user clicks the button, open the modal
-      btn.onclick = function () {
-        modal.style.display = "block";
+      config_btn.onclick = function () {
+        config_modal.style.display = "block";
+      };
+
+      acl_btn.onclick = function () {
+        acl_modal.style.display = "block";
       };
 
       // When the user clicks on <span> (x), close the modal
-      span.onclick = function () {
-        modal.style.display = "none";
+      config_span.onclick = function () {
+        config_modal.style.display = "none";
+      };
+
+      acl_span.onclick = function () {
+        acl_modal.style.display = "none";
       };
 
       // When the user clicks anywhere outside of the modal, close it
       window.onclick = function (event) {
-        if (event.target == modal) {
-          modal.style.display = "none";
+        if (event.target == config_modal) {
+          config_modal.style.display = "none";
+        }
+        if (event.target == acl_modal) {
+          acl_modal.style.display = "none";
         }
       };
+
+      $(document).ready(function() {
+          // Set the initial progress to 0%
+          var progress = 0;
+          $("#progress-bar").css("width", progress + "%");
+
+          // Calculate the increment value for the progress bar
+          var increment = 100 / 30;
+
+          // Start the progress update loop
+          var interval = setInterval(function() {
+              // Increment the progress by the increment value
+              progress += increment;
+              if (progress > 100) {
+                  // Clear the interval and reload the page
+                  clearInterval(interval);
+                  $("#progress-bar").css("width", "100%");
+                  setTimeout(function() {
+                      location.reload();
+                  }, 1000);
+              } else {
+                  // Update the progress bar width and color
+                  $("#progress-bar").css("width", progress + "%");
+                  if (progress < 50) {
+                      $("#progress-bar").css("background-color", "#27ae60");
+                  } else if (progress < 80) {
+                      $("#progress-bar").css("background-color", "#f39c12");
+                  } else {
+                      $("#progress-bar").css("background-color", "#e74c3c");
+                  }
+              }
+          }, 1000);
+        });
+        const removeButtons = document.querySelectorAll('.remove-acl-btn');
+        removeButtons.forEach(button => {
+          button.addEventListener('click', () => {
+            const ip = button.getAttribute('data-ip');
+            fetch('{{url_for('gemini_remove_acl')}}', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+              },
+              body: `ip_address=${ip}`
+            })
+            .then(response => {
+              if (!response.ok) {
+                throw new Error('Network response was not ok');
+              }
+              return location.reload();
+            })
+            .catch(error => {
+              console.error('There was a problem with the fetch operation:', error);
+            });
+          });
+        });
     </script>
   </body>
 </html>

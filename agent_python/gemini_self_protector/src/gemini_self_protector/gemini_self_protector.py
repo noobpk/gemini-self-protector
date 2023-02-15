@@ -3,10 +3,12 @@ from ._gemini import _Gemini
 from functools import wraps
 from flask import Flask, request, make_response, render_template, session, redirect, url_for, flash
 from ._logger import logger
+import ipaddress 
+from datetime import datetime, timezone
 
 class GeminiManager(object):
 
-    def __init__(self, flask_app: Flask = None, license_key="w", protect_mode="w", sensitive_value="w"):
+    def __init__(self, flask_app: Flask = None, license_key="w"):
         """
         This function is used to initialize the class.
         
@@ -28,13 +30,11 @@ class GeminiManager(object):
             _Gemini.init_gemini_config(gemini_working_directory)
             _Gemini.validator_license_key(license_key)
 
-        if not os.path.isfile(gemini_working_directory+'/data.data'):
+        if not os.path.isfile(gemini_working_directory+'/data.json'):
             _Gemini.init_gemini_data_store(gemini_working_directory)
-
-        _Gemini.update_gemini_config({
-            "gemini_global_protect_mode": _Gemini.validator_protect_mode(protect_mode),
-            "gemini_sensitive_value": _Gemini.validator_sensitive_value(sensitive_value)
-        })   
+        
+        if not os.path.isfile(gemini_working_directory+'/acl.json'):
+            _Gemini.init_gemini_acl(gemini_working_directory)
 
         # Register this extension with the flask app now (if it is provided)
         if flask_app is not None:
@@ -56,69 +56,129 @@ class GeminiManager(object):
             
             @flask_app.route('/'+dashboard_path+'/login', methods=['GET', 'POST'])
             def gemini_login():
-                if request.method == 'GET' and session.get('gemini_logged_in'):
-                    return redirect(url_for('gemini_dashboard'))
-                elif request.method == 'POST':
-                    password = request.form['password']
-                    secret_password = _Gemini.get_gemini_config('gemini_dashboard_password')
-                    if password == secret_password:
-                        logger.info("[+] Login sucessfully.!")
-                        session['gemini_logged_in'] = True
+                try:
+                    if request.method == 'GET' and session.get('gemini_logged_in'):
                         return redirect(url_for('gemini_dashboard'))
+                    elif request.method == 'POST':
+                        password = request.form['password']
+                        secret_password = _Gemini.get_gemini_config('gemini_dashboard_password')
+                        if password == secret_password:
+                            logger.info("[+] Login sucessfully.!")
+                            session['gemini_logged_in'] = True
+                            return redirect(url_for('gemini_dashboard'))
+                        else:
+                            return render_template('gemini_protector_template/login.html', error="Incorrect Password")
                     else:
-                        return render_template('gemini_protector_template/login.html', error="Incorrect Password")
-                else:
-                    return render_template('gemini_protector_template/login.html')
-
+                        return render_template('gemini_protector_template/login.html')
+                except Exception as e:
+                    logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
             @flask_app.route('/'+dashboard_path+'/dashboard')
             def gemini_dashboard():
-                if session.get('gemini_logged_in'):
-                    normal_request = _Gemini.get_gemini_config('gemini_normal_request')
-                    abnormal_request = _Gemini.get_gemini_config('gemini_abnormal_request')
-                    sensitive_value = _Gemini.get_gemini_config('gemini_sensitive_value')
-                    global_protect_mode = _Gemini.get_gemini_config('gemini_global_protect_mode')
-                    load_data_log = _Gemini.load_gemini_log()
-                    return render_template('gemini_protector_template/dashboard.html', 
-                        _protect_mode=global_protect_mode,
-                        _normal_request=normal_request, 
-                        _abnormal_request=abnormal_request,
-                        _sensitive_value=sensitive_value,
-                        _gemini_log=load_data_log
-                        )
-                else:
-                    logger.warning("[!] Unauthentication Access.!")
-                    flash('Please login')
-                    return redirect(url_for('gemini_login'))
-
+                try:
+                    if session.get('gemini_logged_in'):
+                        normal_request = _Gemini.get_gemini_config('gemini_normal_request')
+                        abnormal_request = _Gemini.get_gemini_config('gemini_abnormal_request')
+                        sensitive_value = _Gemini.get_gemini_config('gemini_sensitive_value')
+                        global_protect_mode = _Gemini.get_gemini_config('gemini_global_protect_mode')
+                        load_data_log = _Gemini.load_gemini_log()
+                        load_data_store = _Gemini.load_gemini_data_store()
+                        load_data_acl = _Gemini.load_gemini_acl()
+                        return render_template('gemini_protector_template/dashboard.html', 
+                            _protect_mode=global_protect_mode,
+                            _normal_request=normal_request, 
+                            _abnormal_request=abnormal_request,
+                            _sensitive_value=sensitive_value,
+                            _gemini_log=load_data_log,
+                            _gemini_data_store=load_data_store,
+                            _gemini_acl=load_data_acl
+                            )
+                    else:
+                        logger.warning("[!] Unauthentication Access.!")
+                        flash('Please login')
+                        return redirect(url_for('gemini_login'))
+                except Exception as e:
+                    logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
             @flask_app.route('/'+dashboard_path+'/update-config', methods=['POST'])
             def gemini_update_config():
-                if session.get('gemini_logged_in'):
-                    protect_mode = request.form['protect_mode']
-                    sensitive_value = request.form['sensitive_value']
-            
-                    validate_protect_mode = ['on', 'off', 'block', 'monitor']
-                    if protect_mode in validate_protect_mode and 0 <= int(sensitive_value) <= 100:
-                        _Gemini.update_gemini_config({
-                            "gemini_global_protect_mode":_Gemini.validator_protect_mode(protect_mode),
-                            "gemini_sensitive_value": _Gemini.validator_sensitive_value(sensitive_value)
-                            })
-                        logger.info("[+] Update configuration successfully.!")
-                        flash('Update configuration successfully!')
-                        return redirect(url_for('gemini_dashboard'))
+                try:
+                    if session.get('gemini_logged_in'):
+                        protect_mode = request.form['protect_mode']
+                        sensitive_value = request.form['sensitive_value']
+                
+                        validate_protect_mode = ['on', 'off', 'block', 'monitor']
+                        if protect_mode in validate_protect_mode and 0 <= int(sensitive_value) <= 100:
+                            _Gemini.update_gemini_config({
+                                "gemini_global_protect_mode":_Gemini.validator_protect_mode(protect_mode),
+                                "gemini_sensitive_value": _Gemini.validator_sensitive_value(sensitive_value)
+                                })
+                            logger.info("[+] Update configuration successfully.!")
+                            flash('Update configuration successfully!')
+                            return redirect(url_for('gemini_dashboard'))
+                        else:
+                            logger.error("[x_x] Update configuration unsuccessfully.!")
+                            flash('Cannot update config with your input')
+                            return redirect(url_for('gemini_dashboard'))
                     else:
-                        logger.error("[x_x] Update configuration unsuccessfully.!")
-                        flash('Cannot update config with your input')
-                        return redirect(url_for('gemini_dashboard'))
-                else:
-                    logger.warning("[!] Unauthentication Access.!")
-                    flash('Please login')
-                    return redirect(url_for('gemini_login'))
+                        logger.warning("[!] Unauthentication Access.!")
+                        flash('Please login')
+                        return redirect(url_for('gemini_login'))
+                except Exception as e:
+                    logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+
+            @flask_app.route('/'+dashboard_path+'/update-acl', methods=['POST'])
+            def gemini_update_acl():
+                try:
+                    if session.get('gemini_logged_in'):
+                        ip_address = request.form['ip_address']
+                        ip = ipaddress.ip_address(ip_address)
+
+                        if ip:
+                            _dict = {"Ip": str(ip), "Time": str(datetime.now(timezone.utc))}
+                            _Gemini.update_gemini_acl(_dict)
+                            logger.info("[+] Update acl successfully.!".format(ip_address))
+                            flash('Update acl successfully!')
+                            return redirect(url_for('gemini_dashboard'))
+                        else:
+                            logger.info("[+] IP address {} is not valid".format(ip_address))
+                            flash('Cannot update acl with your input')
+                            return redirect(url_for('gemini_dashboard'))
+                    else:
+                        logger.warning("[!] Unauthentication Access.!")
+                        flash('Please login')
+                        return redirect(url_for('gemini_login'))
+                except Exception as e:
+                    logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+
+            @flask_app.route('/'+dashboard_path+'/remove-acl', methods=['POST'])
+            def gemini_remove_acl():
+                try:
+                    if session.get('gemini_logged_in'):
+                        ip_address = request.form['ip_address']
+                        ip = ipaddress.ip_address(ip_address)
+
+                        if ip:
+                            _Gemini.remove_gemini_acl(str(ip))
+                            logger.info("[+] Remove acl successfully.!")
+                            return redirect(url_for('gemini_dashboard'))
+                        else:
+                            logger.info("[+] IP address {} is not valid".format(ip_address))
+                            flash('Cannot remove acl with your input.')
+                            return redirect(url_for('gemini_dashboard'))
+                    else:
+                        logger.warning("[!] Unauthentication Access.!")
+                        flash('Please login')
+                        return redirect(url_for('gemini_login'))
+                except Exception as e:
+                    logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
 
             @flask_app.route('/'+dashboard_path+'/logout')
             def gemini_logout():
-                session['gemini_logged_in'] = False
-                flash('Logout successfully!')
-                return redirect(url_for('gemini_login'))
+                try:
+                    session['gemini_logged_in'] = False
+                    flash('Logout successfully!')
+                    return redirect(url_for('gemini_login'))
+                except Exception as e:
+                    logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
 
     def flask_protect_extended(self, protect_mode=None):
         """
@@ -130,26 +190,32 @@ class GeminiManager(object):
         def _gemini_self_protect(f):
             @wraps(f)
             def __gemini_self_protect(*args, **kwargs):
-                global_protect_mode = _Gemini.get_gemini_config('gemini_global_protect_mode')
-                if protect_mode is None:
-                    gemini_protect_mode = global_protect_mode
-                elif protect_mode is not None and global_protect_mode == 'off':
-                    gemini_protect_mode = 'off'
+                _ip_address = _Gemini.get_flask_client_ip()
+                if _Gemini.check_gemini_acl(_ip_address):
+                    _ticket = _Gemini.generate_insident_ticket()
+                    response = make_response("Your IP Address was blocked by Gemini \n The Runtime Application Self-Protection Solution \n\n Time: {} \n Your IP : {} \n\n Incident ID: {}".format(_ticket[0], _ticket[1], _ticket[2]), 200)
+                    return response
                 else:
-                    gemini_protect_mode = protect_mode
+                    global_protect_mode = _Gemini.get_gemini_config('gemini_global_protect_mode')
+                    if protect_mode is None:
+                        gemini_protect_mode = global_protect_mode
+                    elif protect_mode is not None and global_protect_mode == 'off':
+                        gemini_protect_mode = 'off'
+                    else:
+                        gemini_protect_mode = protect_mode
 
-                protect = _Gemini.__load_protect_flask__(gemini_protect_mode)
-                if protect[0]:
-                    response = make_response(f(*args, **kwargs))
-                    response.headers['X-Gemini-Self-Protector'] = gemini_protect_mode
-                    return response
-                else:
-                    current_time = protect[1]
-                    ip_address = protect[2]
-                    incedent_id = protect[3]
-                    response = make_response("This request was blocked by Gemini \n The Runtime Application Self-Protection Solution \n\n Time: {} \n Your IP : {} \n\n Incident ID: {}".format(current_time, ip_address, incedent_id), 200)
-                    response.headers['X-Gemini-Self-Protector'] = gemini_protect_mode
-                    return response
+                    protect = _Gemini.__load_protect_flask__(gemini_protect_mode)
+                    if protect[0]:
+                        response = make_response(f(*args, **kwargs))
+                        response.headers['X-Gemini-Self-Protector'] = gemini_protect_mode
+                        return response
+                    else:
+                        current_time = protect[1][0]
+                        ip_address = protect[1][1]
+                        incedent_id = protect[1][2]
+                        response = make_response("This request was blocked by Gemini \n The Runtime Application Self-Protection Solution \n\n Time: {} \n Your IP : {} \n\n Incident ID: {}".format(current_time, ip_address, incedent_id), 200)
+                        response.headers['X-Gemini-Self-Protector'] = gemini_protect_mode
+                        return response
             return __gemini_self_protect
         return _gemini_self_protect
 
