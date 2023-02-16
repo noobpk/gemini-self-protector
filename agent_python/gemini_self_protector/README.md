@@ -18,7 +18,7 @@ Gemini supports 3 modes and recommends sensitivity levels for the application to
 | monitor | 70        |
 | block   | 50        |
 
-## License
+## License Key
 
 The license key is used for authentication with the API.
 | | |
