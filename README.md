@@ -8,6 +8,12 @@ Gemini - The Runtime Application Self Protection Solution Combined With Deep Lea
 | -------- | ------------------- |
 | Python   | Flask               |
 
+# Deep Learning
+
+Gemini utilizes the deep learning model called Character-level Convolutional Neural Network (Char-CNN) to detect and identify vulnerabilities. Char-CNN is capable of analyzing features at each character in the input data, using convolution operation to identify distinctive features in the data, thus improving the accuracy of vulnerability detection.
+
+For more details: [Web-Vuln-Detection-Predict](https://github.com/noobpk/Web-Vuln-Detection-Predict)
+
 # Gemini Protect Against
 
 | Attack                       | Supported          |
@@ -47,8 +53,14 @@ The license key is used for authentication with the API.
 
 ## Features
 
-👉
+👉 Dashboard Access
+
+👉 Access List Controll
+
+👉 Log Activity
 
 ## Contributing
 
 Interested in contributing? Check out the contributing guidelines. Please note that this project is released with a Code of Conduct. By contributing to this project, you agree to abide by its terms.
+
+## ChangeLog
