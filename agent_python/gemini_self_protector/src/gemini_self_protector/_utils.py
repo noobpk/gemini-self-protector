@@ -18,7 +18,7 @@ class _Utils(object):
         """
         It takes a string, decodes it from a variety of encoding types, and then returns the decoded
         string
-        
+
         :param string: The string to decode
         :return: The decoded string
         """
@@ -102,7 +102,7 @@ class _Utils(object):
     def web_vuln_detect_predict(payload):
         """
         It takes a payload as input and returns the accuracy of the prediction
-        
+
         :param payload: The payload is the data that you want to send to the API. In this case, it's the
         data that you want to predict
         :return: The accuracy of the prediction.
@@ -167,14 +167,14 @@ class _Utils(object):
             return dashboard_path
         except Exception as e:
             logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
-            
+
 class _Validator(object):
 
     def validate_license_key(license_key):
         """
         If the license key is valid, then update the config file with the license key and the access
         token
-        
+
         :param license_key: The license key that you received from the API
         :return: True or False
         """
@@ -184,7 +184,7 @@ class _Validator(object):
                     # call api and return access_token
                     access_token = jwt.encode(
                         {"license": license_key}, "secret", algorithm="HS256")
-      
+
                     _Config.update_config({"gemini_license_key":license_key, "gemini_access_token": access_token})
                     return True
                 else:
@@ -194,19 +194,19 @@ class _Validator(object):
                 return False
         except Exception as e:
             logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
-    
+
     def validate_protect_mode(protect_mode):
         """
         The function takes a string as an argument, and checks if the string is in a list of strings. If
         it is, it returns the string. If it isn't, it returns None
-        
+
         :param protect_mode: This is the mode of the protector
         :return: The protect mode is being returned.
         """
         """
         The function takes a string as an argument, and checks if the string is in a list of strings. If
         it is, it returns the string. If it isn't, it returns None
-        
+
         :param protect_mode: This is the mode of the protector
         :return: The protect mode is being returned.
         """
@@ -224,11 +224,11 @@ class _Validator(object):
                 return global_protect_mode
         except Exception as e:
             logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
-    
+
     def validate_sensitive_value(sensitive_value):
         """
         If the value is an integer between 0 and 100, return the integer. Otherwise, return 0
-        
+
         :param sensitive_value: This is the value that will be used to determine if the user is
         sensitive to the keyword
         :return: the value of the sensitive_value variable.

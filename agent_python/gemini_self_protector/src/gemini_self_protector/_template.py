@@ -1175,7 +1175,7 @@ class _Template(object):
       """
       It creates a folder called gemini_protector_template in the flask_template_folder and creates
       two files in it called login.html and dashboard.html
-      
+
       :param flask_template_folder: This is the folder where you want to store the templates
       """
       try:
@@ -1194,7 +1194,7 @@ class _Template(object):
     def gemini_static_file(flask_static_folder):
       """
       It creates a directory called gemini_protector_static in the static folder of the flask app.
-      
+
       :param flask_static_folder: This is the folder where you want to store the static files
       """
       try:
@@ -1202,5 +1202,4 @@ class _Template(object):
         if not os.path.exists(static_directory):
               os.makedirs(static_directory)
       except Exception as e:
-        logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))        
-
+        logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))

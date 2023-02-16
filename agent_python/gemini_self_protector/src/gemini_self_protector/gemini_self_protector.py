@@ -3,7 +3,7 @@ from ._gemini import _Gemini
 from functools import wraps
 from flask import Flask, request, make_response, render_template, session, redirect, url_for, flash
 from ._logger import logger
-import ipaddress 
+import ipaddress
 from datetime import datetime, timezone
 
 class GeminiManager(object):
@@ -11,7 +11,7 @@ class GeminiManager(object):
     def __init__(self, flask_app: Flask = None, license_key="w"):
         """
         This function is used to initialize the class.
-        
+
         :param flask_app: This is the flask app that you want to protect
         :type flask_app: Flask
         :param license_key: This is the license key that you will be using to protect your application,
@@ -25,14 +25,14 @@ class GeminiManager(object):
         gemini_working_directory = os.path.join(running_directory, r'gemini_protector')
         if not os.path.exists(gemini_working_directory):
             os.makedirs(gemini_working_directory)
-        
+
         if not os.path.isfile(gemini_working_directory+'/config.yml'):
             _Gemini.init_gemini_config(gemini_working_directory)
             _Gemini.validator_license_key(license_key)
 
         if not os.path.isfile(gemini_working_directory+'/data.json'):
             _Gemini.init_gemini_data_store(gemini_working_directory)
-        
+
         if not os.path.isfile(gemini_working_directory+'/acl.json'):
             _Gemini.init_gemini_acl(gemini_working_directory)
 
@@ -43,7 +43,7 @@ class GeminiManager(object):
     def init_flask_app(self, flask_app: Flask) -> None:
         if flask_app.secret_key is None:
             flask_app.secret_key = _Gemini.get_gemini_config('gemini_secret_key')
-    
+
         if flask_app.template_folder and flask_app.static_folder:
             if _Gemini.get_gemini_config('gemini_dashboard_path') is None:
                 _Gemini.init_gemini_dashboard_path()
@@ -53,7 +53,7 @@ class GeminiManager(object):
             dashboard_path = _Gemini.get_gemini_config('gemini_dashboard_path')
             logger.info("[+] Access Your Gemini Dashboard as Path: http://host:port/{}/dashboard".format(dashboard_path))
             logger.info("[+] Check the config file at gemini_protector/config.yml/config.yaml for the password.")
-            
+
             @flask_app.route('/'+dashboard_path+'/login', methods=['GET', 'POST'])
             def gemini_login():
                 try:
@@ -84,9 +84,9 @@ class GeminiManager(object):
                         load_data_log = _Gemini.load_gemini_log()
                         load_data_store = _Gemini.load_gemini_data_store()
                         load_data_acl = _Gemini.load_gemini_acl()
-                        return render_template('gemini_protector_template/dashboard.html', 
+                        return render_template('gemini_protector_template/dashboard.html',
                             _protect_mode=global_protect_mode,
-                            _normal_request=normal_request, 
+                            _normal_request=normal_request,
                             _abnormal_request=abnormal_request,
                             _sensitive_value=sensitive_value,
                             _gemini_log=load_data_log,
@@ -187,7 +187,7 @@ class GeminiManager(object):
     def flask_protect_extended(self, protect_mode=None):
         """
         This function is used to protect the Flask application from malicious requests
-        
+
         :param protect_mode: This is the mode you want to use for the protection
         :return: The function is being returned.
         """

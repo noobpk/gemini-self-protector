@@ -18,6 +18,10 @@ class _Protect(object):
             response.headers['X-Permitted-Cross-Domain-Policies'] = 'none'
             response.headers['Expect-CT'] = 'enforce; max-age=31536000'
             response.headers['Feature-Policy'] = "fullscreen 'self'"
+            response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+            response.headers['Pragma'] = 'no-cache'
+            response.headers['Expires'] = '0'
+            response.headers['X-UA-Compatible'] = 'IE=Edge,chrome=1'
             return response
         except Exception as e:
             logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
@@ -25,7 +29,7 @@ class _Protect(object):
     def __handle_normal_request__(_request, predict = None):
         """
         This function is used to handle normal requests
-        
+
         :param _request: The request that was sent to the server
         :param predict: This is the prediction of the model
         """
@@ -42,7 +46,7 @@ class _Protect(object):
     def __handle_abnormal_request__(_request, predict = None):
         """
         This function is used to handle abnormal requests
-        
+
         :param _request: The request that was sent to the server
         :param predict: The prediction of the model
         """
@@ -68,7 +72,7 @@ class _Protect(object):
             if req_length:
                 if int(req_length) < max_content_length:
                     return True
-                else: 
+                else:
                     return False
         except Exception as e:
             logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
@@ -121,7 +125,7 @@ class _Protect(object):
                 req_length = None
                 if 'Content-Length' in req_headers:
                     req_length = request.headers["Content-Length"]
-                _request = '{} {}\n{}\n{}'.format(req_method, req_full_path, req_headers, req_data.decode("utf-8")) 
+                _request = '{} {}\n{}\n{}'.format(req_method, req_full_path, req_headers, req_data.decode("utf-8"))
 
                 _ticket = _Utils.insident_ticket()
 
@@ -134,14 +138,14 @@ class _Protect(object):
                     _ticket = _Utils.insident_ticket()
                     # It's checking if the predict value is less than the sensitive value. If it is, then it
                     # will return a status of True (safe). If it's not, then it will return a status of False (unsafe).
-                    if predict < sensitive_value: 
+                    if predict < sensitive_value:
                         status = True
                         _Protect.__handle_normal_request__(_request, predict)
-                        return [status, _ticket] 
+                        return [status, _ticket]
                     else:
                         status = False
                         _Protect.__handle_abnormal_request__(_request, predict)
-                        return [status, _ticket] 
+                        return [status, _ticket]
                 else:
                     status = False
                     _Protect.__handle_abnormal_request__(_request)

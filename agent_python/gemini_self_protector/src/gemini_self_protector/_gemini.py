@@ -15,7 +15,7 @@ class _Gemini(object):
 
     def init_gemini_config(working_directory):
         """
-        It creates a config file in the working directory with the following content:      
+        It creates a config file in the working directory with the following content:
         :param working_directory: The directory where the gemini-self-protector is installed
         """
         try:
@@ -40,16 +40,16 @@ class _Gemini(object):
 
         except Exception as e:
             logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
-    
+
     def get_gemini_config(config_key):
         """
         This function is used to get the value of a key from the config file
-        
+
         :param config_key: The key you want to get the value for
         :return: _gemini_return
         """
         try:
-            _gemini_return = _Config.get_config(config_key)  
+            _gemini_return = _Config.get_config(config_key)
             return _gemini_return
         except Exception as e:
             logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
@@ -58,7 +58,7 @@ class _Gemini(object):
         """
         It takes a dictionary as an argument and updates the config file with the values in the
         dictionary
-        
+
         :param config_content: This is the content of the config file
         """
         try:
@@ -69,7 +69,7 @@ class _Gemini(object):
     def init_gemini_data_store(working_directory):
         """
         This function initializes the data store for the gemini package
-        
+
         :param working_directory: This is the directory where you want to store your data
         """
         try:
@@ -81,7 +81,7 @@ class _Gemini(object):
         """
         It takes a dictionary as an argument, and then calls a function from another module, which takes
         the dictionary as an argument
-        
+
         :param _dict: This is a dictionary that contains the following keys:
         """
         try:
@@ -92,7 +92,7 @@ class _Gemini(object):
     def init_gemini_acl(working_directory):
         """
         The function is used to initialize the ACL file for the gemini project
-        
+
         :param working_directory: The directory where the gemini_acl.yaml file is located
         """
         try:
@@ -103,7 +103,7 @@ class _Gemini(object):
     def update_gemini_acl(_dict):
         """
         It takes a dictionary as an argument, and then it updates the ACLs in the config file
-        
+
         :param _dict: This is a dictionary that contains the following keys:
         """
         try:
@@ -127,13 +127,13 @@ class _Gemini(object):
             return rows
 
         except Exception as e:
-            logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))    
+            logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
 
     def check_gemini_acl(_ip_address):
         """
         This function checks if the IP address is in the ACL list. If it is, it will return True,
         otherwise it will return False
-        
+
         :param ip: The IP address of the client
         """
         try:
@@ -150,19 +150,19 @@ class _Gemini(object):
     def validator_license_key(license_key):
         """
         It takes a license key as an argument and validates it
-        
+
         :param license_key: The license key you received from the license server
         """
         try:
             _Validator.validate_license_key(license_key)
         except Exception as e:
             logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
-    
+
     def validator_protect_mode(protect_mode):
         """
         The function takes a string as an argument, and checks if the string is in a list of strings. If
         it is, it returns the string. If it isn't, it returns None
-        
+
         :param protect_mode: This is the mode of the protector
         :return: The protect mode is being returned.
         """
@@ -171,11 +171,11 @@ class _Gemini(object):
             return _gemini_return
         except Exception as e:
             logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
-    
+
     def validator_sensitive_value(sensitive_value):
         """
         The function validator_sensitive_value() takes in a sensitive value and returns a boolean value
-        
+
         :param sensitive_value: The value to be validated
         :return: The return value is a dictionary.
         """
@@ -189,7 +189,7 @@ class _Gemini(object):
         """
         It takes the path to the template folder and static folder of the flask app and copies the
         gemini dashboard template and static files to the respective folders
-        
+
         :param flask_template_folder: The folder where you want to store the templates
         :param flask_static_folder: The folder where you want to store the static files
         """
@@ -218,7 +218,7 @@ class _Gemini(object):
             _Gemini.update_gemini_config({"gemini_dashboard_password":secret_password})
         except Exception as e:
             logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
-    
+
     def load_gemini_log():
         """
         It reads the log file and returns a list of dictionaries
@@ -260,8 +260,8 @@ class _Gemini(object):
             return rows
 
         except Exception as e:
-            logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))    
-        
+            logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+
     def get_flask_client_ip():
         """
         It returns the client IP address of the user who is accessing the Flask application
@@ -281,7 +281,7 @@ class _Gemini(object):
     def __load_protect_flask__(gemini_protect_mode):
         """
         This function is used to load the flask protect mode
-        
+
         :param gemini_protect_mode: This is the mode that you want to use to protect your flask app
         :return: The function _Protect.protect_flask(gemini_protect_mode)
         """
@@ -294,4 +294,4 @@ class _Gemini(object):
         try:
             return _Protect.__handle_response_headers__(response)
         except Exception as e:
-            logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e)) 
+            logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))

@@ -10,7 +10,7 @@ class _Config(object):
         """
         It takes a working directory and a config content, and then it writes the config content to a
         file called config.yml in the working directory.
-        
+
         :param working_directory: /home/user/project/
         :param config_content: This is a dictionary that contains the configuration parameters
         """
@@ -20,17 +20,17 @@ class _Config(object):
                 yaml.dump(config_content, file)
         except Exception as e:
             logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
-    
+
     def get_config(config_key):
         """
         It reads a config file and returns the value of the key that is passed to it
-        
+
         :param config_key: The key you want to get the value of
         :return: The value of the key in the config.yml file.
         """
         """
         It reads a config file and returns the value of the key that is passed to it
-        
+
         :param config_key: The key you want to get the value of
         :return: The value of the key in the config.yml file.
         """
@@ -41,7 +41,7 @@ class _Config(object):
             with open(config_path, "r") as file:
                 config_data = yaml.safe_load(file)
 
-            config_value = config_data["gemini-self-protector"][config_key]  
+            config_value = config_data["gemini-self-protector"][config_key]
             return config_value
         except Exception as e:
             logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
@@ -49,7 +49,7 @@ class _Config(object):
     def update_config(config_content):
         """
         It takes a dictionary as an argument, and updates the YAML file with the new data
-        
+
         :param config_content: This is the dictionary that contains the new data that you want to update
         in the YAML file
         """
@@ -71,7 +71,7 @@ class _Config(object):
         """
         It creates a new file called data.json in the working directory and writes an empty dictionary
         to it
-        
+
         :param working_directory: The directory where the data.json file will be stored
         """
         data_file = working_directory+'/data.json'
@@ -90,7 +90,7 @@ class _Config(object):
         """
         It takes a dictionary as an argument, opens a json file, loads the json file into a variable,
         appends the dictionary to the variable, and then writes the variable back to the json file
-        
+
         :param _dict: This is the dictionary that you want to add to the existing data store
         """
         try:
@@ -98,7 +98,7 @@ class _Config(object):
             with open(data_store_path, "r") as f:
                 existing_data = json.load(f)
 
-            existing_data["gemini_data_stored"].append(_dict)            
+            existing_data["gemini_data_stored"].append(_dict)
             # Write the add new data back to the file
             with open(data_store_path, "w") as f:
                 json.dump(existing_data, f, indent = 4)
@@ -108,7 +108,7 @@ class _Config(object):
     def init_acl(working_directory):
         """
         This function creates an empty dictionary and writes it to a file called acl.json
-        
+
         :param working_directory: The directory where the file will be created
         """
         data_file = working_directory+'/acl.json'
@@ -122,12 +122,12 @@ class _Config(object):
                 json.dump(data, f,  indent=4)
         except Exception as e:
             logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
-    
+
     def update_acl(_dict):
         """
         It reads the existing JSON file, appends the new data to the existing data, and writes the new
         data back to the file
-        
+
         :param _dict: This is the dictionary that you want to add to the existing JSON file
         """
         try:
@@ -135,18 +135,18 @@ class _Config(object):
             with open(acl_path, "r") as f:
                 existing_data = json.load(f)
 
-            existing_data["gemini_acl"].append(_dict)            
+            existing_data["gemini_acl"].append(_dict)
             # Write the add new data back to the file
             with open(acl_path, "w") as f:
                 json.dump(existing_data, f, indent = 4)
         except Exception as e:
             logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
-    
+
     def check_acl(_ip_address):
         """
         It reads a JSON file, converts the IP addresses in the file to IP objects, and then checks if
         the IP address passed to the function is in the list of IP objects
-        
+
         :param _ip_address: The IP address that you want to check against the ACL
         :return: True or False
         """
@@ -162,7 +162,7 @@ class _Config(object):
                 return False
         except Exception as e:
             logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
-    
+
     def remove_acl(_ip_address):
         try:
             acl_path = _Config.get_config('gemini_acl_path')
