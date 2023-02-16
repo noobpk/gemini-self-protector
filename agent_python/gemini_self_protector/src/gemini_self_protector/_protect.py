@@ -65,10 +65,11 @@ class _Protect(object):
         """
         try:
             max_content_length = _Config.get_config('gemini_max_content_length')
-            if int(req_length) < max_content_length:
-                return True
-            else:
-                return False
+            if req_length:
+                if int(req_length) < max_content_length:
+                    return True
+                else: 
+                    return False
         except Exception as e:
             logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
 
@@ -84,7 +85,9 @@ class _Protect(object):
                 req_full_path = request.full_path
                 req_headers = request.headers
                 req_data = request.data
-                req_length = request.headers["Content-Length"]
+                req_length = None
+                if 'Content-Length' in req_headers:
+                    req_length = request.headers["Content-Length"]
                 _request = '{} {}\n{}\n{}'.format(req_method, req_full_path, req_headers, req_data.decode("utf-8"))
 
                 _ticket = _Utils.insident_ticket()
@@ -115,7 +118,9 @@ class _Protect(object):
                 req_full_path = request.full_path
                 req_headers = request.headers
                 req_data = request.data
-                req_length = request.headers["Content-Length"]
+                req_length = None
+                if 'Content-Length' in req_headers:
+                    req_length = request.headers["Content-Length"]
                 _request = '{} {}\n{}\n{}'.format(req_method, req_full_path, req_headers, req_data.decode("utf-8")) 
 
                 _ticket = _Utils.insident_ticket()
