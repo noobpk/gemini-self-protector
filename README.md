@@ -16,17 +16,30 @@ For more details: [Web-Vuln-Detection-Predict](https://github.com/noobpk/Web-Vul
 
 # Gemini Protect Against
 
-| Attack                       | Supported          |
+| Attacks                 | Supported          |
+| ----------------------- | ------------------ |
+| Malformed Content Types |                    |
+| HTTP Method Tampering   |                    |
+| Large Requests          | :white_check_mark: |
+| Path Traversal          |                    |
+| Unvalidated Redirects   |                    |
+
+| Injections                 | Supported          |
+| -------------------------- | ------------------ |
+| Command Injection          |                    |
+| Cross-Site Scripting       | :white_check_mark: |
+| Cross-Site Request Forgery |                    |
+| CSS & HTML Injection       |                    |
+| JSON & XML Injection       |                    |
+| SQL Injection              | :white_check_mark: |
+
+| Weaknesses                   | Supported          |
 | ---------------------------- | ------------------ |
-| Cross-Site Scripting         | :white_check_mark: |
-| SQL Injection                | :white_check_mark: |
-| Command Injection            |                    |
-| CSS & HTML Injection         |                    |
-| JSON & XML Injection         |                    |
-| Large Requests               |                    |
-| Path Traversal               |                    |
 | Insecure Cookies & Transport |                    |
+| Weak Browser Caching         | :white_check_mark: |
+| Vulnerable Dependencies      |                    |
 | Weak Browser Caching         |                    |
+| Weak Cryptography            |                    |
 
 # Installation
 
