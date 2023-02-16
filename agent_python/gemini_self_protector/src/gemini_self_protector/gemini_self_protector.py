@@ -80,6 +80,7 @@ class GeminiManager(object):
                         abnormal_request = _Gemini.get_gemini_config('gemini_abnormal_request')
                         sensitive_value = _Gemini.get_gemini_config('gemini_sensitive_value')
                         global_protect_mode = _Gemini.get_gemini_config('gemini_global_protect_mode')
+                        max_content_length = _Gemini.get_gemini_config('gemini_max_content_length')
                         load_data_log = _Gemini.load_gemini_log()
                         load_data_store = _Gemini.load_gemini_data_store()
                         load_data_acl = _Gemini.load_gemini_acl()
@@ -90,7 +91,8 @@ class GeminiManager(object):
                             _sensitive_value=sensitive_value,
                             _gemini_log=load_data_log,
                             _gemini_data_store=load_data_store,
-                            _gemini_acl=load_data_acl
+                            _gemini_acl=load_data_acl,
+                            _max_content_length=int(max_content_length / 1024 / 1024)
                             )
                     else:
                         logger.warning("[!] Unauthentication Access.!")
@@ -104,12 +106,14 @@ class GeminiManager(object):
                     if session.get('gemini_logged_in'):
                         protect_mode = request.form['protect_mode']
                         sensitive_value = request.form['sensitive_value']
-                
+                        max_content_length = request.form['max_content_length']
+
                         validate_protect_mode = ['on', 'off', 'block', 'monitor']
-                        if protect_mode in validate_protect_mode and 0 <= int(sensitive_value) <= 100:
+                        if protect_mode in validate_protect_mode and 0 <= int(sensitive_value) <= 100 and max_content_length.isdigit():
                             _Gemini.update_gemini_config({
                                 "gemini_global_protect_mode":_Gemini.validator_protect_mode(protect_mode),
-                                "gemini_sensitive_value": _Gemini.validator_sensitive_value(sensitive_value)
+                                "gemini_sensitive_value": _Gemini.validator_sensitive_value(sensitive_value),
+                                "gemini_max_content_length": int(max_content_length) * 1024 * 1024
                                 })
                             logger.info("[+] Update configuration successfully.!")
                             flash('Update configuration successfully!')

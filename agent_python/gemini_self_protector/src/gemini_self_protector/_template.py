@@ -977,6 +977,15 @@ template_dashboard = """<!DOCTYPE html>
                   value="{{_sensitive_value}}"
                 />
               </div>
+              <label for="username">Max Content-Length: 1 * 1024 * 1024 = 1MB</label>
+              <div class="form-group">
+                <input
+                  type="text"
+                  id="max_content_length"
+                  name="max_content_length"
+                  value="{{_max_content_length}}"
+                />
+              </div>
               <button type="submit">Submit</button>
             </form>
           </div>

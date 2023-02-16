@@ -31,7 +31,8 @@ class _Gemini(object):
                     'gemini_normal_request': 0,
                     'gemini_abnormal_request': 0,
                     'gemini_global_protect_mode': 'monitor',
-                    'gemini_sensitive_value': 50
+                    'gemini_sensitive_value': 50,
+                    'gemini_max_content_length': 52428800 # 50 * 1024 * 1024 = 50MB
 
                 }
             }

@@ -22,7 +22,7 @@ class _Protect(object):
         except Exception as e:
             logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
 
-    def __handle_normal_request__(_request, predict):
+    def __handle_normal_request__(_request, predict = None):
         """
         This function is used to handle normal requests
         
@@ -39,7 +39,7 @@ class _Protect(object):
         except Exception as e:
             logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
 
-    def __handle_abnormal_request__(_request, predict):
+    def __handle_abnormal_request__(_request, predict = None):
         """
         This function is used to handle abnormal requests
         
@@ -58,6 +58,20 @@ class _Protect(object):
         except Exception as e:
             logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
 
+    def __handle_large_request__(req_length):
+        """
+        If the request is less than the max content length, return true, else return false
+        :return: a boolean value.
+        """
+        try:
+            max_content_length = _Config.get_config('gemini_max_content_length')
+            if int(req_length) < max_content_length:
+                return True
+            else:
+                return False
+        except Exception as e:
+            logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+
     def __protect_flask__(gemini_protect_mode):
         try:
             if gemini_protect_mode == 'monitor':
@@ -70,20 +84,26 @@ class _Protect(object):
                 req_full_path = request.full_path
                 req_headers = request.headers
                 req_data = request.data
-                _request = '{} {}\n{}\n{}'.format(req_method, req_full_path, req_headers, req_data.decode("utf-8")) 
-                # It's decoding the request body.
-                payload = _Utils.decoder(_request)
-                # It's using the payload to predict if it's a web vulnerability or not.
-                predict = _Utils.web_vuln_detect_predict(payload)
+                req_length = request.headers["Content-Length"]
+                _request = '{} {}\n{}\n{}'.format(req_method, req_full_path, req_headers, req_data.decode("utf-8"))
 
                 _ticket = _Utils.insident_ticket()
-                if predict < sensitive_value:
-                    status = True
-                    _Protect.__handle_normal_request__(_request, predict)
-                    return [status, _ticket]
+                if _Protect.__handle_large_request__(req_length):
+                    # It's decoding the request body.
+                    payload = _Utils.decoder(_request)
+                    # It's using the payload to predict if it's a web vulnerability or not.
+                    predict = _Utils.web_vuln_detect_predict(payload)
+                    if predict < sensitive_value:
+                        status = True
+                        _Protect.__handle_normal_request__(_request, predict)
+                        return [status, _ticket]
+                    else:
+                        status = True
+                        _Protect.__handle_abnormal_request__(_request, predict)
+                        return [status, _ticket]
                 else:
                     status = True
-                    _Protect.__handle_abnormal_request__(_request, predict)
+                    _Protect.__handle_abnormal_request__(_request)
                     return [status, _ticket]
             elif gemini_protect_mode == 'block':
                 # It's getting the sensitive value from the config.yml file.
@@ -95,23 +115,32 @@ class _Protect(object):
                 req_full_path = request.full_path
                 req_headers = request.headers
                 req_data = request.data
+                req_length = request.headers["Content-Length"]
                 _request = '{} {}\n{}\n{}'.format(req_method, req_full_path, req_headers, req_data.decode("utf-8")) 
-                # It's decoding the request body.
-                payload = _Utils.decoder(_request)
-                # It's using the payload to predict if it's a web vulnerability or not.
-                predict = _Utils.web_vuln_detect_predict(payload)
 
                 _ticket = _Utils.insident_ticket()
-                # It's checking if the predict value is less than the sensitive value. If it is, then it
-                # will return a status of True (safe). If it's not, then it will return a status of False (unsafe).
-                if predict < sensitive_value: 
-                    status = True
-                    _Protect.__handle_normal_request__(_request, predict)
-                    return [status, _ticket] 
+
+                if _Protect.__handle_large_request__(req_length):
+                    # It's decoding the request body.
+                    payload = _Utils.decoder(_request)
+                    # It's using the payload to predict if it's a web vulnerability or not.
+                    predict = _Utils.web_vuln_detect_predict(payload)
+
+                    _ticket = _Utils.insident_ticket()
+                    # It's checking if the predict value is less than the sensitive value. If it is, then it
+                    # will return a status of True (safe). If it's not, then it will return a status of False (unsafe).
+                    if predict < sensitive_value: 
+                        status = True
+                        _Protect.__handle_normal_request__(_request, predict)
+                        return [status, _ticket] 
+                    else:
+                        status = False
+                        _Protect.__handle_abnormal_request__(_request, predict)
+                        return [status, _ticket] 
                 else:
                     status = False
-                    _Protect.__handle_abnormal_request__(_request, predict)
-                    return [status, _ticket] 
+                    _Protect.__handle_abnormal_request__(_request)
+                    return [status, _ticket]
             elif gemini_protect_mode == 'off':
                 logger.info("[+] Gemini-Self-Protector is Off")
                 pass
