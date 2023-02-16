@@ -1,12 +1,26 @@
 # gemini-self-protector
 
-Gemini - Runtime Application Self Protection
+Gemini - The Runtime Application Self Protection Solution Combined With Deep Learning
 
 # Support
 
 | Language | Platform/ Framework |
 | -------- | ------------------- |
 | Python   | Flask               |
+
+# Gemini Protect Against
+
+| Attack                       | Supported          |
+| ---------------------------- | ------------------ |
+| Cross-Site Scripting         | :white_check_mark: |
+| SQL Injection                | :white_check_mark: |
+| Command Injection            |                    |
+| CSS & HTML Injection         |                    |
+| JSON & XML Injection         |                    |
+| Large Requests               |                    |
+| Path Traversal               |                    |
+| Insecure Cookies & Transport |                    |
+| Weak Browser Caching         |                    |
 
 # Installation
 
@@ -30,6 +44,10 @@ The license key is used for authentication with the API.
 | | |
 | ------- | --------- |
 |Key|988907ce-9803-11ed-a8fc-0242ac120002|
+
+## Features
+
+👉
 
 ## Contributing
 
