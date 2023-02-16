@@ -107,12 +107,15 @@ class _Utils(object):
         data that you want to predict
         :return: The accuracy of the prediction.
         """
-        headers = {"Content-Type": "application/json"}
-        predict = requests.post(
-            'https://web-vuln-detection.hptcybersec.com/predict', json={"data": payload}, headers=headers)
-        response = predict.json()
-        accuracy = response.get('accuracy')
-        return accuracy
+        try:
+            headers = {"Content-Type": "application/json"}
+            predict = requests.post(
+                'https://web-vuln-detection.hptcybersec.com/predict', json={"data": payload}, headers=headers)
+            response = predict.json()
+            accuracy = response.get('accuracy')
+            return accuracy
+        except Exception as e:
+            logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
 
     def flask_client_ip():
         """
@@ -120,18 +123,24 @@ class _Utils(object):
         for that header. Otherwise, return the remote address
         :return: The IP address of the client.
         """
-        if request.headers.getlist("X-Forwarded-For"):
-            return request.headers.getlist("X-Forwarded-For")[0]
-        else:
-            return request.remote_addr
+        try:
+            if request.headers.getlist("X-Forwarded-For"):
+                return request.headers.getlist("X-Forwarded-For")[0]
+            else:
+                return request.remote_addr
+        except Exception as e:
+            logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
 
     def generate_incident_id():
         """
         This function generates a random UUID and returns it
         :return: A random UUID.
         """
-        incident_id = uuid.uuid4()
-        return incident_id
+        try:
+            incident_id = uuid.uuid4()
+            return incident_id
+        except Exception as e:
+            logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
 
     def insident_ticket():
         """
@@ -139,20 +148,26 @@ class _Utils(object):
         current time
         :return: A list of three items.
         """
-        time = datetime.now(timezone.utc)
-        ip = _Utils.flask_client_ip()
-        incident_id = _Utils.generate_incident_id()
-        return [time, ip, incident_id]
+        try:
+            time = datetime.now(timezone.utc)
+            ip = _Utils.flask_client_ip()
+            incident_id = _Utils.generate_incident_id()
+            return [time, ip, incident_id]
+        except Exception as e:
+            logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
 
     def create_path():
         """
         It creates a random string of 20 characters and appends the string 'gemini' to it
         :return: A string
         """
-        random = binascii.b2a_hex(os.urandom(20)).decode('utf-8')
-        dashboard_path = str(random)+'/gemini'
-        return dashboard_path
-    
+        try:
+            random = binascii.b2a_hex(os.urandom(20)).decode('utf-8')
+            dashboard_path = str(random)+'/gemini'
+            return dashboard_path
+        except Exception as e:
+            logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+            
 class _Validator(object):
 
     def validate_license_key(license_key):
