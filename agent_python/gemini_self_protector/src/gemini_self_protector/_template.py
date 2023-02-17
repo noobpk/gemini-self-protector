@@ -773,6 +773,11 @@ template_dashboard = """<!DOCTYPE html>
           background-color: #2196f3;
           transition: width 0.5s ease-in-out;
       }
+
+      .checkbox-group input[type="checkbox"] {
+        display: inline-block;
+        margin-right: 10px;
+      }
     </style>
   </head>
   <body>
@@ -960,7 +965,7 @@ template_dashboard = """<!DOCTYPE html>
           </div>
           <div class="modal-body">
             <form method="POST" action="{{url_for('gemini_update_config')}}">
-              <label for="username">Global Protect Mode:</label>
+              <label for="protect_mode">Global Protect Mode:</label>
               <div class="form-group">
                 <select name="protect_mode">
                   <option value="off" {% if _protect_mode == 'off' %}selected{% endif %}>Off</option>
@@ -968,7 +973,7 @@ template_dashboard = """<!DOCTYPE html>
                   <option value="block" {% if _protect_mode == 'block' %}selected{% endif %}>Block</option>
                 </select>
               </div>
-              <label for="username">Sensitive:</label>
+              <label for="sensitive_value">Sensitive:</label>
               <div class="form-group">
                 <input
                   type="text"
@@ -977,7 +982,7 @@ template_dashboard = """<!DOCTYPE html>
                   value="{{_sensitive_value}}"
                 />
               </div>
-              <label for="username">Max Content-Length: 1 * 1024 * 1024 = 1MB</label>
+              <label for="max_content_length">Max Content-Length: 1 * 1024 * 1024 = 1MB</label>
               <div class="form-group">
                 <input
                   type="text"
@@ -985,6 +990,16 @@ template_dashboard = """<!DOCTYPE html>
                   name="max_content_length"
                   value="{{_max_content_length}}"
                 />
+              </div>
+              <label for="http_method_allow">HTTP Method Allow:</label>
+              <div class="form-group checkbox-group">
+                <label><input type="checkbox" name="http_method[]" value="OPTIONS" {{ 'checked' if 'OPTIONS' in _http_method else '' }}>OPTIONS</label>
+                <label><input type="checkbox" name="http_method[]" value="GET" {{ 'checked' if 'GET' in _http_method else '' }}>GET</label>
+                <label><input type="checkbox" name="http_method[]" value="POST" {{ 'checked' if 'POST' in _http_method else '' }}>POST</label>
+                <label><input type="checkbox" name="http_method[]" value="PUT" {{ 'checked' if 'PUT' in _http_method else '' }}>PUT</label>
+                <label><input type="checkbox" name="http_method[]" value="DELETE" {{ 'checked' if 'DELETE' in _http_method else '' }}>DELETE</label>
+                <label><input type="checkbox" name="http_method[]" value="TRACE" {{ 'checked' if 'TRACE' in _http_method else '' }}>TRACE</label>
+                <label><input type="checkbox" name="http_method[]" value="CONNECT" {{ 'checked' if 'CONNECT' in _http_method else '' }}>CONNECT</label>
               </div>
               <button type="submit">Submit</button>
             </form>

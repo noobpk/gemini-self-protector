@@ -54,6 +54,15 @@ class GeminiManager(object):
             logger.info("[+] Access Your Gemini Dashboard as Path: http://host:port/{}/dashboard".format(dashboard_path))
             logger.info("[+] Check the config file at gemini_protector/config.yml/config.yaml for the password.")
 
+            @flask_app.route('/'+dashboard_path, methods=['GET', 'POST'])
+            def gemini_init():
+                try:
+                    if session.get('gemini_logged_in'):
+                        return redirect(url_for('gemini_dashboard'))
+                    else:
+                        return redirect(url_for('gemini_login'))
+                except Exception as e:
+                    logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
             @flask_app.route('/'+dashboard_path+'/login', methods=['GET', 'POST'])
             def gemini_login():
                 try:
@@ -81,6 +90,7 @@ class GeminiManager(object):
                         sensitive_value = _Gemini.get_gemini_config('gemini_sensitive_value')
                         global_protect_mode = _Gemini.get_gemini_config('gemini_global_protect_mode')
                         max_content_length = _Gemini.get_gemini_config('gemini_max_content_length')
+                        http_method_allow = _Gemini.get_gemini_config('gemini_http_method_allow')
                         load_data_log = _Gemini.load_gemini_log()
                         load_data_store = _Gemini.load_gemini_data_store()
                         load_data_acl = _Gemini.load_gemini_acl()
@@ -92,7 +102,8 @@ class GeminiManager(object):
                             _gemini_log=load_data_log,
                             _gemini_data_store=load_data_store,
                             _gemini_acl=load_data_acl,
-                            _max_content_length=int(max_content_length / 1024 / 1024)
+                            _max_content_length=int(max_content_length / 1024 / 1024),
+                            _http_method=http_method_allow
                             )
                     else:
                         logger.warning("[!] Unauthentication Access.!")
@@ -107,13 +118,16 @@ class GeminiManager(object):
                         protect_mode = request.form['protect_mode']
                         sensitive_value = request.form['sensitive_value']
                         max_content_length = request.form['max_content_length']
+                        http_method = request.form.getlist('http_method[]')
 
                         validate_protect_mode = ['on', 'off', 'block', 'monitor']
-                        if protect_mode in validate_protect_mode and 0 <= int(sensitive_value) <= 100 and max_content_length.isdigit():
+                        validate_http_method = ['OPTIONS', 'GET', 'POST', 'PUT', 'DELETE', 'TRACE', 'CONNECT']
+                        if protect_mode in validate_protect_mode and 0 <= int(sensitive_value) <= 100 and max_content_length.isdigit() and all(method in validate_http_method for method in http_method):
                             _Gemini.update_gemini_config({
                                 "gemini_global_protect_mode":_Gemini.validator_protect_mode(protect_mode),
                                 "gemini_sensitive_value": _Gemini.validator_sensitive_value(sensitive_value),
-                                "gemini_max_content_length": int(max_content_length) * 1024 * 1024
+                                "gemini_max_content_length": int(max_content_length) * 1024 * 1024,
+                                "gemini_http_method_allow": http_method
                                 })
                             logger.info("[+] Update configuration successfully.!")
                             flash('Update configuration successfully!')

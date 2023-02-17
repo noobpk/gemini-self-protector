@@ -9,6 +9,8 @@ class _Protect(object):
     def __handle_response_headers__(response):
         try:
             global_protect_mode = _Config.get_config('gemini_global_protect_mode')
+            http_method_allow = _Config.get_config('gemini_http_method_allow')
+
             response.headers['X-Gemini-Self-Protector'] = global_protect_mode
             response.headers['Referrer-Policy'] = 'no-referrer-when-downgrade'
             response.headers['X-Content-Type-Options'] = 'nosniff'
@@ -22,6 +24,7 @@ class _Protect(object):
             response.headers['Pragma'] = 'no-cache'
             response.headers['Expires'] = '0'
             response.headers['X-UA-Compatible'] = 'IE=Edge,chrome=1'
+            response.headers['X-Gemini-Allow'] = ', '.join(http_method_allow)
             return response
         except Exception as e:
             logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
@@ -62,18 +65,26 @@ class _Protect(object):
         except Exception as e:
             logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
 
-    def __handle_large_request__(req_length):
+    def __handle_original_request__(req_method, req_length):
         """
-        If the request is less than the max content length, return true, else return false
-        :return: a boolean value.
+        It checks if the request method is allowed and if the request length is less than the max
+        content length
+
+        :param req_method: The HTTP method of the request
+        :param req_length: The length of the request body
+        :return: True or False
         """
         try:
+            http_method_allow = _Config.get_config('gemini_http_method_allow')
             max_content_length = _Config.get_config('gemini_max_content_length')
-            if req_length:
-                if int(req_length) < max_content_length:
+
+            if req_method and req_method in http_method_allow:
+                if req_length and int(req_length) < max_content_length:
                     return True
                 else:
                     return False
+            else:
+                return False
         except Exception as e:
             logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
 
@@ -92,10 +103,11 @@ class _Protect(object):
                 req_length = None
                 if 'Content-Length' in req_headers:
                     req_length = request.headers["Content-Length"]
+
                 _request = '{} {}\n{}\n{}'.format(req_method, req_full_path, req_headers, req_data.decode("utf-8"))
 
                 _ticket = _Utils.insident_ticket()
-                if _Protect.__handle_large_request__(req_length):
+                if _Protect.__handle_original_request__(req_method, req_length):
                     # It's decoding the request body.
                     payload = _Utils.decoder(_request)
                     # It's using the payload to predict if it's a web vulnerability or not.
@@ -129,7 +141,7 @@ class _Protect(object):
 
                 _ticket = _Utils.insident_ticket()
 
-                if _Protect.__handle_large_request__(req_length):
+                if _Protect.__handle_original_request__(req_method, req_length):
                     # It's decoding the request body.
                     payload = _Utils.decoder(_request)
                     # It's using the payload to predict if it's a web vulnerability or not.

@@ -32,8 +32,8 @@ class _Gemini(object):
                     'gemini_abnormal_request': 0,
                     'gemini_global_protect_mode': 'monitor',
                     'gemini_sensitive_value': 50,
-                    'gemini_max_content_length': 52428800 # 50 * 1024 * 1024 = 50MB
-
+                    'gemini_max_content_length': 52428800, # 50 * 1024 * 1024 = 50MB
+                    'gemini_http_method_allow': ['OPTIONS', 'GET', 'POST', 'PUT', 'DELETE']
                 }
             }
             _Config(working_directory, init_gemini_config_content)
@@ -142,6 +142,11 @@ class _Gemini(object):
             logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
 
     def remove_gemini_acl(_ip_address):
+        """
+        This function removes the ACL from the GEMINI firewall
+
+        :param _ip_address: The IP address of the user you want to remove from the ACL
+        """
         try:
             _Config.remove_acl(_ip_address)
         except Exception as e:
@@ -273,6 +278,10 @@ class _Gemini(object):
             logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
 
     def generate_insident_ticket():
+        """
+        It generates a ticket number for an incident
+        :return: A string
+        """
         try:
             return _Utils.insident_ticket()
         except Exception as e:
@@ -291,6 +300,12 @@ class _Gemini(object):
             logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
 
     def secure_response_headers(response):
+        """
+        This function is used to add security headers to the response object
+
+        :param response: The response object that is returned by the view function
+        :return: The response headers are being returned.
+        """
         try:
             return _Protect.__handle_response_headers__(response)
         except Exception as e:
