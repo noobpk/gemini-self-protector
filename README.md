@@ -38,7 +38,6 @@ For more details: [Web-Vuln-Detection-Predict](https://github.com/noobpk/Web-Vul
 | Insecure Cookies & Transport |                    |
 | Weak Browser Caching         | :white_check_mark: |
 | Vulnerable Dependencies      |                    |
-| Weak Browser Caching         |                    |
 | Weak Cryptography            |                    |
 
 # Installation
