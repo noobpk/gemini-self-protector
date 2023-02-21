@@ -91,6 +91,8 @@ class GeminiManager(object):
                         global_protect_mode = _Gemini.get_gemini_config('gemini_global_protect_mode')
                         max_content_length = _Gemini.get_gemini_config('gemini_max_content_length')
                         http_method_allow = _Gemini.get_gemini_config('gemini_http_method_allow')
+                        safe_redirect_status = _Gemini.get_gemini_config('gemini_safe_redirect')
+                        trust_domain_list = _Gemini.get_gemini_config('gemini_trust_domain')
                         load_data_log = _Gemini.load_gemini_log()
                         load_data_store = _Gemini.load_gemini_data_store()
                         load_data_acl = _Gemini.load_gemini_acl()
@@ -104,6 +106,8 @@ class GeminiManager(object):
                             _gemini_acl=load_data_acl,
                             _max_content_length=int(max_content_length / 1024 / 1024),
                             _http_method=http_method_allow,
+                            _safe_redirect_status=safe_redirect_status,
+                            _trust_domain_list=", ".join(trust_domain_list)
                             )
                     else:
                         logger.warning("[!] Unauthentication Access.!")
@@ -119,13 +123,18 @@ class GeminiManager(object):
                         sensitive_value = request.form['sensitive_value']
                         max_content_length = request.form['max_content_length']
                         http_method = request.form.getlist('http_method[]')
+                        safe_redirect_status = request.form['safe_redirect_status']
+                        trust_domain_list = request.form.get('trust_domain_list').split(',')
+                        trust_domain_list = [d.strip() for d in trust_domain_list]
 
-                        if _Gemini.validator_protect_mode(protect_mode) and _Gemini.validator_sensitive_value(sensitive_value) and max_content_length.isdigit() and _Gemini.validator_http_method(http_method):
+                        if _Gemini.validator_protect_mode(protect_mode) and _Gemini.validator_sensitive_value(sensitive_value) and max_content_length.isdigit() and _Gemini.validator_http_method(http_method) and _Gemini.validator_safe_redirect_status(safe_redirect_status) and _Gemini.validator_trust_domain(trust_domain_list):
                             _Gemini.update_gemini_config({
                                 "gemini_global_protect_mode": protect_mode,
                                 "gemini_sensitive_value": int(sensitive_value),
                                 "gemini_max_content_length": int(max_content_length) * 1024 * 1024,
                                 "gemini_http_method_allow": http_method,
+                                "gemini_safe_redirect": safe_redirect_status,
+                                "gemini_trust_domain":trust_domain_list
                                 })
                             logger.info("[+] Update configuration successfully.!")
                             flash('Update configuration successfully!')

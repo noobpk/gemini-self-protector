@@ -206,7 +206,6 @@ class _Validator(object):
         try:
             arr_mode = ['off', 'block', 'monitor']
             if protect_mode in arr_mode:
-                logger.info("[+] Gemini-Self-Protector Mode: {}".format(protect_mode))
                 return True
             else:
                 logger.error(
@@ -234,6 +233,12 @@ class _Validator(object):
             logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
 
     def validate_http_method(http_method) -> None:
+        """
+        It checks if the HTTP method is valid
+
+        :param http_method: The HTTP method to use
+        :return: a boolean value.
+        """
         try:
             arr_http_method = ['OPTIONS', 'GET', 'POST', 'PUT', 'DELETE', 'TRACE', 'CONNECT']
             if all(method in arr_http_method for method in http_method):
@@ -242,5 +247,35 @@ class _Validator(object):
                 logger.error(
                     "[x_x] Invalid HTTP Method. HTTP Method must be: OPTIONS - GET - POST - PUT - DELETE - TRACE - CONNECT")
                 return False
+        except Exception as e:
+            logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+
+    def validate_safe_redirect_status(safe_redirect_status) -> None:
+        """
+        If the value of safe_redirect_status is in the array arr_status, return True, else return False.
+
+        :param safe_redirect_status: This is the status of the safe redirect. It can be either on or off
+        :return: True or False
+        """
+        try:
+            arr_status = ['on', 'off']
+            if safe_redirect_status in arr_status:
+                return True
+            else:
+                logger.error(
+                    "[x_x] Invalid Safe Redirect Status. Safe Redirect Status must be: ON - OFF")
+                return False
+        except Exception as e:
+            logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+
+    def validate_trust_domain(trust_domain_list) -> None:
+        try:
+            for domain in trust_domain_list:
+                if not re.match(r'^[a-zA-Z0-9]+([\-\.]{1}[a-zA-Z0-9]+)*\.[a-zA-Z]{2,}$', domain):
+                    logger.error(
+                    "[x_x] Invalid Domain Name")
+                    return False
+                else:
+                    return True
         except Exception as e:
             logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))

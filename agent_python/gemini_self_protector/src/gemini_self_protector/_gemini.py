@@ -34,8 +34,8 @@ class _Gemini(object):
                     'gemini_sensitive_value': 50,
                     'gemini_max_content_length': 52428800, # 50 * 1024 * 1024 = 50MB
                     'gemini_http_method_allow': ['OPTIONS', 'GET', 'POST', 'PUT', 'DELETE'],
-                    'gemini_safe_redirect': 'on',
-                    'gemini_trust_domain': ['localhost'],
+                    'gemini_safe_redirect': 'off',
+                    'gemini_trust_domain': [],
                 }
             }
             _Config(working_directory, init_gemini_config_content)
@@ -175,6 +175,13 @@ class _Gemini(object):
             logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
 
     def validator_http_method(http_method):
+        """
+        The function validator_http_method() takes in a string as an argument and returns a boolean
+        value
+
+        :param http_method: The HTTP method to be used for the request
+        :return: The return value is a dictionary.
+        """
         try:
            _gemini_return = _Validator.validate_http_method(http_method)
            return _gemini_return
@@ -190,6 +197,27 @@ class _Gemini(object):
         """
         try:
             _gemini_return = _Validator.validate_sensitive_value(sensitive_value)
+            return _gemini_return
+        except Exception as e:
+            logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+
+    def validator_safe_redirect_status(safe_redirect_status) -> None:
+        try:
+            _gemini_return = _Validator.validate_safe_redirect_status(safe_redirect_status)
+            return _gemini_return
+        except Exception as e:
+            logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+
+    def validator_trust_domain(trust_domain_list):
+        """
+        The function validator_trust_domain() takes a list of trust domains as an argument and returns a
+        list of trust domains that are valid
+
+        :param trust_domain_list: A list of trust domains
+        :return: The return is a list of dictionaries.
+        """
+        try:
+            _gemini_return = _Validator.validate_trust_domain(trust_domain_list)
             return _gemini_return
         except Exception as e:
             logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
@@ -282,6 +310,10 @@ class _Gemini(object):
             logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
 
     def generate_insident_ticket() -> None:
+        """
+        It generates a ticket number for an incident
+        :return: the value of the function _Utils.insident_ticket()
+        """
         try:
             return _Utils.insident_ticket()
         except Exception as e:
@@ -300,6 +332,13 @@ class _Gemini(object):
             logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
 
     def __load_protect_flask_response__(original_response, gemini_protect_mode) -> None:
+        """
+        This function is used to protect the flask response
+
+        :param original_response: The original response from the Flask app
+        :param gemini_protect_mode: This is the mode that you want to use to protect your application
+        :return: the result of the function call to __protect_flask_response__.
+        """
         try:
             safe_redirect = _Gemini.get_gemini_config('gemini_safe_redirect')
             return _Protect.__protect_flask_response__(safe_redirect, original_response, gemini_protect_mode)
@@ -307,6 +346,12 @@ class _Gemini(object):
             logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
 
     def make_secure_response_header(response) -> None:
+        """
+        It makes the response header secure.
+
+        :param response: The response object that is returned by the view function
+        :return: the response header.
+        """
         try:
             return _Protect.__secure_response_header__(response)
         except Exception as e:

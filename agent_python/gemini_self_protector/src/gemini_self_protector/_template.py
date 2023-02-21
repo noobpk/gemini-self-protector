@@ -969,13 +969,22 @@ template_dashboard = """<!DOCTYPE html>
           </div>
           <div class="modal-body">
             <form method="POST" action="{{url_for('gemini_update_config')}}">
-              <label for="protect_mode">Global Protect Mode:</label>
-              <div class="form-group">
-                <select name="protect_mode">
-                  <option value="off" {% if _protect_mode == 'off' %}selected{% endif %}>Off</option>
-                  <option value="monitor" {% if _protect_mode == 'monitor' %}selected{% endif %}>Monitor</option>
-                  <option value="block" {% if _protect_mode == 'block' %}selected{% endif %}>Block</option>
-                </select>
+              <div class="form-group form-inline">
+                <label for="protect_mode">Global Protect Mode:</label>
+                <div class="form-group">
+                  <select name="protect_mode">
+                    <option value="off" {% if _protect_mode == 'off' %}selected{% endif %}>Off</option>
+                    <option value="monitor" {% if _protect_mode == 'monitor' %}selected{% endif %}>Monitor</option>
+                    <option value="block" {% if _protect_mode == 'block' %}selected{% endif %}>Block</option>
+                  </select>
+                </div>
+                <label for="safe_redirect_status">Safe Redirect:</label>
+                <div class="form-group">
+                  <select name="safe_redirect_status">
+                    <option value="off" {% if _safe_redirect_status == 'off' %}selected{% endif %}>Off</option>
+                    <option value="on" {% if _safe_redirect_status == 'on' %}selected{% endif %}>On</option>
+                  </select>
+                </div>
               </div>
               <label for="sensitive_value">Sensitive:</label>
               <div class="form-group">
@@ -1004,6 +1013,15 @@ template_dashboard = """<!DOCTYPE html>
                 <label><input type="checkbox" name="http_method[]" value="DELETE" {{ 'checked' if 'DELETE' in _http_method else '' }}>DELETE</label>
                 <label><input type="checkbox" name="http_method[]" value="TRACE" {{ 'checked' if 'TRACE' in _http_method else '' }}>TRACE</label>
                 <label><input type="checkbox" name="http_method[]" value="CONNECT" {{ 'checked' if 'CONNECT' in _http_method else '' }}>CONNECT</label>
+              </div>
+              <label for="trust_domain_list">Trust Domain:</label>
+              <div class="form-group">
+                <input
+                  type="text"
+                  id="trust_domain_list"
+                  name="trust_domain_list"
+                  value="{{_trust_domain_list}}"
+                />
               </div>
               <button type="submit">Submit</button>
             </form>
