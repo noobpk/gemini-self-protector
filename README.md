@@ -22,7 +22,7 @@ For more details: [Web-Vuln-Detection-Predict](https://github.com/noobpk/Web-Vul
 | HTTP Method Tampering   | :white_check_mark: |
 | Large Requests          | :white_check_mark: |
 | Path Traversal          |                    |
-| Unvalidated Redirects   |                    |
+| Unvalidated Redirects   | :white_check_mark: |
 
 | Injections                 | Supported          |
 | -------------------------- | ------------------ |

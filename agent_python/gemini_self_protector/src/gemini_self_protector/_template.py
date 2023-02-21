@@ -880,22 +880,26 @@ template_dashboard = """<!DOCTYPE html>
         <div class="activity">
           <div class="title">
             <i class="uil uil-clock-three"></i>
-            <span class="text">Normal/Abnormal Request</span>
+            <span class="text">Abnormal Request</span>
           </div>
 
           <table id="abnormal_request" class="table table-striped table-bordered" style="width: 100%">
             <thead>
               <tr>
+                <th>IncidentID</th>
                 <th>Time</th>
                 <th>Request</th>
+                <th>Type</th>
                 <th>Predict</th>
               </tr>
             </thead>
             <tbody>
               {% for row in _gemini_data_store%}
               <tr>
+                <td>{{ row['IncidentID'] }}</td>
                 <td>{{ row['Time'] }}</td>
                 <td>{{ row['Request'] }}</td>
+                <td>{{ row['AttackType'] }}</td>
                 <td>{{ row['Predict'] }}</td>
               </tr>
               {% endfor %}

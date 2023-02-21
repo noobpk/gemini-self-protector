@@ -103,7 +103,7 @@ class GeminiManager(object):
                             _gemini_data_store=load_data_store,
                             _gemini_acl=load_data_acl,
                             _max_content_length=int(max_content_length / 1024 / 1024),
-                            _http_method=http_method_allow
+                            _http_method=http_method_allow,
                             )
                     else:
                         logger.warning("[!] Unauthentication Access.!")
@@ -120,14 +120,12 @@ class GeminiManager(object):
                         max_content_length = request.form['max_content_length']
                         http_method = request.form.getlist('http_method[]')
 
-                        validate_protect_mode = ['on', 'off', 'block', 'monitor']
-                        validate_http_method = ['OPTIONS', 'GET', 'POST', 'PUT', 'DELETE', 'TRACE', 'CONNECT']
-                        if protect_mode in validate_protect_mode and 0 <= int(sensitive_value) <= 100 and max_content_length.isdigit() and all(method in validate_http_method for method in http_method):
+                        if _Gemini.validator_protect_mode(protect_mode) and _Gemini.validator_sensitive_value(sensitive_value) and max_content_length.isdigit() and _Gemini.validator_http_method(http_method):
                             _Gemini.update_gemini_config({
-                                "gemini_global_protect_mode":_Gemini.validator_protect_mode(protect_mode),
-                                "gemini_sensitive_value": _Gemini.validator_sensitive_value(sensitive_value),
+                                "gemini_global_protect_mode": protect_mode,
+                                "gemini_sensitive_value": int(sensitive_value),
                                 "gemini_max_content_length": int(max_content_length) * 1024 * 1024,
-                                "gemini_http_method_allow": http_method
+                                "gemini_http_method_allow": http_method,
                                 })
                             logger.info("[+] Update configuration successfully.!")
                             flash('Update configuration successfully!')
@@ -198,7 +196,7 @@ class GeminiManager(object):
                 except Exception as e:
                     logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
 
-    def flask_protect_extended(self, protect_mode=None):
+    def flask_protect_extended(self, protect_mode = None) -> None:
         """
         This function is used to protect the Flask application from malicious requests
 
@@ -211,8 +209,8 @@ class GeminiManager(object):
                 _ip_address = _Gemini.get_flask_client_ip()
                 if _Gemini.check_gemini_acl(_ip_address):
                     _ticket = _Gemini.generate_insident_ticket()
-                    response = make_response("Your IP Address was blocked by Gemini \n The Runtime Application Self-Protection Solution \n\n Time: {} \n Your IP : {} \n\n Incident ID: {}".format(_ticket[0], _ticket[1], _ticket[2]), 200)
-                    response = _Gemini.secure_response_headers(response)
+                    response = make_response("Your IP Address was blocked by Gemini \n The Runtime Application Self-Protection Solution \n\n Time: {} \n Your IP : {} \n\n Incident ID: {}".format(_ticket["Time"], _ticket["IP"], _ticket["IncidentID"]), 200)
+                    response = _Gemini.make_secure_response_header(response)
                     return response
                 else:
                     global_protect_mode = _Gemini.get_gemini_config('gemini_global_protect_mode')
@@ -223,17 +221,26 @@ class GeminiManager(object):
                     else:
                         gemini_protect_mode = protect_mode
 
-                    protect = _Gemini.__load_protect_flask__(gemini_protect_mode)
-                    if protect[0]:
+                    protect_request = _Gemini.__load_protect_flask_request__(gemini_protect_mode)
+                    if protect_request["Status"]:
                         response = make_response(f(*args, **kwargs))
-                        response = _Gemini.secure_response_headers(response)
-                        return response
+                        protect_response = _Gemini.__load_protect_flask_response__(response, gemini_protect_mode)
+                        if protect_response["Status"]:
+                            response = _Gemini.make_secure_response_header(response)
+                            return response
+                        else:
+                            current_time = protect_response["Ticket"]["Time"]
+                            ip_address = protect_response["Ticket"]["IP"]
+                            incedent_id = protect_response["Ticket"]["IncidentID"]
+                            response =  make_response("This request was blocked by Gemini \n The Runtime Application Self-Protection Solution \n\n Time: {} \n Your IP : {} \n\n Incident ID: {}".format(current_time, ip_address, incedent_id), 200)
+                            response = _Gemini.make_secure_response_header(response)
+                            return response
                     else:
-                        current_time = protect[1][0]
-                        ip_address = protect[1][1]
-                        incedent_id = protect[1][2]
+                        current_time = protect_request["Ticket"]["Time"]
+                        ip_address = protect_request["Ticket"]["IP"]
+                        incedent_id = protect_request["Ticket"]["IncidentID"]
                         response = make_response("This request was blocked by Gemini \n The Runtime Application Self-Protection Solution \n\n Time: {} \n Your IP : {} \n\n Incident ID: {}".format(current_time, ip_address, incedent_id), 200)
-                        response = _Gemini.secure_response_headers(response)
+                        response = _Gemini.make_secure_response_header(response)
                         return response
             return __gemini_self_protect
         return _gemini_self_protect

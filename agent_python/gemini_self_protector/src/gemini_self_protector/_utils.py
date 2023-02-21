@@ -14,7 +14,7 @@ from datetime import datetime, timezone
 
 class _Utils(object):
 
-    def decoder(string):
+    def decoder(string) -> None:
         """
         It takes a string, decodes it from a variety of encoding types, and then returns the decoded
         string
@@ -99,7 +99,7 @@ class _Utils(object):
 
         return string
 
-    def web_vuln_detect_predict(payload):
+    def web_vuln_detect_predict(payload) -> None:
         """
         It takes a payload as input and returns the accuracy of the prediction
 
@@ -117,7 +117,7 @@ class _Utils(object):
         except Exception as e:
             logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
 
-    def flask_client_ip():
+    def flask_client_ip() -> None:
         """
         If the request has a header called X-Forwarded-For, return the first value in the list of values
         for that header. Otherwise, return the remote address
@@ -131,7 +131,7 @@ class _Utils(object):
         except Exception as e:
             logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
 
-    def generate_incident_id():
+    def generate_incident_id() -> None:
         """
         This function generates a random UUID and returns it
         :return: A random UUID.
@@ -142,7 +142,7 @@ class _Utils(object):
         except Exception as e:
             logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
 
-    def insident_ticket():
+    def insident_ticket() -> None:
         """
         It returns a list of three items: the IP address of the client, a unique incident ID, and the
         current time
@@ -152,11 +152,11 @@ class _Utils(object):
             time = datetime.now(timezone.utc)
             ip = _Utils.flask_client_ip()
             incident_id = _Utils.generate_incident_id()
-            return [time, ip, incident_id]
+            return {"Time": time, "IP": ip, "IncidentID": incident_id}
         except Exception as e:
             logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
 
-    def create_path():
+    def create_path() -> None:
         """
         It creates a random string of 20 characters and appends the string 'gemini' to it
         :return: A string
@@ -170,7 +170,7 @@ class _Utils(object):
 
 class _Validator(object):
 
-    def validate_license_key(license_key):
+    def validate_license_key(license_key) -> None:
         """
         If the license key is valid, then update the config file with the license key and the access
         token
@@ -195,37 +195,27 @@ class _Validator(object):
         except Exception as e:
             logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
 
-    def validate_protect_mode(protect_mode):
+    def validate_protect_mode(protect_mode) -> None:
         """
-        The function takes a string as an argument, and checks if the string is in a list of strings. If
-        it is, it returns the string. If it isn't, it returns None
+        It checks if the protect_mode is in the array arr_mode. If it is, it returns True. If it isn't,
+        it returns False
 
-        :param protect_mode: This is the mode of the protector
-        :return: The protect mode is being returned.
-        """
-        """
-        The function takes a string as an argument, and checks if the string is in a list of strings. If
-        it is, it returns the string. If it isn't, it returns None
-
-        :param protect_mode: This is the mode of the protector
-        :return: The protect mode is being returned.
+        :param protect_mode: This is the mode that you want to run the script in
+        :return: a boolean value.
         """
         try:
-            global_protect_mode = None
-            arr_mode = ['monitor', 'block', 'off']
-            if protect_mode not in arr_mode:
+            arr_mode = ['off', 'block', 'monitor']
+            if protect_mode in arr_mode:
+                logger.info("[+] Gemini-Self-Protector Mode: {}".format(protect_mode))
+                return True
+            else:
                 logger.error(
                     "[x_x] Invalid Protect Mode. Protect mode must be: monitor - block - off")
-                logger.warning(
-                    "[!] Your App Currently Running Without Gemini-Self-Protector.")
-            else:
-                global_protect_mode = protect_mode
-                logger.info("[+] Gemini-Self-Protector Mode: {}".format(global_protect_mode))
-                return global_protect_mode
+                return True
         except Exception as e:
             logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
 
-    def validate_sensitive_value(sensitive_value):
+    def validate_sensitive_value(sensitive_value) -> None:
         """
         If the value is an integer between 0 and 100, return the integer. Otherwise, return 0
 
@@ -235,10 +225,22 @@ class _Validator(object):
         """
         try:
             if 0 <= int(sensitive_value) <= 100:
-                return int(sensitive_value)
+                return True
             else:
                 logger.error(
                     "[x_x] Invalid Sensitive Value. Sensitive value from 0 to 100")
-                return 0
+                return False
+        except Exception as e:
+            logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+
+    def validate_http_method(http_method) -> None:
+        try:
+            arr_http_method = ['OPTIONS', 'GET', 'POST', 'PUT', 'DELETE', 'TRACE', 'CONNECT']
+            if all(method in arr_http_method for method in http_method):
+                return True
+            else:
+                logger.error(
+                    "[x_x] Invalid HTTP Method. HTTP Method must be: OPTIONS - GET - POST - PUT - DELETE - TRACE - CONNECT")
+                return False
         except Exception as e:
             logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))

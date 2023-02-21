@@ -21,7 +21,7 @@ class _Config(object):
         except Exception as e:
             logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
 
-    def get_config(config_key):
+    def get_config(config_key) -> None:
         """
         It reads a config file and returns the value of the key that is passed to it
 
@@ -142,7 +142,7 @@ class _Config(object):
         except Exception as e:
             logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
 
-    def check_acl(_ip_address):
+    def check_acl(_ip_address) -> None:
         """
         It reads a JSON file, converts the IP addresses in the file to IP objects, and then checks if
         the IP address passed to the function is in the list of IP objects

@@ -33,7 +33,9 @@ class _Gemini(object):
                     'gemini_global_protect_mode': 'monitor',
                     'gemini_sensitive_value': 50,
                     'gemini_max_content_length': 52428800, # 50 * 1024 * 1024 = 50MB
-                    'gemini_http_method_allow': ['OPTIONS', 'GET', 'POST', 'PUT', 'DELETE']
+                    'gemini_http_method_allow': ['OPTIONS', 'GET', 'POST', 'PUT', 'DELETE'],
+                    'gemini_safe_redirect': 'on',
+                    'gemini_trust_domain': ['localhost'],
                 }
             }
             _Config(working_directory, init_gemini_config_content)
@@ -41,7 +43,7 @@ class _Gemini(object):
         except Exception as e:
             logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
 
-    def get_gemini_config(config_key):
+    def get_gemini_config(config_key) -> None:
         """
         This function is used to get the value of a key from the config file
 
@@ -111,7 +113,7 @@ class _Gemini(object):
         except Exception as e:
             logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
 
-    def load_gemini_acl():
+    def load_gemini_acl() -> None:
         """
         It reads a JSON file, and returns a list of dictionaries containing the two columns
         :return: A list of dictionaries containing the three columns
@@ -129,7 +131,7 @@ class _Gemini(object):
         except Exception as e:
             logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
 
-    def check_gemini_acl(_ip_address):
+    def check_gemini_acl(_ip_address) -> None:
         """
         This function checks if the IP address is in the ACL list. If it is, it will return True,
         otherwise it will return False
@@ -142,11 +144,6 @@ class _Gemini(object):
             logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
 
     def remove_gemini_acl(_ip_address):
-        """
-        This function removes the ACL from the GEMINI firewall
-
-        :param _ip_address: The IP address of the user you want to remove from the ACL
-        """
         try:
             _Config.remove_acl(_ip_address)
         except Exception as e:
@@ -163,7 +160,7 @@ class _Gemini(object):
         except Exception as e:
             logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
 
-    def validator_protect_mode(protect_mode):
+    def validator_protect_mode(protect_mode) -> None:
         """
         The function takes a string as an argument, and checks if the string is in a list of strings. If
         it is, it returns the string. If it isn't, it returns None
@@ -177,7 +174,14 @@ class _Gemini(object):
         except Exception as e:
             logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
 
-    def validator_sensitive_value(sensitive_value):
+    def validator_http_method(http_method):
+        try:
+           _gemini_return = _Validator.validate_http_method(http_method)
+           return _gemini_return
+        except Exception as e:
+            logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+
+    def validator_sensitive_value(sensitive_value) -> None:
         """
         The function validator_sensitive_value() takes in a sensitive value and returns a boolean value
 
@@ -224,7 +228,7 @@ class _Gemini(object):
         except Exception as e:
             logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
 
-    def load_gemini_log():
+    def load_gemini_log() -> None:
         """
         It reads the log file and returns a list of dictionaries
         :return: A list of dictionaries.
@@ -246,7 +250,7 @@ class _Gemini(object):
         except Exception as e:
             logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
 
-    def load_gemini_data_store():
+    def load_gemini_data_store() -> None:
         """
         It reads a JSON file, creates a list of dictionaries containing the three columns, sorts the
         list by Time in descending order, and returns the sorted list
@@ -259,7 +263,7 @@ class _Gemini(object):
                 data = json.load(f)
 
             # Create a list of dictionaries containing the three columns
-            rows = [{'Time': d['Time'], 'Request': d['Request'], 'Predict': d['Predict']} for d in data['gemini_data_stored']]
+            rows = [{'Time': d['Time'], 'Request': d['Request'], 'AttackType': d['AttackType'], 'Predict': d['Predict'], 'IncidentID': d['IncidentID']} for d in data['gemini_data_stored']]
             # Sort the list by Time in descending order
             rows = sorted(rows, key=lambda x: datetime.strptime(x['Time'], '%Y-%m-%d %H:%M:%S'), reverse=True)
             return rows
@@ -267,7 +271,7 @@ class _Gemini(object):
         except Exception as e:
             logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
 
-    def get_flask_client_ip():
+    def get_flask_client_ip() -> None:
         """
         It returns the client IP address of the user who is accessing the Flask application
         :return: The IP address of the client.
@@ -277,17 +281,13 @@ class _Gemini(object):
         except Exception as e:
             logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
 
-    def generate_insident_ticket():
-        """
-        It generates a ticket number for an incident
-        :return: A string
-        """
+    def generate_insident_ticket() -> None:
         try:
             return _Utils.insident_ticket()
         except Exception as e:
             logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
 
-    def __load_protect_flask__(gemini_protect_mode):
+    def __load_protect_flask_request__(gemini_protect_mode) -> None:
         """
         This function is used to load the flask protect mode
 
@@ -295,18 +295,19 @@ class _Gemini(object):
         :return: The function _Protect.protect_flask(gemini_protect_mode)
         """
         try:
-            return _Protect.__protect_flask__(gemini_protect_mode)
+            return _Protect.__protect_flask_request__(gemini_protect_mode)
         except Exception as e:
             logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
 
-    def secure_response_headers(response):
-        """
-        This function is used to add security headers to the response object
-
-        :param response: The response object that is returned by the view function
-        :return: The response headers are being returned.
-        """
+    def __load_protect_flask_response__(original_response, gemini_protect_mode) -> None:
         try:
-            return _Protect.__handle_response_headers__(response)
+            safe_redirect = _Gemini.get_gemini_config('gemini_safe_redirect')
+            return _Protect.__protect_flask_response__(safe_redirect, original_response, gemini_protect_mode)
+        except Exception as e:
+            logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+
+    def make_secure_response_header(response) -> None:
+        try:
+            return _Protect.__secure_response_header__(response)
         except Exception as e:
             logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
