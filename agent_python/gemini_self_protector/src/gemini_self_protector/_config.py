@@ -3,6 +3,7 @@ import yaml
 from ._logger import logger
 import json
 from ipaddress import ip_address
+from datetime import datetime
 
 class _Config(object):
 
@@ -164,6 +165,12 @@ class _Config(object):
             logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
 
     def remove_acl(_ip_address):
+        """
+        It opens a json file, reads the contents, removes an object from the json file, and then writes
+        the contents back to the file
+
+        :param _ip_address: The IP address to be removed from the ACL
+        """
         try:
             acl_path = _Config.get_config('gemini_acl_path')
             with open(acl_path, "r") as f:
@@ -174,5 +181,44 @@ class _Config(object):
                     acl_data["gemini_acl"].remove(acl)
             with open(acl_path, "w") as f:
                 json.dump(acl_data, f, indent = 4)
+        except Exception as e:
+            logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+
+    def init_audit_dependency(working_directory):
+        """
+        This function creates an empty json file called audit_dependency.json in the working directory
+
+        :param working_directory: The directory where the audit_dependency.json file is located
+        """
+        data_file = working_directory+'/audit_dependency.json'
+        try:
+            # create an empty dictionary
+            data = {"gemini_audit_dependency":[]}
+
+            # Write the empty dictionary to the new file
+            with open(data_file, "w") as f:
+                # use pickle to dump the dictionary to the file
+                json.dump(data, f,  indent=4)
+        except Exception as e:
+            logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+
+    def update_audit_dependency(_dict):
+        """
+        It takes a dictionary as an argument, and appends it to a JSON file
+
+        :param _dict: This is the dictionary that you want to add to the json file
+        """
+        try:
+            audit_dependency_path = _Config.get_config('gemini_audit_dependency')
+            print()
+            now = datetime.now()
+            current_time = now.strftime("%Y-%m-%d %H:%M:%S")
+            with open(audit_dependency_path, "r") as f:
+                existing_data = json.load(f)
+
+            existing_data["gemini_audit_dependency"].append({str(current_time):_dict})
+            # Write the add new data back to the file
+            with open(audit_dependency_path, "w") as f:
+                json.dump(existing_data, f, indent = 4)
         except Exception as e:
             logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))

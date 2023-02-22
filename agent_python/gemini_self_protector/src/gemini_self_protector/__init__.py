@@ -9,3 +9,4 @@ from ._utils import _Utils, _Validator
 from ._template import _Template
 from ._config import _Config
 from ._protect import _Protect
+from ._audit import _Audit

@@ -7,6 +7,7 @@ from ._utils import _Utils, _Validator
 from ._template import _Template
 from ._config import _Config
 from ._protect import _Protect
+from ._audit import _Audit
 from datetime import datetime, timezone
 import secrets
 
@@ -28,6 +29,7 @@ class _Gemini(object):
                     'gemini_data_store_path': working_directory+'/data.json',
                     'gemini_acl_path': working_directory+'/acl.json',
                     'gemini_log_path': working_directory+'/log',
+                    'gemini_audit_dependency': working_directory+'/audit_dependency.json',
                     'gemini_normal_request': 0,
                     'gemini_abnormal_request': 0,
                     'gemini_global_protect_mode': 'monitor',
@@ -146,6 +148,12 @@ class _Gemini(object):
     def remove_gemini_acl(_ip_address):
         try:
             _Config.remove_acl(_ip_address)
+        except Exception as e:
+            logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+
+    def init_gemini_audit_dependency(working_directory):
+        try:
+            _Config.init_audit_dependency(working_directory)
         except Exception as e:
             logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
 
@@ -354,5 +362,38 @@ class _Gemini(object):
         """
         try:
             return _Protect.__secure_response_header__(response)
+        except Exception as e:
+            logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+
+    def get_dependency_file():
+        """
+        It will try to find the requirements.txt file in the current directory and if it doesn't find
+        it, it will throw an exception
+        :return: the file path of the requirements.txt file.
+        """
+        try:
+            return _Audit.__find_requirements_file__()
+        except Exception as e:
+            logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+
+    def __audit_dependency_vulnerability__(file_path):
+        """
+        This function will take a file path as an argument and will call the
+        __dependency_vulnerability__ function from the _Audit class
+
+        :param file_path: The path to the file you want to audit
+        """
+        try:
+            _Audit.__dependency_vulnerability__(file_path)
+        except Exception as e:
+            logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+
+    def load_gemini_dependency_result() -> None:
+        try:
+            dependency_result_path = _Gemini.get_gemini_config('gemini_audit_dependency')
+            # Load the JSON data from a file
+            with open(dependency_result_path, 'r') as f:
+                data = json.load(f)
+            return data
         except Exception as e:
             logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))

@@ -778,6 +778,20 @@ template_dashboard = """<!DOCTYPE html>
         display: inline-block;
         margin-right: 10px;
       }
+
+      .select-form {
+        background-color: #f4f4f4;
+        border: none;
+        border-radius: 4px;
+        padding: 8px 16px;
+        font-size: 16px;
+        margin-bottom: 16px;
+        width: 100%
+      }
+
+      .select-form option {
+        font-size: 16px;
+      }
     </style>
   </head>
   <body>
@@ -810,13 +824,19 @@ template_dashboard = """<!DOCTYPE html>
               <span class="link-name" id="aclBtn">ACL</span>
             </a>
           </li>
+          <li>
+            <a href="#">
+              <i class="uil uil-files-landscapes"></i>
+              <span class="link-name" id="dependencyBtn">Dependency Vulnerability</span>
+            </a>
+          </li>
         </ul>
 
         <ul class="logout-mode">
           <li>
             <a href="https://github.com/noobpk" target="_blank">
               <i class="uil uil-signout"></i>
-              <span class="link-name">Auth</span>
+              <span class="link-name">Author</span>
             </a>
           </li>
           <li>
@@ -969,10 +989,10 @@ template_dashboard = """<!DOCTYPE html>
           </div>
           <div class="modal-body">
             <form method="POST" action="{{url_for('gemini_update_config')}}">
-              <div class="form-group form-inline">
+              <div class="form-group">
                 <label for="protect_mode">Global Protect Mode:</label>
                 <div class="form-group">
-                  <select name="protect_mode">
+                  <select class="select-form" name="protect_mode">
                     <option value="off" {% if _protect_mode == 'off' %}selected{% endif %}>Off</option>
                     <option value="monitor" {% if _protect_mode == 'monitor' %}selected{% endif %}>Monitor</option>
                     <option value="block" {% if _protect_mode == 'block' %}selected{% endif %}>Block</option>
@@ -980,7 +1000,7 @@ template_dashboard = """<!DOCTYPE html>
                 </div>
                 <label for="safe_redirect_status">Safe Redirect:</label>
                 <div class="form-group">
-                  <select name="safe_redirect_status">
+                  <select class="select-form" name="safe_redirect_status">
                     <option value="off" {% if _safe_redirect_status == 'off' %}selected{% endif %}>Off</option>
                     <option value="on" {% if _safe_redirect_status == 'on' %}selected{% endif %}>On</option>
                   </select>
@@ -1040,7 +1060,7 @@ template_dashboard = """<!DOCTYPE html>
           </div>
           <div class="modal-body">
             <form method="POST" action="{{url_for('gemini_update_acl')}}">
-              <label for="username">Deny IP:</label>
+              <label for="deney_ip">Deny IP:</label>
               <div class="form-group">
                 <input
                   type="text"
@@ -1053,6 +1073,64 @@ template_dashboard = """<!DOCTYPE html>
             </form>
           </div>
           <div class="modal-footer">
+          </div>
+        </div>
+      </div>
+      <!-- The Dependency Modal -->
+      <div id="dependencyModal" class="modal">
+        <!-- Modal Content -->
+        <div class="modal-content">
+          <div class="modal-header">
+            <span class="close dependencyClose">&times;</span>
+            <h2>Dependency Vulnerability</h2>
+          </div>
+          <div class="modal-body">
+            <form method="POST" action="{{url_for('gemini_dependency_audit')}}">
+              <label for="denpendencyPath">Path:</label>
+              <div class="form-group">
+                <select class="select-form" name="dependency_path" id="dependency_path">
+                  {% for file in _gemini_dependency_file %}
+                  <option value="{{file}}">{{file}}</option>
+                  {% endfor %}
+                </select>
+              </div>
+              <button type="submit">Check</button>
+            </form>
+            <!-- Box to display audit results -->
+            <div class="audit-results">
+              <h3>Audit Results:</h3>
+              {% if _gemini_dependency_result %}
+              <table id="dependency_result" class="table table-striped table-bordered" style="width: 100%">
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Package</th>
+                    <th>Version</th>
+                    <th>CVE ID</th>
+                    <th>Severity</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for entry in _gemini_dependency_result['gemini_audit_dependency'] %}
+                      {% for timestamp, details in entry.items() %}
+                          {% for detail in details %}
+                              <tr>
+                                  <td>{{ timestamp }}</td>
+                                  <td>{{ detail['package'] }}</td>
+                                  <td>{{ detail['version'] }}</td>
+                                  <td><a href="https://nvd.nist.gov/vuln/detail/{{ detail['cve_id'] }}">{{ detail['cve_id'] }}</a></td>
+                                  <td>{{ detail['severity'] }}</td>
+                              </tr>
+                          {% endfor %}
+                      {% endfor %}
+                  {% endfor %}
+              </tbody>
+              </table>
+              {% endif %}
+            </div>
+          </div>
+          <div class="modal-footer">
+            <i>Note: It takes some time to check. Please see the following results.</i>
           </div>
         </div>
       </div>
@@ -1107,17 +1185,30 @@ template_dashboard = """<!DOCTYPE html>
         });
       });
 
+      $(document).ready(function () {
+        $("#dependency_result").DataTable({
+          lengthMenu: [
+            [5, 10, 25, -1],
+            [5, 10, 25, "All"],
+          ],
+          pageLength: 5,
+        });
+      });
+
       // Get the modal
       var config_modal = document.getElementById("configModal");
       var acl_modal = document.getElementById("aclModal");
+      var dependency_modal = document.getElementById("dependencyModal");
 
       // Get the button that opens the modal
       var config_btn = document.getElementById("configurationBtn");
       var acl_btn = document.getElementById("aclBtn");
+      var dependency_btn = document.getElementById("dependencyBtn");
 
       // Get the <span> element that closes the modal
       var config_span = document.getElementsByClassName("configClose")[0];
       var acl_span = document.getElementsByClassName("aclClose")[0];
+      var dependency_span = document.getElementsByClassName("dependencyClose")[0];
 
       // When the user clicks the button, open the modal
       config_btn.onclick = function () {
@@ -1126,6 +1217,10 @@ template_dashboard = """<!DOCTYPE html>
 
       acl_btn.onclick = function () {
         acl_modal.style.display = "block";
+      };
+
+      dependency_btn.onclick = function () {
+        dependency_modal.style.display = "block";
       };
 
       // When the user clicks on <span> (x), close the modal
@@ -1137,6 +1232,10 @@ template_dashboard = """<!DOCTYPE html>
         acl_modal.style.display = "none";
       };
 
+      dependency_span.onclick = function () {
+        dependency_modal.style.display = "none";
+      };
+
       // When the user clicks anywhere outside of the modal, close it
       window.onclick = function (event) {
         if (event.target == config_modal) {
@@ -1144,6 +1243,9 @@ template_dashboard = """<!DOCTYPE html>
         }
         if (event.target == acl_modal) {
           acl_modal.style.display = "none";
+        }
+        if (event.target == dependency_modal) {
+          dependency_modal.style.display = "none";
         }
       };
 

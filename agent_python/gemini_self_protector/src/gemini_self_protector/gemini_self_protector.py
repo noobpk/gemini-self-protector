@@ -36,6 +36,9 @@ class GeminiManager(object):
         if not os.path.isfile(gemini_working_directory+'/acl.json'):
             _Gemini.init_gemini_acl(gemini_working_directory)
 
+        if not os.path.isfile(gemini_working_directory+'/audit_dependency.json'):
+            _Gemini.init_gemini_audit_dependency(gemini_working_directory)
+
         # Register this extension with the flask app now (if it is provided)
         if flask_app is not None:
             self.init_flask_app(flask_app)
@@ -81,6 +84,7 @@ class GeminiManager(object):
                         return render_template('gemini_protector_template/login.html')
                 except Exception as e:
                     logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+
             @flask_app.route('/'+dashboard_path+'/dashboard')
             def gemini_dashboard():
                 try:
@@ -96,6 +100,8 @@ class GeminiManager(object):
                         load_data_log = _Gemini.load_gemini_log()
                         load_data_store = _Gemini.load_gemini_data_store()
                         load_data_acl = _Gemini.load_gemini_acl()
+                        dependency_file = _Gemini.get_dependency_file()
+                        dependency_result = _Gemini.load_gemini_dependency_result()
                         return render_template('gemini_protector_template/dashboard.html',
                             _protect_mode=global_protect_mode,
                             _normal_request=normal_request,
@@ -107,7 +113,9 @@ class GeminiManager(object):
                             _max_content_length=int(max_content_length / 1024 / 1024),
                             _http_method=http_method_allow,
                             _safe_redirect_status=safe_redirect_status,
-                            _trust_domain_list=", ".join(trust_domain_list)
+                            _trust_domain_list=", ".join(trust_domain_list),
+                            _gemini_dependency_file=dependency_file,
+                            _gemini_dependency_result=dependency_result
                             )
                     else:
                         logger.warning("[!] Unauthentication Access.!")
@@ -115,6 +123,7 @@ class GeminiManager(object):
                         return redirect(url_for('gemini_login'))
                 except Exception as e:
                     logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+
             @flask_app.route('/'+dashboard_path+'/update-config', methods=['POST'])
             def gemini_update_config():
                 try:
@@ -196,6 +205,26 @@ class GeminiManager(object):
                 except Exception as e:
                     logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
 
+            @flask_app.route('/'+dashboard_path+'/dependency-vulnerability', methods=['POST'])
+            def gemini_dependency_audit():
+                try:
+                    if session.get('gemini_logged_in'):
+                        file_path = request.form['dependency_path']
+                        filename = os.path.basename(file_path)
+                        if filename ==  'requirements.txt':
+                            _Gemini.__audit_dependency_vulnerability__(file_path)
+                            return redirect(url_for('gemini_dashboard'))
+                        else:
+                            logger.info("[+] This {} is not valid requirement file".format(file_path))
+                            flash('Cannot dependency audit with your input.')
+                            return redirect(url_for('gemini_dashboard'))
+                    else:
+                        logger.warning("[!] Unauthentication Access.!")
+                        flash('Please login')
+                        return redirect(url_for('gemini_login'))
+                except Exception as e:
+                    logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+
             @flask_app.route('/'+dashboard_path+'/logout')
             def gemini_logout():
                 try:
@@ -229,7 +258,6 @@ class GeminiManager(object):
                         gemini_protect_mode = 'off'
                     else:
                         gemini_protect_mode = protect_mode
-
                     protect_request = _Gemini.__load_protect_flask_request__(gemini_protect_mode)
                     if protect_request["Status"]:
                         response = make_response(f(*args, **kwargs))
