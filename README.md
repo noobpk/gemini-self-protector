@@ -37,7 +37,7 @@ For more details: [Web-Vuln-Detection-Predict](https://github.com/noobpk/Web-Vul
 | ---------------------------- | ------------------ |
 | Insecure Cookies & Transport |                    |
 | Weak Browser Caching         | :white_check_mark: |
-| Vulnerable Dependencies      |                    |
+| Vulnerable Dependencies      | :white_check_mark: |
 | Weak Cryptography            |                    |
 
 # Installation
@@ -63,13 +63,17 @@ The license key is used for authentication with the API.
 | ------- | --------- |
 |Key|988907ce-9803-11ed-a8fc-0242ac120002|
 
-## Features
+## Dashboard Features
 
-👉 Dashboard Access
+👉 Hot Configuration config.yml
 
 👉 Access List Controll
 
 👉 Log Activity
+
+👉 Dependency Vulnerability Check
+
+👉 Monitor Abnormal Request
 
 ## Contributing
 
