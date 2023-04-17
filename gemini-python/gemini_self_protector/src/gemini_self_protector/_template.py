@@ -1118,7 +1118,11 @@ template_dashboard = """<!DOCTYPE html>
                                   <td>{{ timestamp }}</td>
                                   <td>{{ detail['package'] }}</td>
                                   <td>{{ detail['version'] }}</td>
+                                  {% if detail['cve_id'] %}
                                   <td><a href="https://nvd.nist.gov/vuln/detail/{{ detail['cve_id'] }}">{{ detail['cve_id'] }}</a></td>
+                                  {% else %}
+                                  <td>Not found</td>
+                                  {% endif %}
                                   <td>{{ detail['severity'] }}</td>
                               </tr>
                           {% endfor %}
@@ -1308,37 +1312,42 @@ template_dashboard = """<!DOCTYPE html>
 </html>
 """
 
+
 class _Template(object):
 
     def gemini_template(flask_template_folder):
-      """
-      It creates a folder called gemini_protector_template in the flask_template_folder and creates
-      two files in it called login.html and dashboard.html
+        """
+        It creates a folder called gemini_protector_template in the flask_template_folder and creates
+        two files in it called login.html and dashboard.html
 
-      :param flask_template_folder: This is the folder where you want to store the templates
-      """
-      try:
-        template_directory = os.path.join(flask_template_folder, r'gemini_protector_template')
-        if not os.path.exists(template_directory):
-            os.makedirs(template_directory)
+        :param flask_template_folder: This is the folder where you want to store the templates
+        """
+        try:
+            template_directory = os.path.join(
+                flask_template_folder, r'gemini_protector_template')
+            if not os.path.exists(template_directory):
+                os.makedirs(template_directory)
 
-        with open(flask_template_folder+'/gemini_protector_template/login.html','w+', encoding="utf-8") as f:
-            f.write(template_login)
+            with open(flask_template_folder+'/gemini_protector_template/login.html', 'w+', encoding="utf-8") as f:
+                f.write(template_login)
 
-        with open(flask_template_folder+'/gemini_protector_template/dashboard.html','w+', encoding="utf-8") as f:
-            f.write(template_dashboard)
-      except Exception as e:
-        logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+            with open(flask_template_folder+'/gemini_protector_template/dashboard.html', 'w+', encoding="utf-8") as f:
+                f.write(template_dashboard)
+        except Exception as e:
+            logger.error(
+                "[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
 
     def gemini_static_file(flask_static_folder):
-      """
-      It creates a directory called gemini_protector_static in the static folder of the flask app.
+        """
+        It creates a directory called gemini_protector_static in the static folder of the flask app.
 
-      :param flask_static_folder: This is the folder where you want to store the static files
-      """
-      try:
-        static_directory = os.path.join(flask_static_folder, r'gemini_protector_static')
-        if not os.path.exists(static_directory):
-              os.makedirs(static_directory)
-      except Exception as e:
-        logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+        :param flask_static_folder: This is the folder where you want to store the static files
+        """
+        try:
+            static_directory = os.path.join(
+                flask_static_folder, r'gemini_protector_static')
+            if not os.path.exists(static_directory):
+                os.makedirs(static_directory)
+        except Exception as e:
+            logger.error(
+                "[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
