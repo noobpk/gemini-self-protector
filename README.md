@@ -2,6 +2,9 @@
 
 Gemini - The Runtime Application Self Protection Solution Combined With Deep Learning
 
+# Architecture
+
+
 # Support
 
 | Language | Platform/ Framework |
@@ -10,7 +13,7 @@ Gemini - The Runtime Application Self Protection Solution Combined With Deep Lea
 
 # Deep Learning
 
-Gemini utilizes the deep learning model called Character-level Convolutional Neural Network (Char-CNN) to detect and identify vulnerabilities. Char-CNN is capable of analyzing features at each character in the input data, using convolution operation to identify distinctive features in the data, thus improving the accuracy of vulnerability detection.
+Gemini uses a deep learning model that combines Convolutional Neural Network (CNN) and Long short-term memory (LSTM) to detect and identify vulnerabilities. This model uses convolution operation to determine the feature attributes and internal relationships in the input data thereby improving the accuracy of vulnerability detection.
 
 For more details: [Web-Vuln-Detection-Predict](https://github.com/noobpk/Web-Vuln-Detection-Predict)
 
