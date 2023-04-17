@@ -4,6 +4,8 @@ Gemini - The Runtime Application Self Protection Solution Combined With Deep Lea
 
 ## Architecture
 
+The architecture of gemini-self-protector is composed of seven layers however it is optimized so as not to affect the performance on the application.
+
 ![image](https://user-images.githubusercontent.com/31820707/232506270-b0776d83-34b8-47fb-aa2a-eab3a4cc3be7.png)
 
 ## Support
