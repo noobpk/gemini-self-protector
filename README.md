@@ -1,6 +1,6 @@
 # gemini-self-protector
 
-Gemini - The Runtime Application Self Protection Solution Combined With Deep Learning
+Gemini - The Runtime Application Self Protection (RASP) Solution Combined With Deep Learning
 
 ## Architecture
 
