@@ -2,19 +2,25 @@
 
 Gemini - The Runtime Application Self Protection Solution Combined With Deep Learning
 
-# Support
+## Architecture
+
+The architecture of gemini-self-protector is composed of seven layers however it is optimized so as not to affect the performance on the application.
+
+![image](https://user-images.githubusercontent.com/31820707/232506270-b0776d83-34b8-47fb-aa2a-eab3a4cc3be7.png)
+
+## Support
 
 | Language | Platform/ Framework |
 | -------- | ------------------- |
 | Python   | Flask               |
 
-# Deep Learning
+## Deep Learning
 
-Gemini utilizes the deep learning model called Character-level Convolutional Neural Network (Char-CNN) to detect and identify vulnerabilities. Char-CNN is capable of analyzing features at each character in the input data, using convolution operation to identify distinctive features in the data, thus improving the accuracy of vulnerability detection.
+Gemini uses a deep learning model that combines Convolutional Neural Network (CNN) and Long short-term memory (LSTM) to detect and identify vulnerabilities. This model uses convolution operation to determine the feature attributes and internal relationships in the input data thereby improving the accuracy of vulnerability detection.
 
 For more details: [Web-Vuln-Detection-Predict](https://github.com/noobpk/Web-Vuln-Detection-Predict)
 
-# Gemini Protect Against
+## Gemini Protect Against
 
 | Attacks                 | Supported          |
 | ----------------------- | ------------------ |
@@ -40,7 +46,7 @@ For more details: [Web-Vuln-Detection-Predict](https://github.com/noobpk/Web-Vul
 | Vulnerable Dependencies      | :white_check_mark: |
 | Weak Cryptography            |                    |
 
-# Installation
+## Installation
 
 ```
 $ pip install gemini_self_protector
