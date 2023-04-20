@@ -73,7 +73,7 @@ The license key is used for authentication with the API.
 
 👉 Hot Configuration config.yml
 
-👉 Access List Controll
+👉 Access List Control
 
 👉 Log Activity
 
