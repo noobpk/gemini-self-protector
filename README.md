@@ -2,6 +2,8 @@
 
 Gemini - The Runtime Application Self Protection (RASP) Solution Combined With Deep Learning
 
+[![CodeQL](https://github.com/noobpk/gemini-self-protector/actions/workflows/codeql.yml/badge.svg?branch=main)](https://github.com/noobpk/gemini-self-protector/actions/workflows/codeql.yml)
+
 ## Architecture
 
 The architecture of gemini-self-protector is composed of seven layers however it is optimized so as not to affect the performance on the application.
