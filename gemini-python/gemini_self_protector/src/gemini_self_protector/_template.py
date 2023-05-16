@@ -840,7 +840,7 @@ template_dashboard = """<!DOCTYPE html>
             </a>
           </li>
           <li>
-            <a href="{{url_for('gemini_logout')}}">
+            <a href="{{url_for('nested_service.gemini_logout')}}">
               <i class="uil uil-signout"></i>
               <span class="link-name">Logout</span>
             </a>
@@ -988,7 +988,7 @@ template_dashboard = """<!DOCTYPE html>
             <h2>Configuration</h2>
           </div>
           <div class="modal-body">
-            <form method="POST" action="{{url_for('gemini_update_config')}}">
+            <form method="POST" action="{{url_for('nested_service.gemini_update_config')}}">
               <div class="form-group">
                 <label for="protect_mode">Global Protect Mode:</label>
                 <div class="form-group">
@@ -1059,7 +1059,7 @@ template_dashboard = """<!DOCTYPE html>
             <h2>Access List Control</h2>
           </div>
           <div class="modal-body">
-            <form method="POST" action="{{url_for('gemini_update_acl')}}">
+            <form method="POST" action="{{url_for('nested_service.gemini_update_acl')}}">
               <label for="deney_ip">Deny IP:</label>
               <div class="form-group">
                 <input
@@ -1085,7 +1085,7 @@ template_dashboard = """<!DOCTYPE html>
             <h2>Dependency Vulnerability</h2>
           </div>
           <div class="modal-body">
-            <form method="POST" action="{{url_for('gemini_dependency_audit')}}">
+            <form method="POST" action="{{url_for('nested_service.gemini_dependency_audit')}}">
               <label for="denpendencyPath">Path:</label>
               <div class="form-group">
                 <select class="select-form" name="dependency_path" id="dependency_path">
@@ -1289,7 +1289,7 @@ template_dashboard = """<!DOCTYPE html>
         removeButtons.forEach(button => {
           button.addEventListener('click', () => {
             const ip = button.getAttribute('data-ip');
-            fetch('{{url_for('gemini_remove_acl')}}', {
+            fetch('{{url_for('nested_service.gemini_remove_acl')}}', {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/x-www-form-urlencoded'

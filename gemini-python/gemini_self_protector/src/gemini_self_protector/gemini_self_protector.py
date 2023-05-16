@@ -1,7 +1,7 @@
 import os
 from ._gemini import _Gemini
 from functools import wraps
-from flask import Flask, request, make_response, render_template, session, redirect, url_for, flash
+from flask import Flask, Blueprint, request, make_response, render_template, session, redirect, url_for, flash
 from ._logger import logger
 import ipaddress
 from datetime import datetime, timezone
@@ -9,7 +9,7 @@ from datetime import datetime, timezone
 
 class GeminiManager(object):
 
-    def __init__(self, flask_app: Flask = None, license_key="w"):
+    def __init__(self, flask_app: Flask = None, license_key="w", dashboard_port="w"):
         """
         This function is used to initialize the class.
 
@@ -46,6 +46,9 @@ class GeminiManager(object):
             self.init_flask_app(flask_app)
 
     def init_flask_app(self, flask_app: Flask) -> None:
+        # Create a blueprint for the nested Flask service
+        nested_service = Blueprint('nested_service', __name__)
+
         if flask_app.secret_key is None:
             flask_app.secret_key = _Gemini.get_gemini_config(
                 'gemini_secret_key')
@@ -63,22 +66,22 @@ class GeminiManager(object):
             logger.info(
                 "[+] Check the config file at gemini_protector/config.yml/config.yaml for the password.")
 
-            @flask_app.route('/'+dashboard_path, methods=['GET', 'POST'])
+            @nested_service.route('/', methods=['GET', 'POST'])
             def gemini_init():
                 try:
                     if session.get('gemini_logged_in'):
-                        return redirect(url_for('gemini_dashboard'))
+                        return redirect(url_for('nested_service.gemini_dashboard'))
                     else:
-                        return redirect(url_for('gemini_login'))
+                        return redirect(url_for('nested_service.gemini_login'))
                 except Exception as e:
                     logger.error(
                         "[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
 
-            @flask_app.route('/'+dashboard_path+'/login', methods=['GET', 'POST'])
+            @nested_service.route('/login', methods=['GET', 'POST'])
             def gemini_login():
                 try:
                     if request.method == 'GET' and session.get('gemini_logged_in'):
-                        return redirect(url_for('gemini_dashboard'))
+                        return redirect(url_for('nested_service.gemini_dashboard'))
                     elif request.method == 'POST':
                         password = request.form['password']
                         secret_password = _Gemini.get_gemini_config(
@@ -86,7 +89,7 @@ class GeminiManager(object):
                         if password == secret_password:
                             logger.info("[+] Login sucessfully.!")
                             session['gemini_logged_in'] = True
-                            return redirect(url_for('gemini_dashboard'))
+                            return redirect(url_for('nested_service.gemini_dashboard'))
                         else:
                             return render_template('gemini_protector_template/login.html', error="Incorrect Password")
                     else:
@@ -95,7 +98,7 @@ class GeminiManager(object):
                     logger.error(
                         "[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
 
-            @flask_app.route('/'+dashboard_path+'/dashboard')
+            @nested_service.route('/dashboard')
             def gemini_dashboard():
                 try:
                     if session.get('gemini_logged_in'):
@@ -140,12 +143,12 @@ class GeminiManager(object):
                     else:
                         logger.warning("[!] Unauthentication Access.!")
                         flash('Please login')
-                        return redirect(url_for('gemini_login'))
+                        return redirect(url_for('nested_service.gemini_login'))
                 except Exception as e:
                     logger.error(
                         "[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
 
-            @flask_app.route('/'+dashboard_path+'/update-config', methods=['POST'])
+            @nested_service.route('/update-config', methods=['POST'])
             def gemini_update_config():
                 try:
                     if session.get('gemini_logged_in'):
@@ -171,21 +174,21 @@ class GeminiManager(object):
                             logger.info(
                                 "[+] Update configuration successfully.!")
                             flash('Update configuration successfully!')
-                            return redirect(url_for('gemini_dashboard'))
+                            return redirect(url_for('nested_service.gemini_dashboard'))
                         else:
                             logger.error(
                                 "[x_x] Update configuration unsuccessfully.!")
                             flash('Cannot update config with your input')
-                            return redirect(url_for('gemini_dashboard'))
+                            return redirect(url_for('nested_service.gemini_dashboard'))
                     else:
                         logger.warning("[!] Unauthentication Access.!")
                         flash('Please login')
-                        return redirect(url_for('gemini_login'))
+                        return redirect(url_for('nested_service.gemini_login'))
                 except Exception as e:
                     logger.error(
                         "[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
 
-            @flask_app.route('/'+dashboard_path+'/update-acl', methods=['POST'])
+            @nested_service.route('/update-acl', methods=['POST'])
             def gemini_update_acl():
                 try:
                     if session.get('gemini_logged_in'):
@@ -199,21 +202,21 @@ class GeminiManager(object):
                             logger.info(
                                 "[+] Update acl successfully.!".format(ip_address))
                             flash('Update acl successfully!')
-                            return redirect(url_for('gemini_dashboard'))
+                            return redirect(url_for('nested_service.gemini_dashboard'))
                         else:
                             logger.info(
                                 "[+] IP address {} is not valid".format(ip_address))
                             flash('Cannot update acl with your input')
-                            return redirect(url_for('gemini_dashboard'))
+                            return redirect(url_for('nested_service.gemini_dashboard'))
                     else:
                         logger.warning("[!] Unauthentication Access.!")
                         flash('Please login')
-                        return redirect(url_for('gemini_login'))
+                        return redirect(url_for('nested_service.gemini_login'))
                 except Exception as e:
                     logger.error(
                         "[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
 
-            @flask_app.route('/'+dashboard_path+'/remove-acl', methods=['POST'])
+            @nested_service.route('/remove-acl', methods=['POST'])
             def gemini_remove_acl():
                 try:
                     if session.get('gemini_logged_in'):
@@ -223,21 +226,21 @@ class GeminiManager(object):
                         if ip:
                             _Gemini.remove_gemini_acl(str(ip))
                             logger.info("[+] Remove acl successfully.!")
-                            return redirect(url_for('gemini_dashboard'))
+                            return redirect(url_for('nested_service.gemini_dashboard'))
                         else:
                             logger.info(
                                 "[+] IP address {} is not valid".format(ip_address))
                             flash('Cannot remove acl with your input.')
-                            return redirect(url_for('gemini_dashboard'))
+                            return redirect(url_for('nested_service.gemini_dashboard'))
                     else:
                         logger.warning("[!] Unauthentication Access.!")
                         flash('Please login')
-                        return redirect(url_for('gemini_login'))
+                        return redirect(url_for('nested_service.gemini_login'))
                 except Exception as e:
                     logger.error(
                         "[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
 
-            @flask_app.route('/'+dashboard_path+'/dependency-vulnerability', methods=['POST'])
+            @nested_service.route('/dependency-vulnerability', methods=['POST'])
             def gemini_dependency_audit():
                 try:
                     if session.get('gemini_logged_in'):
@@ -246,29 +249,33 @@ class GeminiManager(object):
                         if filename == 'requirements.txt':
                             _Gemini.__audit_dependency_vulnerability__(
                                 file_path)
-                            return redirect(url_for('gemini_dashboard'))
+                            return redirect(url_for('nested_service.gemini_dashboard'))
                         else:
                             logger.info(
                                 "[+] This {} is not valid requirement file".format(file_path))
                             flash('Cannot dependency audit with your input.')
-                            return redirect(url_for('gemini_dashboard'))
+                            return redirect(url_for('nested_service.gemini_dashboard'))
                     else:
                         logger.warning("[!] Unauthentication Access.!")
                         flash('Please login')
-                        return redirect(url_for('gemini_login'))
+                        return redirect(url_for('nested_service.gemini_login'))
                 except Exception as e:
                     logger.error(
                         "[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
 
-            @flask_app.route('/'+dashboard_path+'/logout')
+            @nested_service.route('/logout', methods=['GET'])
             def gemini_logout():
                 try:
                     session['gemini_logged_in'] = False
                     flash('Logout successfully!')
-                    return redirect(url_for('gemini_login'))
+                    return redirect(url_for('nested_service.gemini_login'))
                 except Exception as e:
                     logger.error(
                         "[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+
+            # Register the blueprint with the main application
+            flask_app.register_blueprint(
+                nested_service, url_prefix='/'+dashboard_path)
 
     def flask_protect_extended(self, protect_mode=None) -> None:
         """
