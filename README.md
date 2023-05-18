@@ -102,9 +102,8 @@ Gemini supports 3 modes and recommends sensitivity levels for the application to
 ## License Key
 
 The license key is used for authentication with the API.
-| | |
-| ------- | --------- |
-|Key|988907ce-9803-11ed-a8fc-0242ac120002|
+
+Key: `988907ce-9803-11ed-a8fc-0242ac120002`
 
 ## Dashboard Features
 
