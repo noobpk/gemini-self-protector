@@ -6,19 +6,28 @@ from datetime import datetime, timezone
 from urllib.parse import urlparse, urljoin
 import json
 
+
 class _Protect(object):
 
     def __secure_response_header__(response):
         try:
-            global_protect_mode = _Config.get_config('gemini_global_protect_mode')
+            server_name = _Config.get_config('gemini_server_name')
+            global_protect_mode = _Config.get_config(
+                'gemini_global_protect_mode')
             http_method_allow = _Config.get_config('gemini_http_method_allow')
+            cors = _Config.get_config('gemini_cors')
+            cors_origin = cors['origin']
+            cors_method = cors['methods']
+            cors_credential = cors['credentials']
+            cors_header = cors['headers']
 
+            response.headers['Server'] = server_name
             response.headers['X-Gemini-Self-Protector'] = global_protect_mode
             response.headers['Referrer-Policy'] = 'no-referrer-when-downgrade'
             response.headers['X-Content-Type-Options'] = 'nosniff'
             response.headers['X-XSS-Protection'] = '1; mode=block'
             response.headers['X-Frame-Options'] = 'SAMEORIGIN'
-            response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'
+            response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains; preload'
             response.headers['X-Permitted-Cross-Domain-Policies'] = 'none'
             response.headers['Expect-CT'] = 'enforce; max-age=31536000'
             response.headers['Feature-Policy'] = "fullscreen 'self'"
@@ -26,10 +35,28 @@ class _Protect(object):
             response.headers['Pragma'] = 'no-cache'
             response.headers['Expires'] = '0'
             response.headers['X-UA-Compatible'] = 'IE=Edge,chrome=1'
-            response.headers['X-Gemini-HTTP-Allow'] = ', '.join(http_method_allow)
+            response.headers['X-Gemini-HTTP-Allow'] = ', '.join(
+                http_method_allow)
+            response.headers['Access-Control-Allow-Origin'] = cors_origin
+            response.headers['Access-Control-Allow-Methods'] = cors_method
+            response.headers['Access-Control-Allow-Credentials'] = cors_credential
+            response.headers['Access-Control-Allow-Headers'] = ', '.join(
+                cors_header)
             return response
         except Exception as e:
-            logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+            logger.error(
+                "[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+
+    def __secure_cookie__(app):
+        try:
+            app.config.update(
+                SESSION_COOKIE_SECURE=True,
+                SESSION_COOKIE_HTTPONLY=True,
+                SESSION_COOKIE_SAMESITE='Lax',
+            )
+        except Exception as e:
+            logger.error(
+                "[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
 
     def __handle_normal_request__(_request, predict, _ticket) -> None:
         """
@@ -46,7 +73,8 @@ class _Protect(object):
             # _dict = {"Time": current_time, "Request": _request, "Predict": predict}
             # _Config.update_data_store(_dict)
         except Exception as e:
-            logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+            logger.error(
+                "[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
 
     def __handle_abnormal_request__(_request, _predict, _attack_type, _ticket) -> None:
         """
@@ -58,19 +86,24 @@ class _Protect(object):
         """
         try:
             abnormal_request = _Config.get_config('gemini_abnormal_request')
-            _Config.update_config({'gemini_abnormal_request': abnormal_request+1})
+            _Config.update_config(
+                {'gemini_abnormal_request': abnormal_request+1})
             now = datetime.now()
             current_time = now.strftime("%Y-%m-%d %H:%M:%S")
-            _dict = {"Time": current_time, "Request": _request, "AttackType": _attack_type, "Predict": _predict, "IncidentID": str(_ticket["IncidentID"])}
+            _dict = {"Time": current_time, "Request": _request, "AttackType": _attack_type,
+                     "Predict": _predict, "IncidentID": str(_ticket["IncidentID"])}
             _Config.update_data_store(_dict)
-            logger.warning("[+] Gemini Alert: Abnormal detection - IP: {}. Incident ID: {}".format(_ticket["IP"], _ticket["IncidentID"]))
+            logger.warning("[+] Gemini Alert: Abnormal detection - IP: {}. Incident ID: {}".format(
+                _ticket["IP"], _ticket["IncidentID"]))
         except Exception as e:
-            logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+            logger.error(
+                "[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
 
     def __handle_original_request__(_request, _full_request, _ticket) -> None:
         try:
             http_method_allow = _Config.get_config('gemini_http_method_allow')
-            max_content_length = _Config.get_config('gemini_max_content_length')
+            max_content_length = _Config.get_config(
+                'gemini_max_content_length')
 
             req_length = 0
             if 'Content-Length' in _request.headers:
@@ -80,23 +113,29 @@ class _Protect(object):
                 if int(req_length) < max_content_length:
                     return True
                 else:
-                    _Protect.__handle_abnormal_request__(_full_request, None, "Large Requests", _ticket)
+                    _Protect.__handle_abnormal_request__(
+                        _full_request, None, "Large Requests", _ticket)
                     return False
             else:
-                _Protect.__handle_abnormal_request__(_full_request, None, "HTTP Method Tampering", _ticket)
+                _Protect.__handle_abnormal_request__(
+                    _full_request, None, "HTTP Method Tampering", _ticket)
                 return False
         except Exception as e:
-            logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+            logger.error(
+                "[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
 
     def __handle_abnormal_response__(_request_response, _predict, _attack_type, _ticket) -> None:
         try:
             now = datetime.now()
             current_time = now.strftime("%Y-%m-%d %H:%M:%S")
-            _dict = {"Time": current_time, "Request": _request_response, "AttackType": _attack_type, "Predict": _predict, "IncidentID": str(_ticket["IncidentID"])}
+            _dict = {"Time": current_time, "Request": _request_response, "AttackType": _attack_type,
+                     "Predict": _predict, "IncidentID": str(_ticket["IncidentID"])}
             _Config.update_data_store(_dict)
-            logger.warning("[+] Gemini Alert: Abnormal detection - IP: {}. Incident ID: {}".format(_ticket["IP"], _ticket["IncidentID"]))
+            logger.warning("[+] Gemini Alert: Abnormal detection - IP: {}. Incident ID: {}".format(
+                _ticket["IP"], _ticket["IncidentID"]))
         except Exception as e:
-            logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+            logger.error(
+                "[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
 
     def __handle_original_response__(_request_response, _response, _ticket) -> None:
         try:
@@ -114,14 +153,16 @@ class _Protect(object):
                 if urlparse(external_url).netloc != urlparse(base_url).netloc:
                     # check if the external URL is safe to redirect to
                     if not is_safe_url(external_url):
-                        _Protect.__handle_abnormal_response__(_request_response, None, "Unvalidated Redirects", _ticket)
+                        _Protect.__handle_abnormal_response__(
+                            _request_response, None, "Unvalidated Redirects", _ticket)
                         return False
                     else:
                         return True
             else:
                 return True
         except Exception as e:
-            logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+            logger.error(
+                "[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
 
     def __protect_flask_request__(gemini_protect_mode) -> None:
         try:
@@ -132,7 +173,7 @@ class _Protect(object):
             # and request data into a string.
             req_method = request.method
             req_full_path = request.full_path
-            req_headers = ''#str(request.headers)
+            req_headers = ''  # str(request.headers)
             req_body = None
             if request.data:
                 req_body = request.data.decode('utf-8')
@@ -142,7 +183,8 @@ class _Protect(object):
             else:
                 req_body = None
 
-            _full_request = '{} {}\n{}\n{}'.format(req_method, req_full_path, req_headers, req_body)
+            _full_request = '{} {}\n{}\n{}'.format(
+                req_method, req_full_path, req_headers, req_body)
 
             _ticket = _Utils.insident_ticket()
             if gemini_protect_mode == 'monitor':
@@ -153,11 +195,13 @@ class _Protect(object):
                     predict = _Utils.web_vuln_detect_predict(payload)
                     if predict < sensitive_value:
                         status = True
-                        _Protect.__handle_normal_request__(_full_request, predict, _ticket)
+                        _Protect.__handle_normal_request__(
+                            _full_request, predict, _ticket)
                         return {"Status": status, "Ticket": _ticket}
                     else:
                         status = True
-                        _Protect.__handle_abnormal_request__(_full_request, predict, "Malicious Request")
+                        _Protect.__handle_abnormal_request__(
+                            _full_request, predict, "Malicious Request")
                         return {"Status": status, "Ticket": _ticket}
                 else:
                     status = True
@@ -173,11 +217,13 @@ class _Protect(object):
                     # will return a status of True (safe). If it's not, then it will return a status of False (unsafe).
                     if predict < sensitive_value:
                         status = True
-                        _Protect.__handle_normal_request__(_full_request, predict, _ticket)
+                        _Protect.__handle_normal_request__(
+                            _full_request, predict, _ticket)
                         return {"Status": status, "Ticket": _ticket}
                     else:
                         status = False
-                        _Protect.__handle_abnormal_request__(_full_request, predict, "Malicious Request", _ticket)
+                        _Protect.__handle_abnormal_request__(
+                            _full_request, predict, "Malicious Request", _ticket)
                         return {"Status": status, "Ticket": _ticket}
                 else:
                     status = False
@@ -192,14 +238,15 @@ class _Protect(object):
                 status = True
                 return {"Status": status}
         except Exception as e:
-            logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+            logger.error(
+                "[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
 
     def __protect_flask_response__(safe_redirect, original_response, gemini_protect_mode) -> None:
         try:
             if safe_redirect == 'on':
                 req_method = request.method
                 req_full_path = request.full_path
-                req_headers = ''#request.headers
+                req_headers = ''  # request.headers
                 req_body = None
                 if request.data:
                     req_body = request.data.decode('utf-8')
@@ -214,7 +261,8 @@ class _Protect(object):
                 res_data = original_response.data
 
                 _full_response = '{}\n{}'.format(res_status, res_headers)
-                _full_request_response = '{} {}\n{}\n{}\n----\n{}'.format(req_method, req_full_path, req_headers, req_body, _full_response)
+                _full_request_response = '{} {}\n{}\n{}\n----\n{}'.format(
+                    req_method, req_full_path, req_headers, req_body, _full_response)
 
                 _ticket = _Utils.insident_ticket()
                 if gemini_protect_mode == 'monitor':
@@ -245,4 +293,5 @@ class _Protect(object):
                 status = True
                 return {"Status": status}
         except Exception as e:
-            logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+            logger.error(
+                "[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))

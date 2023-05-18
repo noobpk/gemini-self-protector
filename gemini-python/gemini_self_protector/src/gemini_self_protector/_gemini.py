@@ -12,6 +12,8 @@ from datetime import datetime, timezone
 import secrets
 
 # It's a class that contains a bunch of methods that are used to interact with the Gemini API
+
+
 class _Gemini(object):
 
     def init_gemini_config(working_directory):
@@ -34,16 +36,24 @@ class _Gemini(object):
                     'gemini_abnormal_request': 0,
                     'gemini_global_protect_mode': 'monitor',
                     'gemini_sensitive_value': 50,
-                    'gemini_max_content_length': 52428800, # 50 * 1024 * 1024 = 50MB
+                    'gemini_max_content_length': 52428800,  # 50 * 1024 * 1024 = 50MB
                     'gemini_http_method_allow': ['OPTIONS', 'GET', 'POST', 'PUT', 'DELETE'],
                     'gemini_safe_redirect': 'off',
                     'gemini_trust_domain': [],
+                    'gemini_cors': {
+                        'origin': '*',
+                        'methods': '*',
+                        'credentials': True,
+                        'headers': ['Content-Type']
+                    },
+                    'gemini_server_name': 'gemini'
                 }
             }
             _Config(working_directory, init_gemini_config_content)
 
         except Exception as e:
-            logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+            logger.error(
+                "[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
 
     def get_gemini_config(config_key) -> None:
         """
@@ -56,7 +66,8 @@ class _Gemini(object):
             _gemini_return = _Config.get_config(config_key)
             return _gemini_return
         except Exception as e:
-            logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+            logger.error(
+                "[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
 
     def update_gemini_config(config_content):
         """
@@ -68,7 +79,8 @@ class _Gemini(object):
         try:
             _Config.update_config(config_content)
         except Exception as e:
-            logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+            logger.error(
+                "[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
 
     def init_gemini_data_store(working_directory):
         """
@@ -79,7 +91,8 @@ class _Gemini(object):
         try:
             _Config.init_data_store(working_directory)
         except Exception as e:
-            logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+            logger.error(
+                "[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
 
     def update_gemini_data_store(_dict):
         """
@@ -91,7 +104,8 @@ class _Gemini(object):
         try:
             _Config.update_data_store(_dict)
         except Exception as e:
-            logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+            logger.error(
+                "[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
 
     def init_gemini_acl(working_directory):
         """
@@ -102,7 +116,8 @@ class _Gemini(object):
         try:
             _Config.init_acl(working_directory)
         except Exception as e:
-            logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+            logger.error(
+                "[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
 
     def update_gemini_acl(_dict):
         """
@@ -113,7 +128,8 @@ class _Gemini(object):
         try:
             _Config.update_acl(_dict)
         except Exception as e:
-            logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+            logger.error(
+                "[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
 
     def load_gemini_acl() -> None:
         """
@@ -127,11 +143,13 @@ class _Gemini(object):
                 data = json.load(f)
 
             # Create a list of dictionaries containing the three columns
-            rows = [{'Time': d['Time'], 'Ip': d['Ip']} for d in data['gemini_acl']]
+            rows = [{'Time': d['Time'], 'Ip': d['Ip']}
+                    for d in data['gemini_acl']]
             return rows
 
         except Exception as e:
-            logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+            logger.error(
+                "[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
 
     def check_gemini_acl(_ip_address) -> None:
         """
@@ -143,19 +161,22 @@ class _Gemini(object):
         try:
            return _Config.check_acl(_ip_address)
         except Exception as e:
-            logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+            logger.error(
+                "[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
 
     def remove_gemini_acl(_ip_address):
         try:
             _Config.remove_acl(_ip_address)
         except Exception as e:
-            logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+            logger.error(
+                "[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
 
     def init_gemini_audit_dependency(working_directory):
         try:
             _Config.init_audit_dependency(working_directory)
         except Exception as e:
-            logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+            logger.error(
+                "[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
 
     def validator_license_key(license_key):
         """
@@ -166,7 +187,8 @@ class _Gemini(object):
         try:
             _Validator.validate_license_key(license_key)
         except Exception as e:
-            logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+            logger.error(
+                "[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
 
     def validator_protect_mode(protect_mode) -> None:
         """
@@ -180,7 +202,8 @@ class _Gemini(object):
             _gemini_return = _Validator.validate_protect_mode(protect_mode)
             return _gemini_return
         except Exception as e:
-            logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+            logger.error(
+                "[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
 
     def validator_http_method(http_method):
         """
@@ -194,7 +217,8 @@ class _Gemini(object):
            _gemini_return = _Validator.validate_http_method(http_method)
            return _gemini_return
         except Exception as e:
-            logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+            logger.error(
+                "[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
 
     def validator_sensitive_value(sensitive_value) -> None:
         """
@@ -204,17 +228,21 @@ class _Gemini(object):
         :return: The return value is a dictionary.
         """
         try:
-            _gemini_return = _Validator.validate_sensitive_value(sensitive_value)
+            _gemini_return = _Validator.validate_sensitive_value(
+                sensitive_value)
             return _gemini_return
         except Exception as e:
-            logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+            logger.error(
+                "[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
 
     def validator_safe_redirect_status(safe_redirect_status) -> None:
         try:
-            _gemini_return = _Validator.validate_safe_redirect_status(safe_redirect_status)
+            _gemini_return = _Validator.validate_safe_redirect_status(
+                safe_redirect_status)
             return _gemini_return
         except Exception as e:
-            logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+            logger.error(
+                "[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
 
     def validator_trust_domain(trust_domain_list):
         """
@@ -225,10 +253,12 @@ class _Gemini(object):
         :return: The return is a list of dictionaries.
         """
         try:
-            _gemini_return = _Validator.validate_trust_domain(trust_domain_list)
+            _gemini_return = _Validator.validate_trust_domain(
+                trust_domain_list)
             return _gemini_return
         except Exception as e:
-            logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+            logger.error(
+                "[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
 
     def init_gemini_dashboard(flask_template_folder, flask_static_folder):
         """
@@ -242,7 +272,8 @@ class _Gemini(object):
             _Template.gemini_template(flask_template_folder)
             _Template.gemini_static_file(flask_static_folder)
         except Exception as e:
-            logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+            logger.error(
+                "[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
 
     def init_gemini_dashboard_path():
         """
@@ -250,9 +281,11 @@ class _Gemini(object):
         """
         try:
             dashboard_path = _Utils.create_path()
-            _Gemini.update_gemini_config({"gemini_dashboard_path":dashboard_path})
+            _Gemini.update_gemini_config(
+                {"gemini_dashboard_path": dashboard_path})
         except Exception as e:
-            logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+            logger.error(
+                "[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
 
     def init_gemini_dashboard_password():
         """
@@ -260,9 +293,11 @@ class _Gemini(object):
         """
         try:
             secret_password = secrets.token_hex(20)
-            _Gemini.update_gemini_config({"gemini_dashboard_password":secret_password})
+            _Gemini.update_gemini_config(
+                {"gemini_dashboard_password": secret_password})
         except Exception as e:
-            logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+            logger.error(
+                "[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
 
     def load_gemini_log() -> None:
         """
@@ -284,7 +319,8 @@ class _Gemini(object):
                     })
             return data_log
         except Exception as e:
-            logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+            logger.error(
+                "[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
 
     def load_gemini_data_store() -> None:
         """
@@ -293,19 +329,23 @@ class _Gemini(object):
         :return: A list of dictionaries containing the three columns
         """
         try:
-            data_store_path = _Gemini.get_gemini_config('gemini_data_store_path')
+            data_store_path = _Gemini.get_gemini_config(
+                'gemini_data_store_path')
             # Load the JSON data from a file
             with open(data_store_path, 'r') as f:
                 data = json.load(f)
 
             # Create a list of dictionaries containing the three columns
-            rows = [{'Time': d['Time'], 'Request': d['Request'], 'AttackType': d['AttackType'], 'Predict': d['Predict'], 'IncidentID': d['IncidentID']} for d in data['gemini_data_stored']]
+            rows = [{'Time': d['Time'], 'Request': d['Request'], 'AttackType': d['AttackType'],
+                     'Predict': d['Predict'], 'IncidentID': d['IncidentID']} for d in data['gemini_data_stored']]
             # Sort the list by Time in descending order
-            rows = sorted(rows, key=lambda x: datetime.strptime(x['Time'], '%Y-%m-%d %H:%M:%S'), reverse=True)
+            rows = sorted(rows, key=lambda x: datetime.strptime(
+                x['Time'], '%Y-%m-%d %H:%M:%S'), reverse=True)
             return rows
 
         except Exception as e:
-            logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+            logger.error(
+                "[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
 
     def get_flask_client_ip() -> None:
         """
@@ -315,7 +355,8 @@ class _Gemini(object):
         try:
             return _Utils.flask_client_ip()
         except Exception as e:
-            logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+            logger.error(
+                "[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
 
     def generate_insident_ticket() -> None:
         """
@@ -325,7 +366,8 @@ class _Gemini(object):
         try:
             return _Utils.insident_ticket()
         except Exception as e:
-            logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+            logger.error(
+                "[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
 
     def __load_protect_flask_request__(gemini_protect_mode) -> None:
         """
@@ -337,7 +379,8 @@ class _Gemini(object):
         try:
             return _Protect.__protect_flask_request__(gemini_protect_mode)
         except Exception as e:
-            logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+            logger.error(
+                "[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
 
     def __load_protect_flask_response__(original_response, gemini_protect_mode) -> None:
         """
@@ -351,7 +394,8 @@ class _Gemini(object):
             safe_redirect = _Gemini.get_gemini_config('gemini_safe_redirect')
             return _Protect.__protect_flask_response__(safe_redirect, original_response, gemini_protect_mode)
         except Exception as e:
-            logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+            logger.error(
+                "[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
 
     def make_secure_response_header(response) -> None:
         """
@@ -363,7 +407,15 @@ class _Gemini(object):
         try:
             return _Protect.__secure_response_header__(response)
         except Exception as e:
-            logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+            logger.error(
+                "[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+
+    def make_secure_cookie(app):
+        try:
+            _Protect.__secure_cookie__(app)
+        except Exception as e:
+            logger.error(
+                "[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
 
     def get_dependency_file():
         """
@@ -374,7 +426,8 @@ class _Gemini(object):
         try:
             return _Audit.__find_requirements_file__()
         except Exception as e:
-            logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+            logger.error(
+                "[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
 
     def __audit_dependency_vulnerability__(file_path):
         """
@@ -386,14 +439,17 @@ class _Gemini(object):
         try:
             _Audit.__dependency_vulnerability__(file_path)
         except Exception as e:
-            logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+            logger.error(
+                "[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
 
     def load_gemini_dependency_result() -> None:
         try:
-            dependency_result_path = _Gemini.get_gemini_config('gemini_audit_dependency')
+            dependency_result_path = _Gemini.get_gemini_config(
+                'gemini_audit_dependency')
             # Load the JSON data from a file
             with open(dependency_result_path, 'r') as f:
                 data = json.load(f)
             return data
         except Exception as e:
-            logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+            logger.error(
+                "[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))

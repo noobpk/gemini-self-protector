@@ -62,7 +62,7 @@ class GeminiManager(object):
                 flask_app.template_folder, flask_app.static_folder)
             dashboard_path = _Gemini.get_gemini_config('gemini_dashboard_path')
             logger.info(
-                "[+] Access Your Gemini Dashboard as Path: http://host:port/{}/dashboard".format(dashboard_path))
+                "[+] Access Your Gemini Dashboard as Path: http://0.0.0.0:port/{}/dashboard".format(dashboard_path))
             logger.info(
                 "[+] Check the config file at gemini_protector/config.yml/config.yaml for the password.")
 
@@ -263,7 +263,7 @@ class GeminiManager(object):
                     logger.error(
                         "[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
 
-            @nested_service.route('/logout', methods=['GET'])
+            @nested_service.route('/logout')
             def gemini_logout():
                 try:
                     session['gemini_logged_in'] = False
@@ -276,6 +276,9 @@ class GeminiManager(object):
             # Register the blueprint with the main application
             flask_app.register_blueprint(
                 nested_service, url_prefix='/'+dashboard_path)
+
+            # Make secure cookie
+            # _Gemini.make_secure_cookie(flask_app)
 
     def flask_protect_extended(self, protect_mode=None) -> None:
         """
