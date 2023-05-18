@@ -47,6 +47,41 @@ For more details: [Web-Vuln-Detection-Predict](https://github.com/noobpk/Web-Vul
 | Weak Browser Caching         | :white_check_mark: |
 | Vulnerable Dependencies      | :white_check_mark: |
 | Weak Cryptography            |                    |
+| HTTP Response Headers | :white_check_mark: |
+
+## Gemini Security Response Headers
+
+| HTTP Response Headers | Default configuration | 
+| ------------------------------ | --------------------- |
+| X-Frame-Options                | SAMEORIGIN            |
+| X-XSS-Protection               | 1; mode=block         |
+| X-Content-Type-Options         | nosniff               |
+| Referrer-Policy                | no-referrer-when-downgrade |
+| Content-Type                   | N/A                   |
+| Strict-Transport-Security      | max-age=31536000; includeSubDomains; preload |
+| Expect-CT                      | enforce; max-age=31536000 |
+| Content-Security-Policy        | N/A                   |
+| X-Permitted-Cross-Domain-Policies | none               |
+| Feature-Policy                 | fullscreen 'self'     |
+| Cache-Control                  | no-cache, no-store, must-revalidate |
+| Pragma                         | no-cache              |
+| Expires                        | 0                     |
+| X-UA-Compatible                | IE=Edge,chrome=1      |
+| Access-Control-Allow-Origin    | *                     |
+| Access-Control-Allow-Methods   | *                     |
+| Access-Control-Allow-Headers   | *                     |
+| Access-Control-Allow-Credentials | true                |
+| Cross-Origin-Opener-Policy     | N/A                   |
+| Cross-Origin-Embedder-Policy   | N/A                   |
+| Cross-Origin-Resource-Policy   | N/A                   |
+| Permissions-Policy             | N/A                   |
+| FLoC                           | N/A                   |
+| Server                         | gemini                |
+| X-Powered-By                   | N/A                   |
+| X-AspNet-Version               | N/A                   |
+| X-AspNetMvc-Version            | N/A                   |
+| X-DNS-Prefetch-Control         | N/A                   |
+
 
 ## Installation
 
