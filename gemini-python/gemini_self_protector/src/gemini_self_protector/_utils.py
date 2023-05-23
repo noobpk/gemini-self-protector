@@ -110,7 +110,7 @@ class _Utils(object):
         try:
             headers = {"Content-Type": "application/json"}
             predict = requests.post(
-                'https://web-vuln-detection.hptcybersec.com/predict', json={"data": payload}, headers=headers)
+                'https://web-vuln-detection.onrender.com/predict', json={"data": payload}, headers=headers)
             response = predict.json()
             accuracy = response.get('accuracy')
             return accuracy
