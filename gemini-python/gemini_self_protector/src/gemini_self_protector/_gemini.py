@@ -24,6 +24,9 @@ class _Gemini(object):
         try:
             init_gemini_config_content = {
                 'gemini-self-protector': {
+                    'gemini_installer': False,
+                    'gemini_license_key': None,
+                    'gemini_access_token': None,
                     'gemini_working_directory': working_directory,
                     'gemini_secret_key': str(os.urandom(24)),
                     'gemini_dashboard_path': None,
@@ -178,14 +181,15 @@ class _Gemini(object):
             logger.error(
                 "[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
 
-    def validator_license_key(license_key):
+    def validator_license_key():
         """
         It takes a license key as an argument and validates it
 
         :param license_key: The license key you received from the license server
         """
         try:
-            _Validator.validate_license_key(license_key)
+
+            # _Validator.validate_license_key(license_key)
         except Exception as e:
             logger.error(
                 "[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
@@ -443,6 +447,14 @@ class _Gemini(object):
                 "[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
 
     def load_gemini_dependency_result() -> None:
+        """
+        This function loads a JSON file containing dependency audit results from a specified path.
+        :return: The function is supposed to return a JSON object loaded from a file, but it is not
+        actually returning anything. The return statement is inside the try block, so if an exception is
+        raised, the function will exit without returning anything. To fix this, the return statement
+        should be moved outside the try block, or the function should raise an exception if the file
+        cannot be loaded.
+        """
         try:
             dependency_result_path = _Gemini.get_gemini_config(
                 'gemini_audit_dependency')
@@ -450,6 +462,17 @@ class _Gemini(object):
             with open(dependency_result_path, 'r') as f:
                 data = json.load(f)
             return data
+        except Exception as e:
+            logger.error(
+                "[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+
+    def get_gemini_banner():
+        """
+        The function attempts to load a banner using a utility function and logs an error message if an
+        exception occurs.
+        """
+        try:
+            _Utils.load_banner()
         except Exception as e:
             logger.error(
                 "[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))

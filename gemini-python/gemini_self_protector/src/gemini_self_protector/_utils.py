@@ -12,6 +12,7 @@ from ._config import _Config
 from ._logger import logger
 from datetime import datetime, timezone
 
+
 class _Utils(object):
 
     def decoder(string) -> None:
@@ -115,7 +116,8 @@ class _Utils(object):
             accuracy = response.get('accuracy')
             return accuracy
         except Exception as e:
-            logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+            logger.error(
+                "[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
 
     def flask_client_ip() -> None:
         """
@@ -129,7 +131,8 @@ class _Utils(object):
             else:
                 return request.remote_addr
         except Exception as e:
-            logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+            logger.error(
+                "[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
 
     def generate_incident_id() -> None:
         """
@@ -140,7 +143,8 @@ class _Utils(object):
             incident_id = uuid.uuid4()
             return incident_id
         except Exception as e:
-            logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+            logger.error(
+                "[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
 
     def insident_ticket() -> None:
         """
@@ -154,7 +158,8 @@ class _Utils(object):
             incident_id = _Utils.generate_incident_id()
             return {"Time": time, "IP": ip, "IncidentID": incident_id}
         except Exception as e:
-            logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+            logger.error(
+                "[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
 
     def create_path() -> None:
         """
@@ -166,7 +171,19 @@ class _Utils(object):
             dashboard_path = str(random)+'/gemini'
             return dashboard_path
         except Exception as e:
-            logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+            logger.error(
+                "[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+
+    def load_banner():
+        print('''\033[1;31m \n
+             __   ___                    __   ___       ___     __   __   __  ___  ___  __  ___  __   __  
+            / _` |__   |\/| | |\ | |    /__` |__  |    |__     |__) |__) /  \  |  |__  /  `  |  /  \ |__) 
+            \__> |___  |  | | | \| |    .__/ |___ |___ |       |    |  \ \__/  |  |___ \__,  |  \__/ |  \ 
+                                        https://noobpk.github.io          #noobboy
+                Realtime Protect Your Application - The Runtime Application Self Protection (RASP) Solution
+        ''')
+        print("")
+
 
 class _Validator(object):
 
@@ -185,7 +202,8 @@ class _Validator(object):
                     access_token = jwt.encode(
                         {"license": license_key}, "secret", algorithm="HS256")
 
-                    _Config.update_config({"gemini_license_key":license_key, "gemini_access_token": access_token})
+                    _Config.update_config(
+                        {"gemini_license_key": license_key, "gemini_access_token": access_token})
                     return True
                 else:
                     logger.error("[x_x] Invalid License Key")
@@ -193,7 +211,8 @@ class _Validator(object):
             else:
                 return False
         except Exception as e:
-            logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+            logger.error(
+                "[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
 
     def validate_protect_mode(protect_mode) -> None:
         """
@@ -212,7 +231,8 @@ class _Validator(object):
                     "[x_x] Invalid Protect Mode. Protect mode must be: monitor - block - off")
                 return True
         except Exception as e:
-            logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+            logger.error(
+                "[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
 
     def validate_sensitive_value(sensitive_value) -> None:
         """
@@ -230,7 +250,8 @@ class _Validator(object):
                     "[x_x] Invalid Sensitive Value. Sensitive value from 0 to 100")
                 return False
         except Exception as e:
-            logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+            logger.error(
+                "[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
 
     def validate_http_method(http_method) -> None:
         """
@@ -240,7 +261,8 @@ class _Validator(object):
         :return: a boolean value.
         """
         try:
-            arr_http_method = ['OPTIONS', 'GET', 'POST', 'PUT', 'DELETE', 'TRACE', 'CONNECT']
+            arr_http_method = ['OPTIONS', 'GET', 'POST',
+                               'PUT', 'DELETE', 'TRACE', 'CONNECT']
             if all(method in arr_http_method for method in http_method):
                 return True
             else:
@@ -248,7 +270,8 @@ class _Validator(object):
                     "[x_x] Invalid HTTP Method. HTTP Method must be: OPTIONS - GET - POST - PUT - DELETE - TRACE - CONNECT")
                 return False
         except Exception as e:
-            logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+            logger.error(
+                "[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
 
     def validate_safe_redirect_status(safe_redirect_status) -> None:
         """
@@ -266,16 +289,18 @@ class _Validator(object):
                     "[x_x] Invalid Safe Redirect Status. Safe Redirect Status must be: ON - OFF")
                 return False
         except Exception as e:
-            logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+            logger.error(
+                "[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
 
     def validate_trust_domain(trust_domain_list) -> None:
         try:
             for domain in trust_domain_list:
                 if not re.match(r'^[a-zA-Z0-9]+([\-\.]{1}[a-zA-Z0-9]+)*\.[a-zA-Z]{2,}$', domain):
                     logger.error(
-                    "[x_x] Invalid Domain Name")
+                        "[x_x] Invalid Domain Name")
                     return False
                 else:
                     return True
         except Exception as e:
-            logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+            logger.error(
+                "[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
