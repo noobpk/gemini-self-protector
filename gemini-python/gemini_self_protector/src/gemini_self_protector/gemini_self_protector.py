@@ -9,17 +9,9 @@ from datetime import datetime, timezone
 
 class GeminiManager(object):
 
-    def __init__(self, flask_app: Flask = None, license_key="w", dashboard_port="w"):
-        """
-        This function is used to initialize the class.
+    def __init__(self, flask_app: Flask = None):
 
-        :param flask_app: This is the flask app that you want to protect
-        :type flask_app: Flask
-        :param license_key: This is the license key that you will be using to protect your application,
-        defaults to w (optional)
-        :param protect_mode: This is the mode of protection you want to use, defaults to w (optional)
-        :param sensitive_value: This is the value that you want to protect, defaults to w (optional)
-        """
+        _Gemini.get_gemini_banner()
 
         # This is creating a directory called gemini_protector in the current working directory.
         running_directory = os.getcwd()
@@ -30,7 +22,6 @@ class GeminiManager(object):
 
         if not os.path.isfile(gemini_working_directory+'/config.yml'):
             _Gemini.init_gemini_config(gemini_working_directory)
-            _Gemini.validator_license_key(license_key)
 
         if not os.path.isfile(gemini_working_directory+'/data.json'):
             _Gemini.init_gemini_data_store(gemini_working_directory)
@@ -60,6 +51,7 @@ class GeminiManager(object):
 
             _Gemini.init_gemini_dashboard(
                 flask_app.template_folder, flask_app.static_folder)
+
             dashboard_path = _Gemini.get_gemini_config('gemini_dashboard_path')
             logger.info(
                 "[+] Access Your Gemini Dashboard as Path: http://0.0.0.0:port/{}/dashboard".format(dashboard_path))
@@ -73,6 +65,18 @@ class GeminiManager(object):
                         return redirect(url_for('nested_service.gemini_dashboard'))
                     else:
                         return redirect(url_for('nested_service.gemini_login'))
+                except Exception as e:
+                    logger.error(
+                        "[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+
+            @nested_service.route('/installer', methods=['GET'])
+            def gemimi_installer():
+                try:
+                    isInstall = _Gemini.get_gemini_config('gemini_installer')
+                    if isInstall:
+                        return redirect(url_for('nested_service.gemini_dashboard'))
+                    else:
+                        return render_template('gemini_protector_template/installer.html')
                 except Exception as e:
                     logger.error(
                         "[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
