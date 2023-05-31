@@ -2,6 +2,762 @@ import sys
 import os
 from ._logger import logger
 
+template_install = """<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name=description content="Gemini Self-Protector">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no" />
+    <meta name=owned content="lethanhphuc(noobpk)">
+    <title>Gemini-self-protector Installation</title>
+    <style>
+        html,
+        body,
+        #root {
+            height: 100%;
+            width: 100%;
+        }
+
+        body {
+            background: rgb(244, 247, 252);
+            color: #111;
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+                Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
+                "Segoe UI Symbol";
+            overflow: hidden;
+        }
+
+        input,
+        button {
+            font-family: inherit;
+            font-size: 1rem;
+            line-height: 1rem;
+        }
+
+        .-button {
+            background-color: rgb(87, 114, 245);
+            border-radius: 5px;
+            border: none;
+            box-sizing: border-box;
+            color: white;
+            cursor: pointer;
+            padding: 18px 20px;
+            text-decoration: none;
+        }
+
+        .center-container {
+            align-items: center;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            min-height: 100%;
+            padding: 20px;
+            width: 100%;
+        }
+
+        .card-box {
+            background-color: rgb(250, 253, 258);
+            border-radius: 5px;
+            box-shadow: rgba(60, 66, 87, 0.117647) 0px 7px 14px 0px,
+                rgba(0, 0, 0, 0.117647) 0px 3px 6px 0px;
+            max-width: 650px;
+            width: 100%;
+        }
+
+        .card-box>.header {
+            border-bottom: 1px solid #ddd;
+            color: #444;
+            padding: 30px;
+        }
+
+        .card-box>.header>.main {
+            margin: 0;
+            font-size: 1.5rem;
+        }
+
+        .card-box>.header>.sub {
+            color: #555;
+            margin-top: 10px;
+        }
+
+        .card-box>.content {
+            padding: 0px;
+        }
+
+        .card-box>.content>.none {
+            margin: 2px 0;
+        }
+
+        .card-box+.card-box {
+            margin-top: 26px;
+        }
+
+        canvas {
+            top: 0;
+            left: 0;
+        }
+
+        body {
+            min-height: 568px;
+            min-width: 320px;
+            overflow: auto;
+        }
+
+        .install-form {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            justify-content: center;
+        }
+
+        .install-form>.field {
+            display: flex;
+            flex-direction: row;
+            width: 100%;
+        }
+
+        @media (max-width: 600px) {
+            .install-form>.field {
+                flex-direction: column;
+            }
+        }
+
+        .install-form>.error {
+            color: red;
+            margin-top: 16px;
+        }
+
+        .install-form>.field>.form-input {
+            background-color: rgb(244, 247, 252);
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            box-sizing: border-box;
+            color: black;
+            flex: 1;
+            padding: 16px;
+        }
+
+        .install-form>.field>.label {
+            padding-right: 16px;
+        }
+
+        .install-form>.user {
+            display: none;
+        }
+
+        .install-form>.field>.submit {
+            margin-left: 20px;
+        }
+
+        @media (max-width: 600px) {
+            .install-form>.field>.submit {
+                margin-left: 0px;
+                margin-top: 16px;
+            }
+        }
+
+        input {
+            -webkit-appearance: none;
+        }
+
+        .wizard-content-left {
+            background-blend-mode: darken;
+            background-color: rgba(0, 0, 0, 0.45);
+            background-image: url("https://i.ibb.co/X292hJF/form-wizard-bg-2.jpg");
+            background-position: center center;
+            background-size: cover;
+            height: 100vh;
+            padding: 30px;
+        }
+
+        .wizard-content-left h1 {
+            color: #ffffff;
+            font-size: 38px;
+            font-weight: 600;
+            padding: 12px 20px;
+            text-align: center;
+        }
+
+        .form-wizard {
+            color: #888888;
+            padding: 30px;
+        }
+
+        .form-wizard .wizard-form-radio {
+            display: inline-block;
+            margin-left: 5px;
+            position: relative;
+        }
+
+        .form-wizard .wizard-form-radio input[type="radio"] {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            -ms-appearance: none;
+            -o-appearance: none;
+            appearance: none;
+            background-color: #dddddd;
+            height: 25px;
+            width: 25px;
+            display: inline-block;
+            vertical-align: middle;
+            border-radius: 50%;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .form-wizard .wizard-form-radio input[type="radio"]:focus {
+            outline: 0;
+        }
+
+        .form-wizard .wizard-form-radio input[type="radio"]:checked {
+            background-color: #fb1647;
+        }
+
+        .form-wizard .wizard-form-radio input[type="radio"]:checked::before {
+            content: "";
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            display: inline-block;
+            background-color: #ffffff;
+            border-radius: 50%;
+            left: 1px;
+            right: 0;
+            margin: 0 auto;
+            top: 8px;
+        }
+
+        .form-wizard .wizard-form-radio input[type="radio"]:checked::after {
+            content: "";
+            display: inline-block;
+            webkit-animation: click-radio-wave 0.65s;
+            -moz-animation: click-radio-wave 0.65s;
+            animation: click-radio-wave 0.65s;
+            background: #000000;
+            content: '';
+            display: block;
+            position: relative;
+            z-index: 100;
+            border-radius: 50%;
+        }
+
+        .form-wizard .wizard-form-radio input[type="radio"]~label {
+            padding-left: 10px;
+            cursor: pointer;
+        }
+
+        .form-wizard .form-wizard-header {
+            text-align: center;
+        }
+
+        .form-wizard .form-wizard-next-btn,
+        .form-wizard .form-wizard-previous-btn,
+        .form-wizard .form-wizard-submit {
+            background-color: #d65470;
+            color: #ffffff;
+            display: inline-block;
+            min-width: 100px;
+            min-width: 120px;
+            padding: 10px;
+            text-align: center;
+        }
+
+        .form-wizard .form-wizard-next-btn:hover,
+        .form-wizard .form-wizard-next-btn:focus,
+        .form-wizard .form-wizard-previous-btn:hover,
+        .form-wizard .form-wizard-previous-btn:focus,
+        .form-wizard .form-wizard-submit:hover,
+        .form-wizard .form-wizard-submit:focus {
+            color: #ffffff;
+            opacity: 0.6;
+            text-decoration: none;
+        }
+
+        .form-wizard .wizard-fieldset {
+            display: none;
+        }
+
+        .form-wizard .wizard-fieldset.show {
+            display: block;
+        }
+
+        .form-wizard .wizard-form-error {
+            display: none;
+            background-color: #d70b0b;
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            height: 2px;
+            width: 100%;
+        }
+
+        .form-wizard .form-wizard-previous-btn {
+            background-color: #fb1647;
+        }
+
+        .form-wizard .form-control {
+            font-weight: 300;
+            height: auto !important;
+            padding: 15px;
+            color: #888888;
+            background-color: #f1f1f1;
+            border: none;
+            width: 80%;
+        }
+
+        .form-wizard .form-control:focus {
+            box-shadow: none;
+        }
+
+        .form-wizard .form-group {
+            position: relative;
+            margin: 25px 0;
+        }
+
+        .form-wizard .wizard-form-text-label {
+            position: absolute;
+            left: 10px;
+            top: 16px;
+            transition: 0.2s linear all;
+        }
+
+        .form-wizard .focus-input .wizard-form-text-label {
+            color: #d65470;
+            top: -18px;
+            transition: 0.2s linear all;
+            font-size: 12px;
+        }
+
+        .form-wizard .form-wizard-steps {
+            margin: 30px 0;
+            padding: 20px;
+        }
+
+        .form-wizard .form-wizard-steps li {
+            width: 25%;
+            float: left;
+            position: relative;
+            list-style: none;
+        }
+
+        .form-wizard .form-wizard-steps li::after {
+            background-color: #f3f3f3;
+            content: "";
+            height: 5px;
+            left: 0;
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 100%;
+            border-bottom: 1px solid #dddddd;
+            border-top: 1px solid #dddddd;
+        }
+
+        .form-wizard .form-wizard-steps li span {
+            background-color: #dddddd;
+            border-radius: 50%;
+            display: inline-block;
+            height: 40px;
+            line-height: 40px;
+            position: relative;
+            text-align: center;
+            width: 40px;
+            z-index: 1;
+        }
+
+        .form-wizard .form-wizard-steps li:last-child::after {
+            width: 50%;
+        }
+
+        .form-wizard .form-wizard-steps li.active span,
+        .form-wizard .form-wizard-steps li.activated span {
+            background-color: #d65470;
+            color: #ffffff;
+        }
+
+        .form-wizard .form-wizard-steps li.active::after,
+        .form-wizard .form-wizard-steps li.activated::after {
+            background-color: #d65470;
+            left: 50%;
+            width: 50%;
+            border-color: #d65470;
+        }
+
+        .form-wizard .form-wizard-steps li.activated::after {
+            width: 100%;
+            border-color: #d65470;
+        }
+
+        .form-wizard .form-wizard-steps li:last-child::after {
+            left: 0;
+        }
+
+        .form-wizard .wizard-password-eye {
+            position: absolute;
+            right: 32px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+        }
+
+        #telegram-form-1 {
+            display: none;
+        }
+
+        #telegram-form-2 {
+            display: none;
+        }
+
+        #webhook-form {
+            display: none;
+        }
+        
+        @keyframes click-radio-wave {
+            0% {
+                width: 25px;
+                height: 25px;
+                opacity: 0.35;
+                position: relative;
+            }
+
+            100% {
+                width: 60px;
+                height: 60px;
+                margin-left: -15px;
+                margin-top: -15px;
+                opacity: 0.0;
+            }
+        }
+
+        @media screen and (max-width: 767px) {
+            .wizard-content-left {
+                height: auto;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="center-container">
+        <div class="card-box">
+            <div class="header">
+                <h1 class="main">Gemini-Self-Protector Installation</h1>
+                <div class="sub">
+                    Please fill in the form below to proceed with the installation.
+                </div>
+            </div>
+            <div class="content">
+                <div class="form-wizard">
+                    <form id="install" method="POST" action="{{url_for('nested_service.gemini_install')}}">
+                        <div class="form-wizard-header">
+                            <ul class="list-unstyled form-wizard-steps clearfix">
+                                <li class="active"><span>1</span></li>
+                                <li><span>2</span></li>
+                                <li><span>3</span></li>
+                                <li><span>4</span></li>
+                            </ul>
+                        </div>
+                        <fieldset class="wizard-fieldset show">
+                            <h5>Protect Mode*</h5>
+                            <div class="form-group">
+                                <div class="wizard-form-radio">
+                                    <input name="radio-mode" id="radio1" type="radio" value="monitor" checked>
+                                    <label for="radio1">Monitor</label>
+                                </div>
+                                <div class="wizard-form-radio">
+                                    <input name="radio-mode" id="radio2" type="radio" value="block">
+                                    <label for="radio2">Block</label>
+                                </div>
+                                <div class="wizard-form-radio">
+                                    <input name="radio-mode" id="radio3" type="radio" value="off">
+                                    <label for="radio2">Off</label>
+                                </div>
+                            </div>
+                            <h5>Sensitive*</h5>
+                            <div class="form-group">
+                                <input type="number" min="0" max="100" class="form-control wizard-required"
+                                    id="sensitiveValue" name="sensitive-value" value="{{_sensitive_value}}">
+                                <!-- <label for="fname" class="wizard-form-text-label">Value</label> -->
+                                <div class="wizard-form-error"></div>
+                            </div>
+                            <div class="form-group clearfix">
+                                <a href="javascript:;" class="form-wizard-next-btn float-right">Next</a>
+                            </div>
+                        </fieldset>
+                        <fieldset class="wizard-fieldset">
+                            <h5>Dashboard Path*</h5>
+                            <div class="form-group">
+                                <input type="text" class="form-control wizard-required" id="geminiAppPath" name="gemini-app-path"
+                                    value="{{_app_path}}">
+                                <!-- <label for="dashboard" class="wizard-form-text-label">Dashboard Path</label> -->
+                                <div class="wizard-form-error"></div>
+                            </div>
+                            <h5>Dashboard Password*</h5>
+                            <div class="form-group">
+                                <input type="password" class="form-control wizard-required" id="pwd" name="pwd">
+                                <label for="pwd" class="wizard-form-text-label">Password*</label>
+                                <div class="wizard-form-error"></div>
+                                <span class="wizard-password-eye"><i class="far fa-eye"></i></span>
+                            </div>
+                            <div class="form-group">
+                                <input type="password" class="form-control wizard-required" id="cpwd" name="cpwd">
+                                <label for="cpwd" class="wizard-form-text-label">Confirm Password*</label>
+                                <div class="wizard-form-error"></div>
+                            </div>
+                            <div class="form-group clearfix">
+                                <a href="javascript:;" class="form-wizard-previous-btn float-left">Previous</a>
+                                <a href="javascript:;" class="form-wizard-next-btn float-right">Next</a>
+                            </div>
+                        </fieldset>
+                        <fieldset class="wizard-fieldset">
+                            <h5>Notification</h5>
+                            <div class="form-group">
+                                Channel
+                                <div class="wizard-form-radio">
+                                    <input name="radio-channel" id="disable" type="radio" value="disable" checked>
+                                    <label for="telegram">Disable</label>
+                                </div>
+                                <div class="wizard-form-radio">
+                                    <input name="radio-channel" id="telegram" type="radio" value="telegram">
+                                    <label for="telegram">Telegram</label>
+                                </div>
+                                <div class="wizard-form-radio">
+                                    <input name="radio-channel" id="slack" type="radio" value="slack" disabled>
+                                    <label for="slack">Slack</label>
+                                </div>
+                                <div class="wizard-form-radio">
+                                    <input name="radio-channel" id="mattermost" type="radio" value="mattermost"
+                                        disabled>
+                                    <label for="mattermost">Mattermost</label>
+                                </div>
+                            </div>
+                            <div class="form-group" id="telegram-form-1">
+                                <input type="text" class="form-control" id="telegram_token" name="telegram-token">
+                                <label for="telegram_chat_id" class="wizard-form-text-label">Telegram Token*</label>
+                                <div class="wizard-form-error"></div>
+                            </div>
+                            <div class="form-group" id="telegram-form-2">
+                                <input type="text" class="form-control" id="telegram_chat_id" name="telegram-chat-id">
+                                <label for="telegram_chat_id" class="wizard-form-text-label">Telegram Chat ID*</label>
+                                <div class="wizard-form-error"></div>
+                            </div>
+                            <div class="form-group" id="webhook-form">
+                                <input type="text" class="form-control" id="channel_webhook" name="channel-webhook">
+                                <label for="channel_webhook" class="wizard-form-text-label">Webhook*</label>
+                                <div class="wizard-form-error"></div>
+                            </div>
+                            <div class="form-group clearfix">
+                                <a href="javascript:;" class="form-wizard-previous-btn float-left">Previous</a>
+                                <a href="javascript:;" class="form-wizard-next-btn float-right">Next</a>
+                            </div>
+                        </fieldset>
+                        <fieldset class="wizard-fieldset">
+                            <h5>License</h5>
+                            <div class="form-group">
+                                <input type="text" class="form-control wizard-required" id="license_key" name="license-key">
+                                <label for="license_key" class="wizard-form-text-label">License Key*</label>
+                                <div class="wizard-form-error"></div>
+                            </div>
+                            <div class="form-group clearfix">
+                                <a href="javascript:;" class="form-wizard-previous-btn float-left">Previous</a>
+                                <a href="javascript:;" class="form-wizard-submit float-right" onclick="document.getElementById('install').submit();">Install</a>
+                            </div>
+                        </fieldset>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script>
+        // Inform the backend about the path since the proxy might have rewritten
+        // it out of the headers and cookies must be set with absolute paths.
+        const el = document.getElementById("href");
+        if (el) {
+            el.value = location.href;
+        }
+        jQuery(document).ready(function () {
+            // click on next button
+            jQuery('.form-wizard-next-btn').click(function () {
+                var parentFieldset = jQuery(this).parents('.wizard-fieldset');
+                var currentActiveStep = jQuery(this).parents('.form-wizard').find('.form-wizard-steps .active');
+                var next = jQuery(this);
+                var nextWizardStep = true;
+
+                var sensitiveValue = jQuery('#sensitiveValue').val();
+                if (sensitiveValue === "" || isNaN(parseInt(sensitiveValue)) || parseInt(sensitiveValue) < 0 || parseInt(sensitiveValue) > 100) {
+                    parentFieldset.find('.wizard-form-error').slideDown();
+                    nextWizardStep = false;
+                } else {
+                    parentFieldset.find('.wizard-form-error').slideUp();
+                }
+
+                var radioValue = jQuery('input[name="radio-mode"]:checked').val();
+                if (radioValue === undefined) {
+                    parentFieldset.find('.wizard-form-error').slideDown();
+                    nextWizardStep = false;
+                } else {
+                    parentFieldset.find('.wizard-form-error').slideUp();
+                }
+
+                var geminiAppPath = jQuery('#geminiAppPath').val();
+                var regex = /^[0-9a-f]{40}\/gemini$/;
+
+                if (regex.test(geminiAppPath)) {
+                    parentFieldset.find('.wizard-form-error').slideUp();
+                } else {
+                    parentFieldset.find('.wizard-form-error').slideDown();
+                    nextWizardStep = false;
+                }
+
+                var password = jQuery('#pwd').val();
+                var confirmPassword = jQuery('#cpwd').val();;
+                var passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/;
+
+                if (password != "") {
+                    if (password === confirmPassword) {
+                        if (passwordRegex.test(password)) {
+                            parentFieldset.find('.wizard-form-error').slideUp();
+                        } else {
+                            parentFieldset.find('.wizard-form-error').slideDown();
+                            nextWizardStep = false;
+                        }
+                    } else {
+                        parentFieldset.find('.wizard-form-error').slideDown();
+                        nextWizardStep = false;
+                    }
+                }
+
+                // Listen for radio button change event
+                $('input[name="radio-channel"]').change(function () {
+                    var selectedValue = $(this).val();
+
+                    // Check if the "telegram" option is selected
+                    if (selectedValue === "telegram") {
+                        $('#telegram-form-1').show(); // Show the form inputs
+                        $('#telegram-form-2').show();
+                    } else {
+                        $('#telegram-form-1').hide(); // Hide the form inputs
+                        $('#telegram-form-2').hide();
+                    }
+                });
+
+                var channelValue = jQuery('input[name="radio-channel"]:checked').val();
+                console.log(channelValue);
+                if (channelValue === "telegram") {
+                    var telegramToken = jQuery('#telegram_token').val();
+                    var telegramChatId = jQuery('#telegram_chat_id').val();
+
+                    if (telegramToken == "" || telegramChatId == "") {
+                        jQuery(this).siblings(".wizard-form-error").slideDown();
+                        nextWizardStep = false;
+                    } else {
+                        jQuery(this).siblings(".wizard-form-error").slideUp();
+                    }
+                }
+
+                parentFieldset.find('.wizard-required').each(function () {
+                    var thisValue = jQuery(this).val();
+
+                    if (thisValue == "") {
+                        jQuery(this).siblings(".wizard-form-error").slideDown();
+                        nextWizardStep = false;
+                    }
+                    else {
+                        jQuery(this).siblings(".wizard-form-error").slideUp();
+                    }
+                });
+                if (nextWizardStep) {
+                    next.parents('.wizard-fieldset').removeClass("show", "400");
+                    currentActiveStep.removeClass('active').addClass('activated').next().addClass('active', "400");
+                    next.parents('.wizard-fieldset').next('.wizard-fieldset').addClass("show", "400");
+                    jQuery(document).find('.wizard-fieldset').each(function () {
+                        if (jQuery(this).hasClass('show')) {
+                            var formAtrr = jQuery(this).attr('data-tab-content');
+                            jQuery(document).find('.form-wizard-steps .form-wizard-step-item').each(function () {
+                                if (jQuery(this).attr('data-attr') == formAtrr) {
+                                    jQuery(this).addClass('active');
+                                    var innerWidth = jQuery(this).innerWidth();
+                                    var position = jQuery(this).position();
+                                    jQuery(document).find('.form-wizard-step-move').css({ "left": position.left, "width": innerWidth });
+                                } else {
+                                    jQuery(this).removeClass('active');
+                                }
+                            });
+                        }
+                    });
+                }
+            });
+            //click on previous button
+            jQuery('.form-wizard-previous-btn').click(function () {
+                var counter = parseInt(jQuery(".wizard-counter").text());;
+                var prev = jQuery(this);
+                var currentActiveStep = jQuery(this).parents('.form-wizard').find('.form-wizard-steps .active');
+                prev.parents('.wizard-fieldset').removeClass("show", "400");
+                prev.parents('.wizard-fieldset').prev('.wizard-fieldset').addClass("show", "400");
+                currentActiveStep.removeClass('active').prev().removeClass('activated').addClass('active', "400");
+                jQuery(document).find('.wizard-fieldset').each(function () {
+                    if (jQuery(this).hasClass('show')) {
+                        var formAtrr = jQuery(this).attr('data-tab-content');
+                        jQuery(document).find('.form-wizard-steps .form-wizard-step-item').each(function () {
+                            if (jQuery(this).attr('data-attr') == formAtrr) {
+                                jQuery(this).addClass('active');
+                                var innerWidth = jQuery(this).innerWidth();
+                                var position = jQuery(this).position();
+                                jQuery(document).find('.form-wizard-step-move').css({ "left": position.left, "width": innerWidth });
+                            } else {
+                                jQuery(this).removeClass('active');
+                            }
+                        });
+                    }
+                });
+            });
+            //click on form submit button
+            jQuery(document).on("click", ".form-wizard .form-wizard-submit", function () {
+                var parentFieldset = jQuery(this).parents('.wizard-fieldset');
+                var currentActiveStep = jQuery(this).parents('.form-wizard').find('.form-wizard-steps .active');
+                parentFieldset.find('.wizard-required').each(function () {
+                    var thisValue = jQuery(this).val();
+                    if (thisValue == "") {
+                        jQuery(this).siblings(".wizard-form-error").slideDown();
+                    }
+                    else {
+                    console.log("Oki")
+                        jQuery(this).siblings(".wizard-form-error").slideUp();
+                    }
+                });
+            });
+            // focus on input field check empty or not
+            jQuery(".form-control").on('focus', function () {
+                var tmpThis = jQuery(this).val();
+                if (tmpThis == '') {
+                    jQuery(this).parent().addClass("focus-input");
+                }
+                else if (tmpThis != '') {
+                    jQuery(this).parent().addClass("focus-input");
+                }
+            }).on('blur', function () {
+                var tmpThis = jQuery(this).val();
+                if (tmpThis == '') {
+                    jQuery(this).parent().removeClass("focus-input");
+                    jQuery(this).siblings('.wizard-form-error').slideDown("3000");
+                }
+                else if (tmpThis != '') {
+                    jQuery(this).parent().addClass("focus-input");
+                    jQuery(this).siblings('.wizard-form-error').slideUp("3000");
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>"""
 template_login = """<!DOCTYPE html>
 <html lang="en">
   <head>
@@ -168,8 +924,7 @@ template_login = """<!DOCTYPE html>
         <div class="header">
           <h1 class="main">Welcome to Gemini-Self-Protector</h1>
           <div class="sub">
-            Please log in below. Check the config file at
-            gemini_protector/config.yaml for the password.
+            Login
           </div>
           {% with messages = get_flashed_messages() %}
             {% if messages %}
@@ -1327,6 +2082,9 @@ class _Template(object):
                 flask_template_folder, r'gemini_protector_template')
             if not os.path.exists(template_directory):
                 os.makedirs(template_directory)
+
+            with open(flask_template_folder+'/gemini_protector_template/install.html', 'w+', encoding="utf-8") as f:
+                            f.write(template_install)
 
             with open(flask_template_folder+'/gemini_protector_template/login.html', 'w+', encoding="utf-8") as f:
                 f.write(template_login)

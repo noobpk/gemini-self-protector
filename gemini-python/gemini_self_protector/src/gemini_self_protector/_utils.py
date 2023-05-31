@@ -180,7 +180,7 @@ class _Utils(object):
             / _` |__   |\/| | |\ | |    /__` |__  |    |__     |__) |__) /  \  |  |__  /  `  |  /  \ |__) 
             \__> |___  |  | | | \| |    .__/ |___ |___ |       |    |  \ \__/  |  |___ \__,  |  \__/ |  \ 
                                         https://noobpk.github.io          #noobboy
-                Realtime Protect Your Application - The Runtime Application Self Protection (RASP) Solution
+                Real-time Protect Your Application - The Runtime Application Self Protection (RASP) Solution
         ''')
         print("")
 
@@ -209,6 +209,7 @@ class _Validator(object):
                     logger.error("[x_x] Invalid License Key")
                     return False
             else:
+                logger.error("[x_x] Invalid License Key")
                 return False
         except Exception as e:
             logger.error(
@@ -248,6 +249,46 @@ class _Validator(object):
             else:
                 logger.error(
                     "[x_x] Invalid Sensitive Value. Sensitive value from 0 to 100")
+                return False
+        except Exception as e:
+            logger.error(
+                "[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+
+    def validate_app_path(app_path) -> None:
+        try:
+            regex = r"^[0-9a-f]{40}/gemini$"
+            if re.match(regex, app_path):
+                return True
+            else:
+                logger.error(
+                    "[x_x] Invalid Gemini App Path format. Gemini App Path like 0987654321/gemin ")
+                return False
+        except Exception as e:
+            logger.error(
+                "[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+
+    def validate_dashboard_password(password, confirm_password) -> None:
+        try:
+            regex = r"^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$"
+
+            if re.match(regex, password):
+                return True
+            else:
+                logger.error(
+                    "[x_x] Invalid Dashboard Password. Dashboard Password is Minimum eight characters, at least one letter, one number and one special character")
+                return False
+        except Exception as e:
+            logger.error(
+                "[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+
+    def validate_notification_channel(notification_channel) -> None:
+        try:
+            arr_noti_channel = ['disable', 'telegram', 'slack', 'mattermost']
+            if notification_channel in arr_noti_channel:
+                return True
+            else:
+                logger.error(
+                    "[x_x] Invalid Notification Channel. Notification channel is Disable - Telegram - Slack - Mattermost")
                 return False
         except Exception as e:
             logger.error(

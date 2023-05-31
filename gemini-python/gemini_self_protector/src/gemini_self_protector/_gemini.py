@@ -24,7 +24,7 @@ class _Gemini(object):
         try:
             init_gemini_config_content = {
                 'gemini-self-protector': {
-                    'gemini_installer': False,
+                    'gemini_install': False,
                     'gemini_license_key': None,
                     'gemini_access_token': None,
                     'gemini_working_directory': working_directory,
@@ -49,7 +49,11 @@ class _Gemini(object):
                         'credentials': True,
                         'headers': ['Content-Type']
                     },
-                    'gemini_server_name': 'gemini'
+                    'gemini_server_name': 'gemini',
+                    'gemini_notification_channel': 'disable',
+                    'gemini_telegram_token': None,
+                    'gemini_telegram_chat_id': None,
+                    'gemini_notification_webhook': None,
                 }
             }
             _Config(working_directory, init_gemini_config_content)
@@ -181,15 +185,15 @@ class _Gemini(object):
             logger.error(
                 "[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
 
-    def validator_license_key():
+    def validator_license_key(license_key):
         """
         It takes a license key as an argument and validates it
 
         :param license_key: The license key you received from the license server
         """
         try:
-
-            # _Validator.validate_license_key(license_key)
+            _gemini_return = _Validator.validate_license_key(license_key)
+            return _gemini_return
         except Exception as e:
             logger.error(
                 "[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
@@ -239,7 +243,46 @@ class _Gemini(object):
             logger.error(
                 "[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
 
+    def validator_app_path(app_path) -> None:
+        try:
+            _gemini_return = _Validator.validate_app_path(
+                app_path)
+            return _gemini_return
+        except Exception as e:
+            logger.error(
+                "[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+
+    def validator_notification_channel(notification_channel) -> None:
+        try:
+            _gemini_return = _Validator.validate_notification_channel(
+                notification_channel)
+            return _gemini_return
+        except Exception as e:
+            logger.error(
+                "[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+
+    def validator_dashboard_password(password, confirm_password) -> None:
+        try:
+            _gemini_return = _Validator.validate_dashboard_password(
+                password, confirm_password)
+            return _gemini_return
+        except Exception as e:
+            logger.error(
+                "[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+
     def validator_safe_redirect_status(safe_redirect_status) -> None:
+        """
+        This function validates a safe redirect status and logs an error message if an exception occurs.
+        
+        :param safe_redirect_status: The parameter `safe_redirect_status` is expected to be passed to
+        the function `validator_safe_redirect_status` as an argument. It is not clear from the code
+        snippet what data type this parameter should be, but it is likely that it should be a string or
+        an integer representing an HTTP status code
+        :return: the output of the `_Validator.validate_safe_redirect_status` function, which is not
+        specified in the given code snippet. If an exception is raised, the function logs an error
+        message. However, the function itself does not have a return statement for cases where an
+        exception is not raised.
+        """
         try:
             _gemini_return = _Validator.validate_safe_redirect_status(
                 safe_redirect_status)
@@ -279,14 +322,14 @@ class _Gemini(object):
             logger.error(
                 "[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
 
-    def init_gemini_dashboard_path():
+    def init_gemini_app_path():
         """
-        It creates a path for the dashboard and updates the gemini config file with the path
+        It creates a path for the gemini app and updates the gemini config file with the path
         """
         try:
-            dashboard_path = _Utils.create_path()
+            gemimi_app_path = _Utils.create_path()
             _Gemini.update_gemini_config(
-                {"gemini_dashboard_path": dashboard_path})
+                {"gemeni_app_path": gemimi_app_path})
         except Exception as e:
             logger.error(
                 "[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))

@@ -5,6 +5,7 @@ from flask import Flask, Blueprint, request, make_response, render_template, ses
 from ._logger import logger
 import ipaddress
 from datetime import datetime, timezone
+from argon2 import PasswordHasher
 
 
 class GeminiManager(object):
@@ -45,38 +46,88 @@ class GeminiManager(object):
                 'gemini_secret_key')
 
         if flask_app.template_folder and flask_app.static_folder:
-            if _Gemini.get_gemini_config('gemini_dashboard_path') is None:
-                _Gemini.init_gemini_dashboard_path()
-                _Gemini.init_gemini_dashboard_password()
+            if _Gemini.get_gemini_config('gemeni_app_path') is None:
+                _Gemini.init_gemini_app_path()
 
             _Gemini.init_gemini_dashboard(
                 flask_app.template_folder, flask_app.static_folder)
 
-            dashboard_path = _Gemini.get_gemini_config('gemini_dashboard_path')
+            gemeni_app_path = _Gemini.get_gemini_config('gemeni_app_path')
             logger.info(
-                "[+] Access Your Gemini Dashboard as Path: http://0.0.0.0:port/{}/dashboard".format(dashboard_path))
-            logger.info(
-                "[+] Check the config file at gemini_protector/config.yml/config.yaml for the password.")
+                "[+] Access Your Gemini Dashboard as Path: http://0.0.0.0:port/{}".format(gemeni_app_path))
 
             @nested_service.route('/', methods=['GET', 'POST'])
             def gemini_init():
                 try:
-                    if session.get('gemini_logged_in'):
-                        return redirect(url_for('nested_service.gemini_dashboard'))
+                    isInstall = _Gemini.get_gemini_config('gemini_install')
+                    if isInstall:
+                        if session.get('gemini_logged_in'):
+                            return redirect(url_for('nested_service.gemini_dashboard'))
+                        else:
+                            return redirect(url_for('nested_service.gemini_login'))
                     else:
-                        return redirect(url_for('nested_service.gemini_login'))
+                        return redirect(url_for('nested_service.gemini_install'))
                 except Exception as e:
                     logger.error(
                         "[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
 
-            @nested_service.route('/installer', methods=['GET'])
-            def gemimi_installer():
+            @nested_service.route('/install', methods=['GET', 'POST'])
+            def gemini_install():
                 try:
-                    isInstall = _Gemini.get_gemini_config('gemini_installer')
+                    isInstall = _Gemini.get_gemini_config('gemini_install')
                     if isInstall:
                         return redirect(url_for('nested_service.gemini_dashboard'))
                     else:
-                        return render_template('gemini_protector_template/installer.html')
+                        if request.method == 'GET':
+                            sensitive_value = _Gemini.get_gemini_config(
+                                'gemini_sensitive_value')
+                            app_path = _Gemini.get_gemini_config(
+                                'gemeni_app_path')
+                            return render_template('gemini_protector_template/install.html',
+                                                   _sensitive_value=sensitive_value,
+                                                   _app_path=app_path)
+                        elif request.method == 'POST':
+                            protect_mode = request.form['radio-mode']
+                            sensitive_value = request.form['sensitive-value']
+                            app_path = request.form['gemini-app-path']
+                            password = request.form['pwd']
+                            confirm_password = request.form['cpwd']
+                            notification_channel = request.form['radio-channel']
+                            license_key = request.form['license-key']
+                            telegram_token = ''
+                            telegram_chat_id = ''
+                            notification_webhook = ''
+                            if notification_channel == 'disable':
+                                notification_channel = 'disable'
+                            elif notification_channel == 'telegram':
+                                telegram_token = request.form['telegram-token']
+                                telegram_chat_id = request.form['telegram-chat-id']
+                            else:
+                                notification_webhook = request.form['channel-webhook']
+
+                            if _Gemini.validator_protect_mode(protect_mode) and _Gemini.validator_sensitive_value(sensitive_value) and _Gemini.validator_app_path(app_path) and _Gemini.validator_dashboard_password(password, confirm_password) and _Gemini.validator_notification_channel(notification_channel) and _Gemini.validator_license_key(license_key):
+                                ph = PasswordHasher()
+                                _Gemini.update_gemini_config({
+                                    "gemini_install": True,
+                                    "gemini_global_protect_mode": protect_mode,
+                                    "gemini_sensitive_value": int(sensitive_value),
+                                    "gemini_dashboard_path": app_path,
+                                    "gemini_notification_channel": notification_channel,
+                                    "gemini_telegram_token": telegram_token,
+                                    "gemini_telegram_chat_id": telegram_chat_id,
+                                    "gemini_notification_webhook": notification_webhook,
+                                    "gemini_license_key": license_key,
+                                    "gemini_dashboard_password": ph.hash(password),
+                                })
+                                logger.info(
+                                    "[+] Install gemini-self-protector successful.!")
+                                return redirect(url_for('nested_service.gemini_login'))
+                            else:
+                                return redirect(url_for('nested_service.gemini_install'))
+                            return redirect(url_for('nested_service.gemini_install'))
+                        else:
+                            return redirect(url_for('nested_service.gemini_install'))
+
                 except Exception as e:
                     logger.error(
                         "[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
@@ -84,20 +135,25 @@ class GeminiManager(object):
             @nested_service.route('/login', methods=['GET', 'POST'])
             def gemini_login():
                 try:
-                    if request.method == 'GET' and session.get('gemini_logged_in'):
-                        return redirect(url_for('nested_service.gemini_dashboard'))
-                    elif request.method == 'POST':
-                        password = request.form['password']
-                        secret_password = _Gemini.get_gemini_config(
-                            'gemini_dashboard_password')
-                        if password == secret_password:
-                            logger.info("[+] Login sucessfully.!")
-                            session['gemini_logged_in'] = True
+                    isInstall = _Gemini.get_gemini_config('gemini_install')
+                    if isInstall:
+                        if request.method == 'GET' and session.get('gemini_logged_in'):
                             return redirect(url_for('nested_service.gemini_dashboard'))
+                        elif request.method == 'POST':
+                            password = request.form['password']
+                            ph = PasswordHasher()
+                            hash_password = _Gemini.get_gemini_config(
+                                'gemini_dashboard_password')
+                            if ph.verify(hash_password, password):
+                                logger.info("[+] Login successful.!")
+                                session['gemini_logged_in'] = True
+                                return redirect(url_for('nested_service.gemini_dashboard'))
+                            else:
+                                return render_template('gemini_protector_template/login.html', error="Incorrect Password")
                         else:
-                            return render_template('gemini_protector_template/login.html', error="Incorrect Password")
+                            return render_template('gemini_protector_template/login.html')
                     else:
-                        return render_template('gemini_protector_template/login.html')
+                        return redirect(url_for('nested_service.gemini_install'))
                 except Exception as e:
                     logger.error(
                         "[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
@@ -279,7 +335,7 @@ class GeminiManager(object):
 
             # Register the blueprint with the main application
             flask_app.register_blueprint(
-                nested_service, url_prefix='/'+dashboard_path)
+                nested_service, url_prefix='/'+gemeni_app_path)
 
             # Make secure cookie
             # _Gemini.make_secure_cookie(flask_app)
