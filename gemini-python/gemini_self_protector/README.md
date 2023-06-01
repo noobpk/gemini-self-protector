@@ -36,10 +36,10 @@ from flask import request
 from gemini_self_protector import GeminiManager
 
 app = Flask(__name__)
-gemini = GeminiManager(license_key=os.getenv("GEMINI_LICENSE_KEY"))
+gemini = GeminiManager()
 
 @app.route('/api/login', methods=['POST'])
-@gemini.flask_protect_extended()
+@gemini.flask_protect_extended() <--- Define gemini here
 def login():
     username = request.json['username']
     password = request.json['password']
@@ -72,10 +72,10 @@ from flask import request
 from gemini_self_protector import GeminiManager
 
 app = Flask(__name__)
-gemini = GeminiManager(app, license_key=os.getenv("GEMINI_LICENSE_KEY"))
+gemini = GeminiManager(app)
 
 @app.route('/api/login', methods=['POST'])
-@gemini.flask_protect_extended(protect_mode='block')
+@gemini.flask_protect_extended(protect_mode='block') <--- Define gemini with specific protect mode here
 def login():
     username = request.json['username']
     password = request.json['password']
