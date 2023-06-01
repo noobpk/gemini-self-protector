@@ -117,7 +117,7 @@ class _Utils(object):
             return accuracy
         except Exception as e:
             logger.error(
-                "[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Utils.web_vuln_detect_predict', e))
 
     def flask_client_ip() -> None:
         """
@@ -132,7 +132,7 @@ class _Utils(object):
                 return request.remote_addr
         except Exception as e:
             logger.error(
-                "[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Utils.flask_client_ip', e))
 
     def generate_incident_id() -> None:
         """
@@ -144,7 +144,7 @@ class _Utils(object):
             return incident_id
         except Exception as e:
             logger.error(
-                "[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Utils.generate_incident_id', e))
 
     def insident_ticket() -> None:
         """
@@ -159,7 +159,7 @@ class _Utils(object):
             return {"Time": time, "IP": ip, "IncidentID": incident_id}
         except Exception as e:
             logger.error(
-                "[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Utils.insident_ticket', e))
 
     def create_path() -> None:
         """
@@ -172,7 +172,7 @@ class _Utils(object):
             return dashboard_path
         except Exception as e:
             logger.error(
-                "[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Utils.create_path', e))
 
     def load_banner():
         print('''\033[1;31m \n
@@ -213,7 +213,7 @@ class _Validator(object):
                 return False
         except Exception as e:
             logger.error(
-                "[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Validator.validate_license_key', e))
 
     def validate_protect_mode(protect_mode) -> None:
         """
@@ -233,7 +233,7 @@ class _Validator(object):
                 return True
         except Exception as e:
             logger.error(
-                "[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Validator.validate_protect_mode', e))
 
     def validate_sensitive_value(sensitive_value) -> None:
         """
@@ -252,7 +252,7 @@ class _Validator(object):
                 return False
         except Exception as e:
             logger.error(
-                "[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Validator.validate_sensitive_value', e))
 
     def validate_app_path(app_path) -> None:
         try:
@@ -265,7 +265,7 @@ class _Validator(object):
                 return False
         except Exception as e:
             logger.error(
-                "[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Validator.validate_app_path', e))
 
     def validate_dashboard_password(password, confirm_password) -> None:
         try:
@@ -279,7 +279,7 @@ class _Validator(object):
                 return False
         except Exception as e:
             logger.error(
-                "[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Validator.validate_dashboard_password', e))
 
     def validate_notification_channel(notification_channel) -> None:
         try:
@@ -292,7 +292,7 @@ class _Validator(object):
                 return False
         except Exception as e:
             logger.error(
-                "[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Validator.validate_notification_channel', e))
 
     def validate_http_method(http_method) -> None:
         """
@@ -312,7 +312,7 @@ class _Validator(object):
                 return False
         except Exception as e:
             logger.error(
-                "[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Validator.validate_http_method', e))
 
     def validate_safe_redirect_status(safe_redirect_status) -> None:
         """
@@ -331,7 +331,7 @@ class _Validator(object):
                 return False
         except Exception as e:
             logger.error(
-                "[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Validator.validate_safe_redirect_status', e))
 
     def validate_trust_domain(trust_domain_list) -> None:
         try:
@@ -344,4 +344,4 @@ class _Validator(object):
                     return True
         except Exception as e:
             logger.error(
-                "[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Validator.validate_trust_domain', e))

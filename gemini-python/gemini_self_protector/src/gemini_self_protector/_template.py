@@ -2093,7 +2093,7 @@ class _Template(object):
                 f.write(template_dashboard)
         except Exception as e:
             logger.error(
-                "[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Template.gemini_template', e))
 
     def gemini_static_file(flask_static_folder):
         """
@@ -2108,4 +2108,4 @@ class _Template(object):
                 os.makedirs(static_directory)
         except Exception as e:
             logger.error(
-                "[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Template.gemini_static_file', e))

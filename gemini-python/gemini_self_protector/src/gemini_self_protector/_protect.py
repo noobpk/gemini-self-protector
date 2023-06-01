@@ -45,7 +45,7 @@ class _Protect(object):
             return response
         except Exception as e:
             logger.error(
-                "[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Protect.__secure_response_header__', e))
 
     def __secure_cookie__(app):
         try:
@@ -56,7 +56,7 @@ class _Protect(object):
             )
         except Exception as e:
             logger.error(
-                "[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Protect.__secure_cookie__', e))
 
     def __handle_normal_request__(_request, predict, _ticket) -> None:
         """
@@ -74,7 +74,7 @@ class _Protect(object):
             # _Config.update_data_store(_dict)
         except Exception as e:
             logger.error(
-                "[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Protect.__handle_normal_request__', e))
 
     def __handle_abnormal_request__(_request, _predict, _attack_type, _ticket) -> None:
         """
@@ -97,7 +97,7 @@ class _Protect(object):
                 _ticket["IP"], _ticket["IncidentID"]))
         except Exception as e:
             logger.error(
-                "[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Protect.__handle_abnormal_request__', e))
 
     def __handle_original_request__(_request, _full_request, _ticket) -> None:
         try:
@@ -122,7 +122,7 @@ class _Protect(object):
                 return False
         except Exception as e:
             logger.error(
-                "[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Protect.__handle_original_request__', e))
 
     def __handle_abnormal_response__(_request_response, _predict, _attack_type, _ticket) -> None:
         try:
@@ -135,7 +135,7 @@ class _Protect(object):
                 _ticket["IP"], _ticket["IncidentID"]))
         except Exception as e:
             logger.error(
-                "[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Protect.__handle_abnormal_response__', e))
 
     def __handle_original_response__(_request_response, _response, _ticket) -> None:
         try:
@@ -162,7 +162,7 @@ class _Protect(object):
                 return True
         except Exception as e:
             logger.error(
-                "[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Protect.__handle_original_response__', e))
 
     def __protect_flask_request__(gemini_protect_mode) -> None:
         try:
@@ -239,7 +239,7 @@ class _Protect(object):
                 return {"Status": status}
         except Exception as e:
             logger.error(
-                "[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Protect.__protect_flask_request__', e))
 
     def __protect_flask_response__(safe_redirect, original_response, gemini_protect_mode) -> None:
         try:
@@ -294,4 +294,4 @@ class _Protect(object):
                 return {"Status": status}
         except Exception as e:
             logger.error(
-                "[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Protect.__protect_flask_response__', e))

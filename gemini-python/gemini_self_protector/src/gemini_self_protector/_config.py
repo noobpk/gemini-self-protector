@@ -20,7 +20,8 @@ class _Config(object):
             with open(config_file, "w") as file:
                 yaml.dump(config_content, file)
         except Exception as e:
-            logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+            logger.error(
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Config.__init__', e))
 
     def get_config(config_key) -> None:
         """
@@ -45,7 +46,8 @@ class _Config(object):
             config_value = config_data["gemini-self-protector"][config_key]
             return config_value
         except Exception as e:
-            logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+            logger.error(
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Config.get_config', e))
 
     def update_config(config_content):
         """
@@ -66,7 +68,9 @@ class _Config(object):
             with open(config_path, "w") as file:
                 yaml.dump(config_data, file)
         except Exception as e:
-            logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+            logger.error(
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Config.update_config', e))
+
 
     def init_data_store(working_directory):
         """
@@ -85,7 +89,8 @@ class _Config(object):
                 # use pickle to dump the dictionary to the file
                 json.dump(data, f,  indent=4)
         except Exception as e:
-            logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+            logger.error(
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Config.init_data_store', e))
 
     def update_data_store(_dict):
         """
@@ -104,7 +109,8 @@ class _Config(object):
             with open(data_store_path, "w") as f:
                 json.dump(existing_data, f, indent = 4)
         except Exception as e:
-            logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+            logger.error(
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Config.update_data_store', e))
 
     def init_acl(working_directory):
         """
@@ -122,7 +128,8 @@ class _Config(object):
                 # use pickle to dump the dictionary to the file
                 json.dump(data, f,  indent=4)
         except Exception as e:
-            logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+            logger.error(
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Config.init_acl', e))
 
     def update_acl(_dict):
         """
@@ -141,7 +148,8 @@ class _Config(object):
             with open(acl_path, "w") as f:
                 json.dump(existing_data, f, indent = 4)
         except Exception as e:
-            logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+            logger.error(
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Config.update_acl', e))
 
     def check_acl(_ip_address) -> None:
         """
@@ -162,7 +170,8 @@ class _Config(object):
             else:
                 return False
         except Exception as e:
-            logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+            logger.error(
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Config.check_acl', e))
 
     def remove_acl(_ip_address):
         """
@@ -182,7 +191,8 @@ class _Config(object):
             with open(acl_path, "w") as f:
                 json.dump(acl_data, f, indent = 4)
         except Exception as e:
-            logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+            logger.error(
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Config.remove_acl', e))
 
     def init_audit_dependency(working_directory):
         """
@@ -200,7 +210,9 @@ class _Config(object):
                 # use pickle to dump the dictionary to the file
                 json.dump(data, f,  indent=4)
         except Exception as e:
-            logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+            logger.error(
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Config.init_audit_dependency', e))
+
 
     def update_audit_dependency(_dict):
         """
@@ -221,4 +233,5 @@ class _Config(object):
             with open(audit_dependency_path, "w") as f:
                 json.dump(existing_data, f, indent = 4)
         except Exception as e:
-            logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+            logger.error(
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Config.update_audit_dependency', e))

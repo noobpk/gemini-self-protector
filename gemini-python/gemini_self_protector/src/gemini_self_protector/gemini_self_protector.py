@@ -46,15 +46,15 @@ class GeminiManager(object):
                 'gemini_secret_key')
 
         if flask_app.template_folder and flask_app.static_folder:
-            if _Gemini.get_gemini_config('gemeni_app_path') is None:
+            if _Gemini.get_gemini_config('gemini_app_path') is None:
                 _Gemini.init_gemini_app_path()
 
             _Gemini.init_gemini_dashboard(
                 flask_app.template_folder, flask_app.static_folder)
 
-            gemeni_app_path = _Gemini.get_gemini_config('gemeni_app_path')
+            gemini_app_path = _Gemini.get_gemini_config('gemini_app_path')
             logger.info(
-                "[+] Access Your Gemini Dashboard as Path: http://0.0.0.0:port/{}".format(gemeni_app_path))
+                "[+] Access Your Gemini Dashboard as Path: http://0.0.0.0:port/{0}".format(gemini_app_path))
 
             @nested_service.route('/', methods=['GET', 'POST'])
             def gemini_init():
@@ -69,7 +69,7 @@ class GeminiManager(object):
                         return redirect(url_for('nested_service.gemini_install'))
                 except Exception as e:
                     logger.error(
-                        "[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+                        "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('nested_service.route.gemini_init', e))
 
             @nested_service.route('/install', methods=['GET', 'POST'])
             def gemini_install():
@@ -82,7 +82,7 @@ class GeminiManager(object):
                             sensitive_value = _Gemini.get_gemini_config(
                                 'gemini_sensitive_value')
                             app_path = _Gemini.get_gemini_config(
-                                'gemeni_app_path')
+                                'gemini_app_path')
                             return render_template('gemini_protector_template/install.html',
                                                    _sensitive_value=sensitive_value,
                                                    _app_path=app_path)
@@ -127,10 +127,9 @@ class GeminiManager(object):
                             return redirect(url_for('nested_service.gemini_install'))
                         else:
                             return redirect(url_for('nested_service.gemini_install'))
-
                 except Exception as e:
                     logger.error(
-                        "[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+                        "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('nested_service.route.gemini_install', e))
 
             @nested_service.route('/login', methods=['GET', 'POST'])
             def gemini_login():
@@ -156,7 +155,7 @@ class GeminiManager(object):
                         return redirect(url_for('nested_service.gemini_install'))
                 except Exception as e:
                     logger.error(
-                        "[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+                        "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('nested_service.route.gemini_login', e))
 
             @nested_service.route('/dashboard')
             def gemini_dashboard():
@@ -206,7 +205,7 @@ class GeminiManager(object):
                         return redirect(url_for('nested_service.gemini_login'))
                 except Exception as e:
                     logger.error(
-                        "[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+                        "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('nested_service.route.gemini_dashboard', e))
 
             @nested_service.route('/update-config', methods=['POST'])
             def gemini_update_config():
@@ -246,7 +245,7 @@ class GeminiManager(object):
                         return redirect(url_for('nested_service.gemini_login'))
                 except Exception as e:
                     logger.error(
-                        "[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+                        "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('nested_service.route.gemini_update_config', e))
 
             @nested_service.route('/update-acl', methods=['POST'])
             def gemini_update_acl():
@@ -274,7 +273,7 @@ class GeminiManager(object):
                         return redirect(url_for('nested_service.gemini_login'))
                 except Exception as e:
                     logger.error(
-                        "[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+                        "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('nested_service.route.gemini_update_acl', e))
 
             @nested_service.route('/remove-acl', methods=['POST'])
             def gemini_remove_acl():
@@ -298,7 +297,7 @@ class GeminiManager(object):
                         return redirect(url_for('nested_service.gemini_login'))
                 except Exception as e:
                     logger.error(
-                        "[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+                        "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('nested_service.route.gemini_remove_acl', e))
 
             @nested_service.route('/dependency-vulnerability', methods=['POST'])
             def gemini_dependency_audit():
@@ -321,7 +320,7 @@ class GeminiManager(object):
                         return redirect(url_for('nested_service.gemini_login'))
                 except Exception as e:
                     logger.error(
-                        "[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+                        "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('nested_service.route.gemini_dependency_audit', e))
 
             @nested_service.route('/logout')
             def gemini_logout():
@@ -331,11 +330,11 @@ class GeminiManager(object):
                     return redirect(url_for('nested_service.gemini_login'))
                 except Exception as e:
                     logger.error(
-                        "[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+                        "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('nested_service.route.gemini_logout', e))
 
             # Register the blueprint with the main application
             flask_app.register_blueprint(
-                nested_service, url_prefix='/'+gemeni_app_path)
+                nested_service, url_prefix='/'+gemini_app_path)
 
             # Make secure cookie
             # _Gemini.make_secure_cookie(flask_app)
