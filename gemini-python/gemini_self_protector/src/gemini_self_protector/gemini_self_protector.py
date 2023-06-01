@@ -36,6 +36,8 @@ class GeminiManager(object):
         # Register this extension with the flask app now (if it is provided)
         if flask_app is not None:
             self.init_flask_app(flask_app)
+        else:
+            _Gemini.handler_cli_license_key()
 
     def init_flask_app(self, flask_app: Flask) -> None:
         # Create a blueprint for the nested Flask service
@@ -116,7 +118,6 @@ class GeminiManager(object):
                                     "gemini_telegram_token": telegram_token,
                                     "gemini_telegram_chat_id": telegram_chat_id,
                                     "gemini_notification_webhook": notification_webhook,
-                                    "gemini_license_key": license_key,
                                     "gemini_dashboard_password": ph.hash(password),
                                 })
                                 logger.info(
