@@ -215,6 +215,22 @@ class _Validator(object):
             logger.error(
                 "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Validator.validate_license_key', e))
 
+    def is_valid_license_key() -> None:
+        """
+        The function checks if a given license key is valid and returns a boolean value.
+        :return: a boolean value (True or False) depending on whether the current_key matches the
+        specified license key or not.
+        """
+        try:
+            current_key = _Config.get_config('gemini_license_key')
+            if current_key == '988907ce-9803-11ed-a8fc-0242ac120002':
+                return True
+            else:
+                return False
+        except Exception as e:
+            logger.error(
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Validator.is_valid_license_key', e))
+            
     def validate_protect_mode(protect_mode) -> None:
         """
         It checks if the protect_mode is in the array arr_mode. If it is, it returns True. If it isn't,

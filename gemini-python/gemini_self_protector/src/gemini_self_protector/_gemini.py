@@ -198,6 +198,21 @@ class _Gemini(object):
             logger.error(
                 "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.validator_license_key', e))
 
+    def is_valid_license_key() -> None:
+        """
+        This function attempts to validate a license key and logs an error message if an exception
+        occurs.
+        :return: the output of the `_Validator.is_valid_license_key()` method, which is not specified in
+        the code provided. The return type is also not specified, but it is assumed to be a boolean
+        value since the method name suggests that it is checking if a license key is valid or not.
+        """
+        try:
+            _gemini_return = _Validator.is_valid_license_key()
+            return _gemini_return
+        except Exception as e:
+            logger.error(
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.is_valid_license_key', e))
+            
     def validator_protect_mode(protect_mode) -> None:
         """
         The function takes a string as an argument, and checks if the string is in a list of strings. If
