@@ -4,12 +4,18 @@ from ._gemini import _Gemini
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from argon2 import PasswordHasher
+from datetime import datetime
 
 
 class _Gemini_GUI(object):
 
     def __init__(self, flask_app: Flask) -> None:
         login_manager = LoginManager()
+
+        @flask_app.before_request
+        def count_request_to_service():
+            _Gemini.calulate_total_access()
+
         # Create a blueprint for the nested Flask service
         nested_service = Blueprint(
             'nested_service', __name__, template_folder="templates", static_folder='static')
@@ -28,6 +34,12 @@ class _Gemini_GUI(object):
             gemini_app_path = _Gemini.get_gemini_config('gemini_app_path')
             logger.info(
                 "[+] Access Your Gemini Dashboard as Path: http://0.0.0.0:port/{0}".format(gemini_app_path))
+
+            @nested_service.app_template_filter('datetimeformat')
+            def datetimeformat(value, format='%d %B %H:%M'):
+                if isinstance(value, str):
+                    value = datetime.strptime(value, '%Y-%m-%d %H:%M:%S')
+                return value.strftime(format)
 
             @nested_service.route('/', methods=['GET', 'POST'])
             def gemini_init():
@@ -206,11 +218,11 @@ class _Gemini_GUI(object):
                                 'gemini_trust_domain')
                             app_username = _Gemini.get_gemini_config(
                                 'gemini_app_username')
-                            # load_data_log = _Gemini.load_gemini_log()
-                            # load_data_store = _Gemini.load_gemini_data_store()
-                            # load_data_acl = _Gemini.load_gemini_acl()
-                            # dependency_file = _Gemini.get_dependency_file()
-                            # dependency_result = _Gemini.load_gemini_dependency_result()
+                            load_data_log = _Gemini.load_gemini_log()
+                            load_data_store = _Gemini.load_gemini_data_store()
+                            load_data_acl = _Gemini.load_gemini_acl()
+                            dependency_file = _Gemini.get_dependency_file()
+                            dependency_result = _Gemini.load_gemini_dependency_result()
                             return render_template('gemini-protector-gui/home/index.html',
                                                    _username=app_username,
                                                    _protect_mode=global_protect_mode,
@@ -219,17 +231,17 @@ class _Gemini_GUI(object):
                                                    _abnormal_request=abnormal_request,
                                                    _sensitive_value=sensitive_value,
                                                    _server_name=server_name,
-                                                   # _gemini_log=load_data_log,
-                                                   # _gemini_data_store=load_data_store,
-                                                   # _gemini_acl=load_data_acl,
+                                                   _gemini_log=load_data_log,
+                                                   _gemini_data_store=load_data_store,
+                                                   _gemini_acl=load_data_acl,
                                                    _max_content_length=int(
                                                        max_content_length / 1024 / 1024),
                                                    _http_method=http_method_allow,
                                                    _safe_redirect_status=safe_redirect_status,
                                                    _trust_domain_list=", ".join(
                                                        trust_domain_list),
-                                                   # _gemini_dependency_file=dependency_file,
-                                                   # _gemini_dependency_result=dependency_result
+                                                   _gemini_dependency_file=dependency_file,
+                                                   _gemini_dependency_result=dependency_result
                                                    )
                         else:
                             logger.warning("[!] Unauthentication Access.!")

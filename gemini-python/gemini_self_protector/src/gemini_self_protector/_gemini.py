@@ -409,7 +409,7 @@ class _Gemini(object):
         try:
             log_path = _Gemini.get_gemini_config('gemini_log_path')
             data_log = []
-            with open(log_path+"/gemini_protetor_info.log") as f:
+            with open(log_path+"/gemini-protetor-info.log") as f:
                 for line in f:
                     parts = line.strip().split(' - ')
                     if len(parts) != 3:
@@ -574,3 +574,15 @@ class _Gemini(object):
         except Exception as e:
             logger.error(
                 "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.get_gemini_banner', e))
+
+    def calulate_total_access():
+        try:
+            current_access = _Gemini.get_gemini_config(
+                'gemini_total_request')
+            current_access += 1
+            _Gemini.update_gemini_config({
+                "gemini_total_request": current_access,
+            })
+        except Exception as e:
+            logger.error(
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.calulate_total_access', e))
