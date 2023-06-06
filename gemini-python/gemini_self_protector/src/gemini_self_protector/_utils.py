@@ -111,7 +111,7 @@ class _Utils(object):
         try:
             headers = {"Content-Type": "application/json"}
             predict = requests.post(
-                'https://web-vuln-detection.onrender.com/predict', json={"data": payload}, headers=headers)
+                'http://127.0.0.1:5000/predict', json={"data": payload}, headers=headers)
             response = predict.json()
             accuracy = response.get('accuracy')
             return accuracy
@@ -230,7 +230,7 @@ class _Validator(object):
         except Exception as e:
             logger.error(
                 "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Validator.is_valid_license_key', e))
-            
+
     def validate_protect_mode(protect_mode) -> None:
         """
         It checks if the protect_mode is in the array arr_mode. If it is, it returns True. If it isn't,

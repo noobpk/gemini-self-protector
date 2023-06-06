@@ -30,11 +30,13 @@ class _Gemini(object):
                     'gemini_working_directory': working_directory,
                     'gemini_secret_key': str(os.urandom(24)),
                     'gemini_app_path': None,
+                    'gemini_app_username': 'superadmin',
                     'gemini_config_path': working_directory+'/config.yml',
                     'gemini_data_store_path': working_directory+'/data.json',
                     'gemini_acl_path': working_directory+'/acl.json',
                     'gemini_log_path': working_directory+'/log',
-                    'gemini_audit_dependency': working_directory+'/audit_dependency.json',
+                    'gemini_audit_dependency': working_directory+'/audit-dependency.json',
+                    'gemini_total_request': 0,
                     'gemini_normal_request': 0,
                     'gemini_abnormal_request': 0,
                     'gemini_global_protect_mode': 'monitor',
@@ -212,7 +214,7 @@ class _Gemini(object):
         except Exception as e:
             logger.error(
                 "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.is_valid_license_key', e))
-            
+
     def validator_protect_mode(protect_mode) -> None:
         """
         The function takes a string as an argument, and checks if the string is in a list of strings. If
@@ -369,15 +371,20 @@ class _Gemini(object):
 
     def init_gemini_dashboard(flask_template_folder, flask_static_folder):
         """
-        It takes the path to the template folder and static folder of the flask app and copies the
-        gemini dashboard template and static files to the respective folders
-
-        :param flask_template_folder: The folder where you want to store the templates
-        :param flask_static_folder: The folder where you want to store the static files
+        This function initializes the Gemini dashboard by initializing the Gemini template and static
+        folders.
+        
+        :param flask_template_folder: The parameter `flask_template_folder` is a string that represents
+        the path to the folder where Flask templates are stored. Flask templates are used to generate
+        HTML pages dynamically
+        :param flask_static_folder: The flask_static_folder parameter is a string that represents the
+        path to the folder where the static files for the Flask application are stored. These static
+        files can include images, CSS files, and JavaScript files that are used by the application
         """
+
         try:
-            _Template.gemini_template(flask_template_folder)
-            _Template.gemini_static_file(flask_static_folder)
+            _Template.init_gemini_template(flask_template_folder)
+            _Template.init_gemini_static(flask_static_folder)
         except Exception as e:
             logger.error(
                 "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.init_gemini_dashboard', e))
@@ -393,18 +400,6 @@ class _Gemini(object):
         except Exception as e:
             logger.error(
                 "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.init_gemini_app_path', e))
-
-    def init_gemini_dashboard_password():
-        """
-        It generates a random password and stores it in the config file
-        """
-        try:
-            secret_password = secrets.token_hex(20)
-            _Gemini.update_gemini_config(
-                {"gemini_dashboard_password": secret_password})
-        except Exception as e:
-            logger.error(
-                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.init_gemini_dashboard_password', e))
 
     def load_gemini_log() -> None:
         """

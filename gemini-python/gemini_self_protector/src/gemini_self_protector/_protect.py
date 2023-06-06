@@ -201,7 +201,7 @@ class _Protect(object):
                     else:
                         status = True
                         _Protect.__handle_abnormal_request__(
-                            _full_request, predict, "Malicious Request")
+                            _full_request, predict, "Malicious Request", _ticket)
                         return {"Status": status, "Ticket": _ticket}
                 else:
                     status = True

@@ -10,3 +10,4 @@ from ._template import _Template
 from ._config import _Config
 from ._protect import _Protect
 from ._audit import _Audit
+from ._gui import _Gemini_GUI

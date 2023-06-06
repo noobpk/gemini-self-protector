@@ -1,0 +1,51 @@
+{% extends "gemini-protector-gui/layouts/base-fullscreen.html" %}
+
+{% block title %} Login {% endblock %}
+
+{% block content %}
+
+<div class="auth-wrapper">
+    <div class="auth-content">
+        <div class="auth-bg">
+            <span class="r"></span>
+            <span class="r s"></span>
+            <span class="r s"></span>
+            <span class="r"></span>
+        </div>
+        <div class="card">
+            <div class="card-body text-center">
+
+                <h3 class="mb-4">License Key</h3>
+
+                <span class="mb-2 text-muted">
+                    {% if msg %}
+                    <span class="text-danger">{{ msg | safe }}</span>
+                    {% else %}
+                    Update your key
+                    {% endif %}
+                </span>
+
+                <br />
+                <br />
+
+                <!-- Hide the form on success -->
+
+                <form role="form" method="post" action="">
+
+                    <div class="input-group mb-3">
+                        <input class="form-control" placeholder="License key" type="text" name="key">
+                    </div>
+
+                    <button type="submit" name="key" class="btn btn-primary shadow-2 mb-4">Update</button>
+
+                </form>
+
+                <p class="mb-0 text-muted">Need a key? <a
+                        href="https://github.com/noobpk/gemini-self-protector">gemini-self-protector</a></p>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock content %}

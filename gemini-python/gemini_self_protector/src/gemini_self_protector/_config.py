@@ -5,6 +5,7 @@ import json
 from ipaddress import ip_address
 from datetime import datetime
 
+
 class _Config(object):
 
     def __init__(self, working_directory, config_content):
@@ -38,7 +39,8 @@ class _Config(object):
         """
         try:
             running_directory = os.getcwd()
-            gemini_working_directory = os.path.join(running_directory, r'gemini_protector')
+            gemini_working_directory = os.path.join(
+                running_directory, r'gemini-protector')
             config_path = gemini_working_directory+'/config.yml'
             with open(config_path, "r") as file:
                 config_data = yaml.safe_load(file)
@@ -71,7 +73,6 @@ class _Config(object):
             logger.error(
                 "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Config.update_config', e))
 
-
     def init_data_store(working_directory):
         """
         It creates a new file called data.json in the working directory and writes an empty dictionary
@@ -82,7 +83,7 @@ class _Config(object):
         data_file = working_directory+'/data.json'
         try:
             # create an empty dictionary
-            data = {"gemini_data_stored":[]}
+            data = {"gemini_data_stored": []}
 
             # Write the empty dictionary to the new file
             with open(data_file, "w") as f:
@@ -107,7 +108,7 @@ class _Config(object):
             existing_data["gemini_data_stored"].append(_dict)
             # Write the add new data back to the file
             with open(data_store_path, "w") as f:
-                json.dump(existing_data, f, indent = 4)
+                json.dump(existing_data, f, indent=4)
         except Exception as e:
             logger.error(
                 "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Config.update_data_store', e))
@@ -121,7 +122,7 @@ class _Config(object):
         data_file = working_directory+'/acl.json'
         try:
             # create an empty dictionary
-            data = {"gemini_acl":[]}
+            data = {"gemini_acl": []}
 
             # Write the empty dictionary to the new file
             with open(data_file, "w") as f:
@@ -146,7 +147,7 @@ class _Config(object):
             existing_data["gemini_acl"].append(_dict)
             # Write the add new data back to the file
             with open(acl_path, "w") as f:
-                json.dump(existing_data, f, indent = 4)
+                json.dump(existing_data, f, indent=4)
         except Exception as e:
             logger.error(
                 "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Config.update_acl', e))
@@ -164,7 +165,8 @@ class _Config(object):
             with open(acl_path, "r") as f:
                 acl_data = json.load(f)
 
-            ip_list = [ip_address(entry['Ip']) for entry in acl_data['gemini_acl']]
+            ip_list = [ip_address(entry['Ip'])
+                       for entry in acl_data['gemini_acl']]
             if ip_address(_ip_address) in ip_list:
                 return True
             else:
@@ -189,7 +191,7 @@ class _Config(object):
                 if acl.get("Ip") == _ip_address:
                     acl_data["gemini_acl"].remove(acl)
             with open(acl_path, "w") as f:
-                json.dump(acl_data, f, indent = 4)
+                json.dump(acl_data, f, indent=4)
         except Exception as e:
             logger.error(
                 "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Config.remove_acl', e))
@@ -200,10 +202,10 @@ class _Config(object):
 
         :param working_directory: The directory where the audit_dependency.json file is located
         """
-        data_file = working_directory+'/audit_dependency.json'
+        data_file = working_directory+'/audit-dependency.json'
         try:
             # create an empty dictionary
-            data = {"gemini_audit_dependency":[]}
+            data = {"gemini_audit_dependency": []}
 
             # Write the empty dictionary to the new file
             with open(data_file, "w") as f:
@@ -213,7 +215,6 @@ class _Config(object):
             logger.error(
                 "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Config.init_audit_dependency', e))
 
-
     def update_audit_dependency(_dict):
         """
         It takes a dictionary as an argument, and appends it to a JSON file
@@ -221,17 +222,19 @@ class _Config(object):
         :param _dict: This is the dictionary that you want to add to the json file
         """
         try:
-            audit_dependency_path = _Config.get_config('gemini_audit_dependency')
+            audit_dependency_path = _Config.get_config(
+                'gemini_audit_dependency')
             print()
             now = datetime.now()
             current_time = now.strftime("%Y-%m-%d %H:%M:%S")
             with open(audit_dependency_path, "r") as f:
                 existing_data = json.load(f)
 
-            existing_data["gemini_audit_dependency"].append({str(current_time):_dict})
+            existing_data["gemini_audit_dependency"].append(
+                {str(current_time): _dict})
             # Write the add new data back to the file
             with open(audit_dependency_path, "w") as f:
-                json.dump(existing_data, f, indent = 4)
+                json.dump(existing_data, f, indent=4)
         except Exception as e:
             logger.error(
                 "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Config.update_audit_dependency', e))

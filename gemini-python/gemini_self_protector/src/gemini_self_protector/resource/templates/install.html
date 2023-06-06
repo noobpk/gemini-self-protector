@@ -1,0 +1,185 @@
+<link rel="stylesheet" href="{{ url_for('static', filename='gemini-protector-static/css/install.css') }}">
+{% extends "gemini-protector-gui/layouts/base-fullscreen.html" %}
+
+{% block title %} Login {% endblock %}
+
+{% block content %}
+<div class="install-main-container">
+    <div class="install-wrapper">
+
+        <div class="install-content">
+            <div class="install-inner-content">
+                <div class="main-body">
+                    <div class="page-wrapper">
+                        <!-- [ Main Content ] start -->
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h5>Gemini Install</h5>
+                                    </div>
+                                    <div class="content">
+                                        <div class="form-wizard">
+                                            <form id="install" method="POST"
+                                                action="{{url_for('nested_service.gemini_install')}}">
+                                                <div class="form-wizard-header">
+                                                    <ul class="list-unstyled form-wizard-steps clearfix">
+                                                        <li class="active"><span>1</span></li>
+                                                        <li><span>2</span></li>
+                                                        <li><span>3</span></li>
+                                                        <li><span>4</span></li>
+                                                    </ul>
+                                                </div>
+                                                <fieldset class="wizard-fieldset show">
+                                                    <h5>Protect Mode</h5>
+                                                    <div class="form-group">
+                                                        <div class="wizard-form-radio">
+                                                            <input name="radio-mode" id="radio1" type="radio"
+                                                                value="monitor" checked>
+                                                            <label for="radio1">Monitor</label>
+                                                        </div>
+                                                        <div class="wizard-form-radio">
+                                                            <input name="radio-mode" id="radio2" type="radio"
+                                                                value="block">
+                                                            <label for="radio2">Block</label>
+                                                        </div>
+                                                        <div class="wizard-form-radio">
+                                                            <input name="radio-mode" id="radio3" type="radio"
+                                                                value="off">
+                                                            <label for="radio2">Off</label>
+                                                        </div>
+                                                    </div>
+                                                    <h5>Sensitive</h5>
+                                                    <div class="form-group">
+                                                        <input type="number" min="0" max="100"
+                                                            class="form-control wizard-required" id="sensitiveValue"
+                                                            name="sensitive-value" value="{{_sensitive_value}}">
+                                                        <!-- <label for="fname" class="wizard-form-text-label">Value</label> -->
+                                                        <div class="wizard-form-error"></div>
+                                                    </div>
+                                                    <div class="form-group clearfix">
+                                                        <a href="javascript:;"
+                                                            class="form-wizard-next-btn float-right">Next</a>
+                                                    </div>
+                                                </fieldset>
+                                                <fieldset class="wizard-fieldset">
+                                                    <h5>Dashboard Path</h5>
+                                                    <div class="form-group">
+                                                        <input type="text" class="form-control wizard-required"
+                                                            id="geminiAppPath" name="gemini-app-path"
+                                                            value="{{_app_path}}">
+                                                        <!-- <label for="dashboard" class="wizard-form-text-label">Dashboard Path</label> -->
+                                                        <div class="wizard-form-error"></div>
+                                                    </div>
+                                                    <h5>Dashboard Password</h5>
+                                                    <div class="form-group">
+                                                        <input type="password" class="form-control wizard-required"
+                                                            id="pwd" name="pwd">
+                                                        <label for="pwd" class="wizard-form-text-label">Password</label>
+                                                        <div class="wizard-form-error"></div>
+                                                        <span class="wizard-password-eye"><i
+                                                                class="far fa-eye"></i></span>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <input type="password" class="form-control wizard-required"
+                                                            id="cpwd" name="cpwd">
+                                                        <label for="cpwd" class="wizard-form-text-label">Confirm
+                                                            Password</label>
+                                                        <div class="wizard-form-error"></div>
+                                                    </div>
+                                                    <div class="form-group clearfix">
+                                                        <a href="javascript:;"
+                                                            class="form-wizard-previous-btn float-left">Previous</a>
+                                                        <a href="javascript:;"
+                                                            class="form-wizard-next-btn float-right">Next</a>
+                                                    </div>
+                                                </fieldset>
+                                                <fieldset class="wizard-fieldset">
+                                                    <h5>Notification</h5>
+                                                    <div class="form-group">
+                                                        Channel
+                                                        <div class="wizard-form-radio">
+                                                            <input name="radio-channel" id="disable" type="radio"
+                                                                value="disable" checked>
+                                                            <label for="telegram">Disable</label>
+                                                        </div>
+                                                        <div class="wizard-form-radio">
+                                                            <input name="radio-channel" id="telegram" type="radio"
+                                                                value="telegram">
+                                                            <label for="telegram">Telegram</label>
+                                                        </div>
+                                                        <div class="wizard-form-radio">
+                                                            <input name="radio-channel" id="slack" type="radio"
+                                                                value="slack" disabled>
+                                                            <label for="slack">Slack</label>
+                                                        </div>
+                                                        <div class="wizard-form-radio">
+                                                            <input name="radio-channel" id="mattermost" type="radio"
+                                                                value="mattermost" disabled>
+                                                            <label for="mattermost">Mattermost</label>
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-group" id="telegram-form-1">
+                                                        <input type="text" class="form-control" id="telegram_token"
+                                                            name="telegram-token">
+                                                        <label for="telegram_chat_id"
+                                                            class="wizard-form-text-label">Telegram
+                                                            Token*</label>
+                                                        <div class="wizard-form-error"></div>
+                                                    </div>
+                                                    <div class="form-group" id="telegram-form-2">
+                                                        <input type="text" class="form-control" id="telegram_chat_id"
+                                                            name="telegram-chat-id">
+                                                        <label for="telegram_chat_id"
+                                                            class="wizard-form-text-label">Telegram Chat
+                                                            ID*</label>
+                                                        <div class="wizard-form-error"></div>
+                                                    </div>
+                                                    <div class="form-group" id="webhook-form">
+                                                        <input type="text" class="form-control" id="channel_webhook"
+                                                            name="channel-webhook">
+                                                        <label for="channel_webhook"
+                                                            class="wizard-form-text-label">Webhook</label>
+                                                        <div class="wizard-form-error"></div>
+                                                    </div>
+                                                    <div class="form-group clearfix">
+                                                        <a href="javascript:;"
+                                                            class="form-wizard-previous-btn float-left">Previous</a>
+                                                        <a href="javascript:;"
+                                                            class="form-wizard-next-btn float-right">Next</a>
+                                                    </div>
+                                                </fieldset>
+                                                <fieldset class="wizard-fieldset">
+                                                    <h5>License</h5>
+                                                    <div class="form-group">
+                                                        <input type="text" class="form-control wizard-required"
+                                                            id="license_key" name="license-key"
+                                                            value="988907ce-9803-11ed-a8fc-0242ac120002">
+                                                        <!-- <label for="license_key" class="wizard-form-text-label">License
+                                                            Key</label> -->
+                                                        <div class="wizard-form-error"></div>
+                                                    </div>
+                                                    <div class="form-group clearfix">
+                                                        <a href="javascript:;"
+                                                            class="form-wizard-previous-btn float-left">Previous</a>
+                                                        <a href="javascript:;" class="form-wizard-submit float-right"
+                                                            onclick="document.getElementById('install').submit();">Install</a>
+                                                    </div>
+                                                </fieldset>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<script src="{{ url_for('static', filename='gemini-protector-static/js/install.js') }}"></script>
+{% endblock content %}
