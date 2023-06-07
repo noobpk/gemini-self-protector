@@ -1,0 +1,146 @@
+{% extends "gemini-protector-gui/layouts/base.html" %}
+
+{% block title %} Profile {% endblock %}
+
+<!-- Specific CSS goes HERE -->
+{% block stylesheets %}{% endblock stylesheets %}
+
+{% block content %}
+
+<!-- [ Main Content ] start -->
+<div class="pcoded-main-container">
+    <div class="pcoded-wrapper">
+
+        <div class="pcoded-content">
+            <div class="pcoded-inner-content">
+                <div class="main-body">
+                    <div class="page-wrapper">
+                        <!-- [ Main Content ] start -->
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h5>Configurate</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <form role="form" method="post" action="">
+                                            <label>Protect Mode</label>
+                                            <div class="custom-control custom-radio custom-control-inline">
+                                                <input type="radio" id="protect-mode-monitor" name="protect_mode"
+                                                    value="monitor" class="custom-control-input" {% if
+                                                    _protect_mode=='monitor' %}checked{% endif %}>
+                                                <label class="custom-control-label"
+                                                    for="protect-mode-monitor">Monitor</label>
+                                            </div>
+                                            <div class="custom-control custom-radio custom-control-inline">
+                                                <input type="radio" id="protect-mode-block" name="protect_mode"
+                                                    value="block" class="custom-control-input" {% if
+                                                    _protect_mode=='block' %}checked{% endif %}>
+                                                <label class="custom-control-label"
+                                                    for="protect-mode-block">Block</label>
+                                            </div>
+                                            <div class="custom-control custom-radio custom-control-inline">
+                                                <input type="radio" id="protect-mode-off" name="protect_mode"
+                                                    value="off" class="custom-control-input" {% if _protect_mode=='off'
+                                                    %}checked{% endif %}>
+                                                <label class="custom-control-label" for="protect-mode-off">Off</label>
+                                            </div>
+
+                                            <div class="form-group">
+                                                <label>Sensitive Value</label>
+                                                <input type="text" class="form-control" placeholder="50"
+                                                    value="{{_sensitive_value}}" name="sensitive_value">
+                                            </div>
+                                            <label>Safe Redirect</label>
+                                            <div class="custom-control custom-radio custom-control-inline">
+                                                <input type="radio" id="safe-redirect-status-on"
+                                                    name="safe_redirect_status" value="on" class="custom-control-input"
+                                                    {% if _safe_redirect_status=='on' %}checked{% endif %}>
+                                                <label class="custom-control-label"
+                                                    for="safe-redirect-status-on">On</label>
+                                            </div>
+                                            <div class="custom-control custom-radio custom-control-inline">
+                                                <input type="radio" id="safe-redirect-status-off"
+                                                    name="safe_redirect_status" value="off" class="custom-control-input"
+                                                    {% if _safe_redirect_status=='off' %}checked{% endif %}>
+                                                <label class="custom-control-label"
+                                                    for="safe-redirect-status-off">Off</label>
+                                            </div>
+                                            <div class="form-group">
+                                                <label>Max Content-Length: 1 * 1024 * 1024 = 1MB</label>
+                                                <input type="text" class="form-control" placeholder="2"
+                                                    value="{{_max_content_length}}" name="max_content_length">
+                                            </div>
+                                            <div class="form-group checkbox-group">
+                                                <label>HTTP Method Allow</label>
+                                                <div class="custom-control custom-checkbox">
+                                                    <input type="checkbox" class="custom-control-input" id="httpOption"
+                                                        name="http_method[]" {{ 'checked' if 'OPTIONS' in _http_method
+                                                        else '' }} value="OPTIONS">
+                                                    <label class="custom-control-label" for="httpOption">OPTIONS</label>
+                                                </div>
+                                                <div class="custom-control custom-checkbox">
+                                                    <input type="checkbox" class="custom-control-input" id="httpGet"
+                                                        name="http_method[]" {{ 'checked' if 'GET' in _http_method
+                                                        else '' }} value="GET">
+                                                    <label class="custom-control-label" for="httpGet">GET</label>
+                                                </div>
+                                                <div class="custom-control custom-checkbox">
+                                                    <input type="checkbox" class="custom-control-input" id="httpPost"
+                                                        name="http_method[]" {{ 'checked' if 'POST' in _http_method
+                                                        else '' }} value="POST">
+                                                    <label class="custom-control-label" for="httpPost">POST</label>
+                                                </div>
+                                                <div class="custom-control custom-checkbox">
+                                                    <input type="checkbox" class="custom-control-input" id="httpPut"
+                                                        name="http_method[]" {{ 'checked' if 'PUT' in _http_method
+                                                        else '' }} value="PUT">
+                                                    <label class="custom-control-label" for="httpPut">PUT</label>
+                                                </div>
+                                                <div class="custom-control custom-checkbox">
+                                                    <input type="checkbox" class="custom-control-input" id="httpDelete"
+                                                        name="http_method[]" {{ 'checked' if 'DELETE' in _http_method
+                                                        else '' }} value="DELETE">
+                                                    <label class="custom-control-label" for="httpDelete"
+                                                        name="http_method[]">DELETE</label>
+                                                </div>
+                                                <div class="custom-control custom-checkbox">
+                                                    <input type="checkbox" class="custom-control-input" id="httpTrace"
+                                                        name="http_method[]" {{ 'checked' if 'TRACE' in _http_method
+                                                        else '' }} value="TRACE">
+                                                    <label class="custom-control-label" for="httpTrace">TRACE</label>
+                                                </div>
+                                                <div class="custom-control custom-checkbox">
+                                                    <input type="checkbox" class="custom-control-input" id="httpConnect"
+                                                        name="http_method[]" {{ 'checked' if 'CONNECT' in _http_method
+                                                        else '' }} value="CONNECT">
+                                                    <label class="custom-control-label" for="httpConnect"
+                                                        name="http_method[]">CONNECT</label>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label>Trust Domain</label>
+                                                <input type="text" class="form-control"
+                                                    placeholder="github.com, gitlab.com" value="{{_trust_domain_list}}"
+                                                    name="trust_domain_list">
+                                            </div>
+                                            <button type="submit" class="btn btn-primary">Submit</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- [ Main Content ] end -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+<!-- [ Main Content ] end -->
+
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}{% endblock javascripts %}

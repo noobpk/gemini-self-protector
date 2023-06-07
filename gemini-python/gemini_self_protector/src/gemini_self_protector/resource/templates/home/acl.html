@@ -1,0 +1,151 @@
+{% extends "gemini-protector-gui/layouts/base.html" %}
+
+{% block title %} Profile {% endblock %}
+
+<!-- Specific CSS goes HERE -->
+{% block stylesheets %}{% endblock stylesheets %}
+
+{% block content %}
+
+<!-- [ Main Content ] start -->
+<div class="pcoded-main-container">
+    <div class="pcoded-wrapper">
+
+        <div class="pcoded-content">
+            <div class="pcoded-inner-content">
+                <div class="main-body">
+                    <div class="page-wrapper">
+                        <!-- [ Main Content ] start -->
+                        <div class="row">
+                            <div class="col-md-9">
+                                <div class="card Recent-Users">
+                                    <div class="card-header">
+                                        <h5>Access control list</h5>
+                                    </div>
+                                    <div class="card-block table-border-style">
+                                        <div class="table-responsive">
+                                            <table class="table table-hover">
+                                                <thead>
+                                                    <tr>
+                                                        <th class="text-right"></th>
+                                                        <th>IP</th>
+                                                        <th>Access</th>
+                                                        <th>Time</th>
+                                                        <th>Desciption</th>
+                                                        <th>Action</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {% for acl in _gemini_acl %}
+                                                    <tr>
+                                                        <td>
+                                                            {%if acl['Access'] == 'Allow' %}
+                                                            <i class="feather icon-check f-30 text-c-green"></i>
+                                                            {%else%}
+                                                            <i class="feather icon-x f-30 text-c-red"></i>
+                                                            {%endif%}
+                                                        </td>
+                                                        <td>{{ acl['Ip'] }}</td>
+                                                        <td>{{ acl['Access'] }}</td>
+                                                        <td>{{ acl['Time']|datetimeformat('%d %B
+                                                            %H:%M') }}</td>
+                                                        <td>{{ acl['Desciption'] }}</td>
+                                                        <td>
+                                                            <button
+                                                                class="remove-acl-btn label theme-bg2 text-white f-12"
+                                                                data-ip="{{ acl['Ip'] }}"><i
+                                                                    class="fa fa-trash"></i></button>
+                                                        </td>
+                                                    </tr>
+                                                    {% endfor %}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        <nav aria-label="Page navigation example">
+                                            <ul class="pagination">
+                                                {% if _current_page > 1 %}
+                                                <li class="page-item"><a class="page-link"
+                                                        href="?page={{ _current_page - 1 }}">Previous</a></li>
+                                                {% endif %}
+                                                {% for page_num in range(1, _total_pages + 1) %}
+                                                <li
+                                                    class="page-item {% if page_num == _current_page %}active{% endif %}">
+                                                    <a class="page-link" href="?page={{ page_num }}">{{ page_num }}</a>
+                                                </li>
+                                                {% endfor %}
+                                                {% if _current_page < _total_pages %} <li class="page-item"><a
+                                                        class="page-link" href="?page={{ _current_page + 1 }}">Next</a>
+                                                    </li>
+                                                    {% endif %}
+                                            </ul>
+                                        </nav>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <span class="mb-0 text-muted">
+                                    {% if msg %}
+                                    <span class="text-danger">{{ msg | safe }}</span>
+                                    {% endif %}
+                                </span>
+                                <form role="form" method="post" action="">
+                                    <div class="form-group">
+                                        <label>IP</label>
+                                        <input type="text" class="form-control" placeholder="127.0.0.1, 0.0.0.0"
+                                            name="ip_address" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="Permission">Permission</label>
+                                        <select class="form-control" id="access_type" name="access_type">
+                                            <option>Allow</option>
+                                            <option>Deny</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="Desciption">Desciption</label>
+                                        <input type="text" class="form-control" id="description" name="description"
+                                            placeholder="This rule for...">
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">Submit</button>
+                                </form>
+                            </div>
+                        </div>
+                        <!-- [ Main Content ] end -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+<!-- [ Main Content ] end -->
+
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}
+<script>
+    const removeButtons = document.querySelectorAll('.remove-acl-btn');
+    removeButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const ip = button.getAttribute('data-ip');
+            fetch('{{url_for('nested_service.gemini_remove_acl')}}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: `ip_address=${ip}`
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return location.reload();
+                })
+                .catch(error => {
+                    console.error('There was a problem with the fetch operation:', error);
+                });
+        });
+    });
+</script>
+{% endblock javascripts %}

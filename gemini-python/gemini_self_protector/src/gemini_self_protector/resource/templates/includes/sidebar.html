@@ -23,15 +23,21 @@
                 </li>
                 <li data-username="Configurate Page"
                     class="nav-item {% if 'configurate' in segment %} active {% endif %}">
-                    <a href="/profile.html" class="nav-link">
+                    <a href="{{ url_for('nested_service.gemini_update_configurate') }}" class="nav-link">
                         <span class="pcoded-micon"><i class="feather icon-settings"></i></span>
                         <span class="pcoded-mtext">Configurate</span></a>
                 </li>
 
                 <li data-username="ACL Page" class="nav-item {% if 'acl' in segment %} active {% endif %}">
-                    <a href="/profile.html" class="nav-link">
+                    <a href="{{ url_for('nested_service.gemini_access_control_list') }}" class="nav-link">
                         <span class="pcoded-micon"><i class="feather icon-cloud-off"></i></span>
                         <span class="pcoded-mtext">Access Control List</span></a>
+                </li>
+
+                <li data-username="ACL Page" class="nav-item {% if 'acl' in segment %} active {% endif %}">
+                    <a href="{{ url_for('nested_service.gemini_access_control_list') }}" class="nav-link">
+                        <span class="pcoded-micon"><i class="feather icon-cloud-off"></i></span>
+                        <span class="pcoded-mtext">Dependency Check</span></a>
                 </li>
 
                 <li data-username="Disabled Menu" class="nav-item">
@@ -45,6 +51,14 @@
                 </li>
                 <li data-username="Support Page" class="nav-item ">
                     <a target="_blank" href="https://github.com/noobpk/gemini-self-protector/issues" class="nav-link">
+                        <span class="pcoded-micon">
+                            <i class="feather icon-github"></i>
+                        </span>
+                        <span class="pcoded-mtext">Issue</span>
+                    </a>
+                </li>
+                <li data-username="Support Page" class="nav-item ">
+                    <a target="_blank" href="https://github.com/noobpk" class="nav-link">
                         <span class="pcoded-micon">
                             <i class="feather icon-headphones"></i>
                         </span>

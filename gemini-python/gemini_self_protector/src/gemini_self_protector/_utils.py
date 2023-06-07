@@ -109,9 +109,10 @@ class _Utils(object):
         :return: The accuracy of the prediction.
         """
         try:
+            predict_server = _Config.get_config('gemini_predict_server')
             headers = {"Content-Type": "application/json"}
             predict = requests.post(
-                'http://127.0.0.1:5000/predict', json={"data": payload}, headers=headers)
+                f'{predict_server}/predict', json={"data": payload}, headers=headers)
             response = predict.json()
             accuracy = response.get('accuracy')
             return accuracy
@@ -183,6 +184,18 @@ class _Utils(object):
                 Real-time Protect Your Application - The Runtime Application Self Protection (RASP) Solution
         ''')
         print("")
+
+    def predict_server_status() -> None:
+        try:
+            predict_server = _Config.get_config('gemini_predict_server')
+            response = requests.get(predict_server)
+            if response.status_code == 200:
+                return True
+            else:
+                return False
+        except Exception as e:
+            logger.error(
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Validator.predict_server_status', e))
 
 
 class _Validator(object):
@@ -350,14 +363,31 @@ class _Validator(object):
                 "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Validator.validate_safe_redirect_status', e))
 
     def validate_trust_domain(trust_domain_list) -> None:
+        """
+        This function validates a list of trust domains by checking if they are empty strings or if they
+        match a regular expression for valid domain names.
+        
+        :param trust_domain_list: A list of strings representing trust domains that need to be validated
+        :return: The function does not return anything explicitly, but it returns True if the
+        trust_domain_list contains only empty strings or if all the domains in the list are valid
+        according to the regular expression pattern. It returns False if any domain in the list is
+        invalid according to the pattern. If an exception occurs, it logs an error message and does not
+        return anything.
+        """
         try:
-            for domain in trust_domain_list:
-                if not re.match(r'^[a-zA-Z0-9]+([\-\.]{1}[a-zA-Z0-9]+)*\.[a-zA-Z]{2,}$', domain):
-                    logger.error(
-                        "[x_x] Invalid Domain Name")
-                    return False
-                else:
-                    return True
+            contains_only_empty_strings = all(
+                element == '' for element in trust_domain_list)
+            print(contains_only_empty_strings)
+            if contains_only_empty_strings:
+                return True
+            else:
+                for domain in trust_domain_list:
+                    if not re.match(r'^[a-zA-Z0-9]+([\-\.]{1}[a-zA-Z0-9]+)*\.[a-zA-Z]{2,}$', domain):
+                        logger.error(
+                            "[x_x] Invalid Domain Name")
+                        return False
+                    else:
+                        return True
         except Exception as e:
             logger.error(
                 "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Validator.validate_trust_domain', e))

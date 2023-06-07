@@ -144,6 +144,10 @@ strong {
   background: linear-gradient(-135deg, #899FD4 0%, #A389D4 100%);
 }
 
+.theme-bg3 {
+  background: linear-gradient(-45deg, #FFD700 0%, #FFA500 100%);
+}
+
 /* ==========  card css start  =========== */
 .anim-rotate {
   -webkit-animation: anim-rotate 1s linear infinite;
@@ -10159,6 +10163,10 @@ a.btn-theme.active {
   color: #fff;
   background-color: #04a9f5;
   border-color: #04a9f5;
+}
+
+.pagination {
+  float: right;
 }
 
 /**====== Breadcrumbs & Pagination css end ======**/

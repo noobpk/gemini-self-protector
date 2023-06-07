@@ -4,7 +4,9 @@ from ._gemini import _Gemini
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from argon2 import PasswordHasher
-from datetime import datetime
+from datetime import datetime, timezone
+import ipaddress
+import re
 
 
 class _Gemini_GUI(object):
@@ -206,23 +208,33 @@ class _Gemini_GUI(object):
                                 'gemini_sensitive_value')
                             global_protect_mode = _Gemini.get_gemini_config(
                                 'gemini_global_protect_mode')
-                            max_content_length = _Gemini.get_gemini_config(
-                                'gemini_max_content_length')
-                            server_name = _Gemini.get_gemini_config(
-                                'gemini_server_name')
-                            http_method_allow = _Gemini.get_gemini_config(
-                                'gemini_http_method_allow')
-                            safe_redirect_status = _Gemini.get_gemini_config(
-                                'gemini_safe_redirect')
-                            trust_domain_list = _Gemini.get_gemini_config(
-                                'gemini_trust_domain')
                             app_username = _Gemini.get_gemini_config(
                                 'gemini_app_username')
                             load_data_log = _Gemini.load_gemini_log()
                             load_data_store = _Gemini.load_gemini_data_store()
-                            load_data_acl = _Gemini.load_gemini_acl()
+
                             dependency_file = _Gemini.get_dependency_file()
                             dependency_result = _Gemini.load_gemini_dependency_result()
+                            predict_server = _Gemini.get_gemini_config(
+                                'gemini_predict_server')
+                            notification_channel = _Gemini.get_gemini_config(
+                                'gemini_notification_channel')
+                            predict_server_status = _Gemini.check_predict_server()
+
+                            sorted_data_store = sorted(
+                                load_data_store, key=lambda x: x['Time'])
+
+                            page = int(request.args.get('page', 1))
+                            per_page = 5
+
+                            total_records = len(sorted_data_store)
+                            total_pages = (total_records +
+                                           per_page - 1) // per_page
+
+                            start_index = (page - 1) * per_page
+                            end_index = start_index + per_page
+                            limited_data_store = sorted_data_store[start_index:end_index]
+
                             return render_template('gemini-protector-gui/home/index.html',
                                                    _username=app_username,
                                                    _protect_mode=global_protect_mode,
@@ -230,18 +242,17 @@ class _Gemini_GUI(object):
                                                    _normal_request=normal_request,
                                                    _abnormal_request=abnormal_request,
                                                    _sensitive_value=sensitive_value,
-                                                   _server_name=server_name,
                                                    _gemini_log=load_data_log,
-                                                   _gemini_data_store=load_data_store,
-                                                   _gemini_acl=load_data_acl,
-                                                   _max_content_length=int(
-                                                       max_content_length / 1024 / 1024),
-                                                   _http_method=http_method_allow,
-                                                   _safe_redirect_status=safe_redirect_status,
-                                                   _trust_domain_list=", ".join(
-                                                       trust_domain_list),
+                                                   _gemini_data_store_show=limited_data_store,
+                                                   _gemini_page_pagination=len(
+                                                       load_data_store),
                                                    _gemini_dependency_file=dependency_file,
-                                                   _gemini_dependency_result=dependency_result
+                                                   _gemini_dependency_result=dependency_result,
+                                                   _current_page=page,
+                                                   _total_pages=total_pages,
+                                                   _gemini_predict_server_status=predict_server_status,
+                                                   _gemini_predict_server=predict_server,
+                                                   _gemini_notification_channel=notification_channel
                                                    )
                         else:
                             logger.warning("[!] Unauthentication Access.!")
@@ -253,106 +264,175 @@ class _Gemini_GUI(object):
                     logger.error(
                         "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('nested_service.route.gemini_dashboard', e))
 
-            # @nested_service.route('/update-config', methods=['POST'])
-            # def gemini_update_config():
-            #     try:
-            #         if _Gemini.is_valid_license_key():
-            #             if session.get('gemini_logged_in'):
-            #                 protect_mode = request.form['protect_mode']
-            #                 sensitive_value = request.form['sensitive_value']
-            #                 max_content_length = request.form['max_content_length']
-            #                 http_method = request.form.getlist('http_method[]')
-            #                 safe_redirect_status = request.form['safe_redirect_status']
-            #                 trust_domain_list = request.form.get(
-            #                     'trust_domain_list').split(',')
-            #                 trust_domain_list = [d.strip()
-            #                                     for d in trust_domain_list]
+            @nested_service.route('/configurate', methods=['GET', 'POST'])
+            def gemini_update_configurate():
+                try:
+                    if _Gemini.is_valid_license_key():
+                        if session.get('gemini_logged_in'):
+                            if request.method == 'POST':
+                                protect_mode = request.form['protect_mode']
+                                sensitive_value = request.form['sensitive_value']
+                                max_content_length = request.form['max_content_length']
+                                http_method = request.form.getlist(
+                                    'http_method[]')
+                                safe_redirect_status = request.form['safe_redirect_status']
+                                trust_domain_list = request.form.get(
+                                    'trust_domain_list').split(',')
 
-            #                 if _Gemini.validator_protect_mode(protect_mode) and _Gemini.validator_sensitive_value(sensitive_value) and max_content_length.isdigit() and _Gemini.validator_http_method(http_method) and _Gemini.validator_safe_redirect_status(safe_redirect_status) and _Gemini.validator_trust_domain(trust_domain_list):
-            #                     _Gemini.update_gemini_config({
-            #                         "gemini_global_protect_mode": protect_mode,
-            #                         "gemini_sensitive_value": int(sensitive_value),
-            #                         "gemini_max_content_length": int(max_content_length) * 1024 * 1024,
-            #                         "gemini_http_method_allow": http_method,
-            #                         "gemini_safe_redirect": safe_redirect_status,
-            #                         "gemini_trust_domain": trust_domain_list
-            #                     })
-            #                     logger.info(
-            #                         "[+] Update configuration successfully.!")
-            #                     flash('Update configuration successfully!')
-            #                     return redirect(url_for('nested_service.gemini_dashboard'))
-            #                 else:
-            #                     logger.error(
-            #                         "[x_x] Update configuration unsuccessfully.!")
-            #                     flash('Cannot update config with your input')
-            #                     return redirect(url_for('nested_service.gemini_dashboard'))
-            #             else:
-            #                 logger.warning("[!] Unauthentication Access.!")
-            #                 flash('Please login')
-            #                 return redirect(url_for('nested_service.gemini_login'))
-            #         else:
-            #             return redirect(url_for('nested_service.gemini_update_key'))
-            #     except Exception as e:
-            #         logger.error(
-            #             "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('nested_service.route.gemini_update_config', e))
+                                trust_domain_list = [d.strip()
+                                                     for d in trust_domain_list]
 
-            # @nested_service.route('/update-acl', methods=['POST'])
-            # def gemini_update_acl():
-            #     try:
-            #         if _Gemini.is_valid_license_key():
-            #             if session.get('gemini_logged_in'):
-            #                 ip_address = request.form['ip_address']
-            #                 ip = ipaddress.ip_address(ip_address)
+                                if _Gemini.validator_protect_mode(protect_mode) and _Gemini.validator_sensitive_value(sensitive_value) and max_content_length.isdigit() and _Gemini.validator_http_method(http_method) and _Gemini.validator_safe_redirect_status(safe_redirect_status) and _Gemini.validator_trust_domain(trust_domain_list):
+                                    print("AAAAA", trust_domain_list)
+                                    _Gemini.update_gemini_config({
+                                        "gemini_global_protect_mode": protect_mode,
+                                        "gemini_sensitive_value": int(sensitive_value),
+                                        "gemini_max_content_length": int(max_content_length) * 1024 * 1024,
+                                        "gemini_http_method_allow": http_method,
+                                        "gemini_safe_redirect": safe_redirect_status,
+                                        "gemini_trust_domain": trust_domain_list
+                                    })
+                                    return redirect(url_for('nested_service.gemini_update_configurate'))
+                                else:
+                                    return redirect(url_for('nested_service.gemini_update_configurate'))
+                            else:
+                                global_protect_mode = _Gemini.get_gemini_config(
+                                    'gemini_global_protect_mode')
+                                sensitive_value = _Gemini.get_gemini_config(
+                                    'gemini_sensitive_value')
+                                max_content_length = _Gemini.get_gemini_config(
+                                    'gemini_max_content_length')
+                                server_name = _Gemini.get_gemini_config(
+                                    'gemini_server_name')
+                                http_method_allow = _Gemini.get_gemini_config(
+                                    'gemini_http_method_allow')
+                                safe_redirect_status = _Gemini.get_gemini_config(
+                                    'gemini_safe_redirect')
+                                trust_domain_list = _Gemini.get_gemini_config(
+                                    'gemini_trust_domain')
+                                return render_template('gemini-protector-gui/home/config.html',
+                                                       _protect_mode=global_protect_mode,
+                                                       _sensitive_value=sensitive_value,
+                                                       _server_name=server_name,
+                                                       _max_content_length=int(
+                                                           max_content_length / 1024 / 1024),
+                                                       _http_method=http_method_allow,
+                                                       _safe_redirect_status=safe_redirect_status,
+                                                       _trust_domain_list=", ".join(
+                                                           trust_domain_list),
+                                                       )
 
-            #                 if ip:
-            #                     _dict = {"Ip": str(ip), "Time": str(
-            #                         datetime.now(timezone.utc))}
-            #                     _Gemini.update_gemini_acl(_dict)
-            #                     logger.info(
-            #                         "[+] Update acl successfully.!".format(ip_address))
-            #                     flash('Update acl successfully!')
-            #                     return redirect(url_for('nested_service.gemini_dashboard'))
-            #                 else:
-            #                     logger.info(
-            #                         "[+] IP address {} is not valid".format(ip_address))
-            #                     flash('Cannot update acl with your input')
-            #                     return redirect(url_for('nested_service.gemini_dashboard'))
-            #             else:
-            #                 logger.warning("[!] Unauthentication Access.!")
-            #                 flash('Please login')
-            #                 return redirect(url_for('nested_service.gemini_login'))
-            #         else:
-            #             return redirect(url_for('nested_service.gemini_update_key'))
-            #     except Exception as e:
-            #         logger.error(
-            #             "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('nested_service.route.gemini_update_acl', e))
+                        #     if _Gemini.validator_protect_mode(protect_mode) and _Gemini.validator_sensitive_value(sensitive_value) and max_content_length.isdigit() and _Gemini.validator_http_method(http_method) and _Gemini.validator_safe_redirect_status(safe_redirect_status) and _Gemini.validator_trust_domain(trust_domain_list):
+                        #         _Gemini.update_gemini_config({
+                        #             "gemini_global_protect_mode": protect_mode,
+                        #             "gemini_sensitive_value": int(sensitive_value),
+                        #             "gemini_max_content_length": int(max_content_length) * 1024 * 1024,
+                        #             "gemini_http_method_allow": http_method,
+                        #             "gemini_safe_redirect": safe_redirect_status,
+                        #             "gemini_trust_domain": trust_domain_list
+                        #         })
+                        #         logger.info(
+                        #             "[+] Update configuration successfully.!")
+                        #         flash('Update configuration successfully!')
+                        #         return redirect(url_for('nested_service.gemini_dashboard'))
+                        #     else:
+                        #         logger.error(
+                        #             "[x_x] Update configuration unsuccessfully.!")
+                        #         flash('Cannot update config with your input')
+                        #         return redirect(url_for('nested_service.gemini_dashboard'))
+                        else:
+                            return redirect(url_for('nested_service.gemini_login'))
+                    else:
+                        return redirect(url_for('nested_service.gemini_update_key'))
+                except Exception as e:
+                    logger.error(
+                        "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('nested_service.route.gemini_update_configurate', e))
 
-            # @nested_service.route('/remove-acl', methods=['POST'])
-            # def gemini_remove_acl():
-            #     try:
-            #         if _Gemini.is_valid_license_key():
-            #             if session.get('gemini_logged_in'):
-            #                 ip_address = request.form['ip_address']
-            #                 ip = ipaddress.ip_address(ip_address)
+            @nested_service.route('/access-control-list', methods=['GET', 'POST'])
+            def gemini_access_control_list():
+                try:
+                    if _Gemini.is_valid_license_key():
+                        if session.get('gemini_logged_in'):
+                            if request.method == 'POST':
+                                ip_address = request.form['ip_address']
+                                access_type = request.form['access_type']
+                                description = request.form['description']
 
-            #                 if ip:
-            #                     _Gemini.remove_gemini_acl(str(ip))
-            #                     logger.info("[+] Remove acl successfully.!")
-            #                     return redirect(url_for('nested_service.gemini_dashboard'))
-            #                 else:
-            #                     logger.info(
-            #                         "[+] IP address {} is not valid".format(ip_address))
-            #                     flash('Cannot remove acl with your input.')
-            #                     return redirect(url_for('nested_service.gemini_dashboard'))
-            #             else:
-            #                 logger.warning("[!] Unauthentication Access.!")
-            #                 flash('Please login')
-            #                 return redirect(url_for('nested_service.gemini_login'))
-            #         else:
-            #             return redirect(url_for('nested_service.gemini_update_key'))
-            #     except Exception as e:
-            #         logger.error(
-            #             "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('nested_service.route.gemini_remove_acl', e))
+                                ipv4_pattern = r'^(\d{1,3}\.){3}\d{1,3}$'
+                                ipv6_pattern = r'^([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}$'
+
+                                err_msg = 'Cannot add acl with your input'
+
+                                if (bool(re.match(ipv4_pattern, ip_address)) or bool(re.match(ipv6_pattern, ip_address))):
+                                    ip = ipaddress.ip_address(ip_address)
+                                    current_time = datetime.now()
+                                    formatted_time = current_time.strftime(
+                                        '%Y-%m-%d %H:%M:%S')
+                                    _dict = {"Ip": str(
+                                        ip), "Access": access_type, "Desciption": description,  "Time": str(formatted_time)}
+                                    if _Gemini.update_gemini_acl(_dict):
+                                        return redirect(url_for('nested_service.gemini_access_control_list'))
+                                    else:
+                                        return redirect(url_for('nested_service.gemini_access_control_list'))
+                                else:
+                                    return redirect(url_for('nested_service.gemini_access_control_list'))
+                            else:
+                                load_data_acl = _Gemini.load_gemini_acl()
+                                sorted_data_store = sorted(
+                                    load_data_acl, key=lambda x: x['Time'])
+
+                                page = int(request.args.get('page', 1))
+                                per_page = 5
+
+                                total_records = len(sorted_data_store)
+                                total_pages = (total_records +
+                                               per_page - 1) // per_page
+
+                                start_index = (page - 1) * per_page
+                                end_index = start_index + per_page
+                                limited_data_store = sorted_data_store[start_index:end_index]
+
+                                return render_template('gemini-protector-gui/home/acl.html',
+                                                       _gemini_acl=limited_data_store,
+                                                       _current_page=page,
+                                                       _total_pages=total_pages,
+                                                       )
+                        else:
+                            logger.warning("[!] Unauthentication Access.!")
+                            flash('Please login')
+                            return redirect(url_for('nested_service.gemini_login'))
+                    else:
+                        return redirect(url_for('nested_service.gemini_update_key'))
+                except Exception as e:
+                    logger.error(
+                        "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('nested_service.route.gemini_access_control_list', e))
+
+            @nested_service.route('/remove-acl', methods=['POST'])
+            def gemini_remove_acl():
+                try:
+                    if _Gemini.is_valid_license_key():
+                        if session.get('gemini_logged_in'):
+                            ip_address = request.form['ip_address']
+                            ip = ipaddress.ip_address(ip_address)
+
+                            if ip:
+                                _Gemini.remove_gemini_acl(str(ip))
+                                logger.info("[+] Remove acl successfully.!")
+                                return redirect(url_for('nested_service.gemini_dashboard'))
+                            else:
+                                logger.info(
+                                    "[+] IP address {} is not valid".format(ip_address))
+                                flash('Cannot remove acl with your input.')
+                                return redirect(url_for('nested_service.gemini_dashboard'))
+                        else:
+                            logger.warning("[!] Unauthentication Access.!")
+                            flash('Please login')
+                            return redirect(url_for('nested_service.gemini_login'))
+                    else:
+                        return redirect(url_for('nested_service.gemini_update_key'))
+                except Exception as e:
+                    logger.error(
+                        "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('nested_service.route.gemini_remove_acl', e))
 
             # @nested_service.route('/dependency-vulnerability', methods=['POST'])
             # def gemini_dependency_audit():

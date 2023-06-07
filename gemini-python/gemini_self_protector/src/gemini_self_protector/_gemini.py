@@ -56,6 +56,7 @@ class _Gemini(object):
                     'gemini_telegram_token': None,
                     'gemini_telegram_chat_id': None,
                     'gemini_notification_webhook': None,
+                    'gemini_predict_server': 'http://127.0.0.1:5000'
                 }
             }
             _Config(working_directory, init_gemini_config_content)
@@ -128,14 +129,14 @@ class _Gemini(object):
             logger.error(
                 "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.init_gemini_acl', e))
 
-    def update_gemini_acl(_dict):
+    def update_gemini_acl(_dict) -> None:
         """
         It takes a dictionary as an argument, and then it updates the ACLs in the config file
 
         :param _dict: This is a dictionary that contains the following keys:
         """
         try:
-            _Config.update_acl(_dict)
+            return _Config.update_acl(_dict)
         except Exception as e:
             logger.error(
                 "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.update_gemini_acl', e))
@@ -152,7 +153,7 @@ class _Gemini(object):
                 data = json.load(f)
 
             # Create a list of dictionaries containing the three columns
-            rows = [{'Time': d['Time'], 'Ip': d['Ip']}
+            rows = [{'Time': d['Time'], 'Ip': d['Ip'], 'Access': d['Access'], 'Desciption': d['Desciption']}
                     for d in data['gemini_acl']]
             return rows
 
@@ -576,13 +577,31 @@ class _Gemini(object):
                 "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.get_gemini_banner', e))
 
     def calulate_total_access():
+        """
+        This function calculates the total number of requests made to a Gemini application, excluding
+        certain paths.
+        :return: In the given code, the function `calulate_total_access()` returns `None` if the
+        condition `request.path.startswith(f"/{app_path}") or ignored_keyword in request.path` is true,
+        otherwise it does not return anything.
+        """
         try:
-            current_access = _Gemini.get_gemini_config(
-                'gemini_total_request')
+            app_path = _Gemini.get_gemini_config('gemini_app_path')
+            ignored_keyword = "gemini-protector-static"
+
+            if request.path.startswith(f"/{app_path}") or ignored_keyword in request.path:
+                return None
+
+            current_access = _Gemini.get_gemini_config('gemini_total_request')
             current_access += 1
-            _Gemini.update_gemini_config({
-                "gemini_total_request": current_access,
-            })
+            _Gemini.update_gemini_config(
+                {"gemini_total_request": current_access})
         except Exception as e:
             logger.error(
                 "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.calulate_total_access', e))
+
+    def check_predict_server() -> None:
+        try:
+            return _Utils.predict_server_status()
+        except Exception as e:
+            logger.error(
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.check_predict_server', e))

@@ -132,7 +132,7 @@ class _Config(object):
             logger.error(
                 "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Config.init_acl', e))
 
-    def update_acl(_dict):
+    def update_acl(_dict) -> None:
         """
         It reads the existing JSON file, appends the new data to the existing data, and writes the new
         data back to the file
@@ -144,10 +144,16 @@ class _Config(object):
             with open(acl_path, "r") as f:
                 existing_data = json.load(f)
 
-            existing_data["gemini_acl"].append(_dict)
-            # Write the add new data back to the file
-            with open(acl_path, "w") as f:
-                json.dump(existing_data, f, indent=4)
+            existing_ips = [item["Ip"] for item in existing_data["gemini_acl"]]
+
+            if _dict["Ip"] in existing_ips:
+                return False
+            else:
+                existing_data["gemini_acl"].append(_dict)
+                # Write the add new data back to the file
+                with open(acl_path, "w") as f:
+                    json.dump(existing_data, f, indent=4)
+                return True
         except Exception as e:
             logger.error(
                 "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Config.update_acl', e))
