@@ -270,6 +270,7 @@ class _Gemini_GUI(object):
                     if _Gemini.is_valid_license_key():
                         if session.get('gemini_logged_in'):
                             if request.method == 'POST':
+                                predict_server = request.form['predict_server']
                                 protect_mode = request.form['protect_mode']
                                 sensitive_value = request.form['sensitive_value']
                                 max_content_length = request.form['max_content_length']
@@ -283,8 +284,8 @@ class _Gemini_GUI(object):
                                                      for d in trust_domain_list]
 
                                 if _Gemini.validator_protect_mode(protect_mode) and _Gemini.validator_sensitive_value(sensitive_value) and max_content_length.isdigit() and _Gemini.validator_http_method(http_method) and _Gemini.validator_safe_redirect_status(safe_redirect_status) and _Gemini.validator_trust_domain(trust_domain_list):
-                                    print("AAAAA", trust_domain_list)
                                     _Gemini.update_gemini_config({
+                                        "gemini_predict_server": predict_server,
                                         "gemini_global_protect_mode": protect_mode,
                                         "gemini_sensitive_value": int(sensitive_value),
                                         "gemini_max_content_length": int(max_content_length) * 1024 * 1024,
@@ -310,6 +311,8 @@ class _Gemini_GUI(object):
                                     'gemini_safe_redirect')
                                 trust_domain_list = _Gemini.get_gemini_config(
                                     'gemini_trust_domain')
+                                predict_server = _Gemini.get_gemini_config(
+                                    'gemini_predict_server')
                                 return render_template('gemini-protector-gui/home/config.html',
                                                        _protect_mode=global_protect_mode,
                                                        _sensitive_value=sensitive_value,
@@ -320,26 +323,8 @@ class _Gemini_GUI(object):
                                                        _safe_redirect_status=safe_redirect_status,
                                                        _trust_domain_list=", ".join(
                                                            trust_domain_list),
+                                                       _predict_server=predict_server
                                                        )
-
-                        #     if _Gemini.validator_protect_mode(protect_mode) and _Gemini.validator_sensitive_value(sensitive_value) and max_content_length.isdigit() and _Gemini.validator_http_method(http_method) and _Gemini.validator_safe_redirect_status(safe_redirect_status) and _Gemini.validator_trust_domain(trust_domain_list):
-                        #         _Gemini.update_gemini_config({
-                        #             "gemini_global_protect_mode": protect_mode,
-                        #             "gemini_sensitive_value": int(sensitive_value),
-                        #             "gemini_max_content_length": int(max_content_length) * 1024 * 1024,
-                        #             "gemini_http_method_allow": http_method,
-                        #             "gemini_safe_redirect": safe_redirect_status,
-                        #             "gemini_trust_domain": trust_domain_list
-                        #         })
-                        #         logger.info(
-                        #             "[+] Update configuration successfully.!")
-                        #         flash('Update configuration successfully!')
-                        #         return redirect(url_for('nested_service.gemini_dashboard'))
-                        #     else:
-                        #         logger.error(
-                        #             "[x_x] Update configuration unsuccessfully.!")
-                        #         flash('Cannot update config with your input')
-                        #         return redirect(url_for('nested_service.gemini_dashboard'))
                         else:
                             return redirect(url_for('nested_service.gemini_login'))
                     else:
