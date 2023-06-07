@@ -1,4 +1,4 @@
-from flask import Flask, Blueprint, request, make_response, render_template, session, redirect, url_for, flash
+from flask import Flask, Blueprint, request, make_response, render_template, session, redirect, url_for, flash, stream_with_context
 from ._logger import logger
 from ._gemini import _Gemini
 from flask_sqlalchemy import SQLAlchemy
@@ -7,6 +7,7 @@ from argon2 import PasswordHasher
 from datetime import datetime, timezone
 import ipaddress
 import re
+import os
 
 
 class _Gemini_GUI(object):
@@ -213,8 +214,6 @@ class _Gemini_GUI(object):
                             load_data_log = _Gemini.load_gemini_log()
                             load_data_store = _Gemini.load_gemini_data_store()
 
-                            dependency_file = _Gemini.get_dependency_file()
-                            dependency_result = _Gemini.load_gemini_dependency_result()
                             predict_server = _Gemini.get_gemini_config(
                                 'gemini_predict_server')
                             notification_channel = _Gemini.get_gemini_config(
@@ -246,8 +245,6 @@ class _Gemini_GUI(object):
                                                    _gemini_data_store_show=limited_data_store,
                                                    _gemini_page_pagination=len(
                                                        load_data_store),
-                                                   _gemini_dependency_file=dependency_file,
-                                                   _gemini_dependency_result=dependency_result,
                                                    _current_page=page,
                                                    _total_pages=total_pages,
                                                    _gemini_predict_server_status=predict_server_status,
@@ -419,31 +416,34 @@ class _Gemini_GUI(object):
                     logger.error(
                         "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('nested_service.route.gemini_remove_acl', e))
 
-            # @nested_service.route('/dependency-vulnerability', methods=['POST'])
-            # def gemini_dependency_audit():
-            #     try:
-            #         if _Gemini.is_valid_license_key():
-            #             if session.get('gemini_logged_in'):
-            #                 file_path = request.form['dependency_path']
-            #                 filename = os.path.basename(file_path)
-            #                 if filename == 'requirements.txt':
-            #                     _Gemini.__audit_dependency_vulnerability__(
-            #                         file_path)
-            #                     return redirect(url_for('nested_service.gemini_dashboard'))
-            #                 else:
-            #                     logger.info(
-            #                         "[+] This {} is not valid requirement file".format(file_path))
-            #                     flash('Cannot dependency audit with your input.')
-            #                     return redirect(url_for('nested_service.gemini_dashboard'))
-            #             else:
-            #                 logger.warning("[!] Unauthentication Access.!")
-            #                 flash('Please login')
-            #                 return redirect(url_for('nested_service.gemini_login'))
-            #         else:
-            #             return redirect(url_for('nested_service.gemini_update_key'))
-            #     except Exception as e:
-            #         logger.error(
-            #             "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('nested_service.route.gemini_dependency_audit', e))
+            @nested_service.route('/dependency-vulnerability', methods=['GET', 'POST'])
+            def gemini_dependency_audit():
+                try:
+                    if _Gemini.is_valid_license_key():
+                        if session.get('gemini_logged_in'):
+                            if request.method == 'POST':
+                                file_path = request.form['dependency_path']
+                                filename = os.path.basename(file_path)
+                                if filename == 'requirements.txt':
+                                    _Gemini.__audit_dependency_vulnerability__(
+                                        file_path)
+                                    return redirect(url_for('nested_service.gemini_dependency_audit'))
+                                else:
+                                    return redirect(url_for('nested_service.gemini_dependency_audit'))
+                            else:
+                                dependency_file = _Gemini.get_dependency_file()
+                                dependency_result = _Gemini.load_gemini_dependency_result()
+                                return render_template('gemini-protector-gui/home/dependency.html',
+                                                       _gemini_dependency_file=dependency_file,
+                                                       _gemini_dependency_result=dependency_result,
+                                                       )
+                        else:
+                            return redirect(url_for('nested_service.gemini_login'))
+                    else:
+                        return redirect(url_for('nested_service.gemini_update_key'))
+                except Exception as e:
+                    logger.error(
+                        "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('nested_service.route.gemini_dependency_audit', e))
 
             @nested_service.route('/logout')
             def gemini_logout():
