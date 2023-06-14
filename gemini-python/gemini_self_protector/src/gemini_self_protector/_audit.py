@@ -3,6 +3,7 @@ import os
 import requests
 import time
 
+
 class _Audit(object):
 
     def __find_requirements_file__() -> None:
@@ -16,8 +17,8 @@ class _Audit(object):
 
         for root, dirs, files in os.walk("../", topdown=True):
             for file in files:
-                    if file == "requirements.txt":
-                        results.append(os.path.join(root, file))
+                if file == "requirements.txt":
+                    results.append(os.path.join(root, file))
         return results
 
     def __dependency_vulnerability__(file_path):
@@ -47,11 +48,11 @@ class _Audit(object):
                     })
             else:
                 audit_result.append({
-                        'package': name,
-                        'version': version,
-                        'cve_id': 'N/A',
-                        'severity': 'N/A'
-                    })
+                    'package': name,
+                    'version': version,
+                    'cve_id': 'N/A',
+                    'severity': 'N/A'
+                })
             time.sleep(7)
 
         _Config.update_audit_dependency(audit_result)

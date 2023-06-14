@@ -2,7 +2,6 @@ from flask import Flask, Blueprint, request, make_response, render_template, ses
 from ._logger import logger
 from ._gemini import _Gemini
 from flask_sqlalchemy import SQLAlchemy
-from flask_login import LoginManager
 from argon2 import PasswordHasher
 from datetime import datetime, timezone
 import ipaddress
@@ -13,8 +12,6 @@ import os
 class _Gemini_GUI(object):
 
     def __init__(self, flask_app: Flask) -> None:
-        login_manager = LoginManager()
-
         @flask_app.before_request
         def count_request_to_service():
             _Gemini.calulate_total_access()
@@ -262,7 +259,7 @@ class _Gemini_GUI(object):
                         "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('nested_service.route.gemini_dashboard', e))
 
             @nested_service.route('/configurate', methods=['GET', 'POST'])
-            def gemini_update_configurate():
+            def gemini_update_tb_configurate():
                 try:
                     if _Gemini.is_valid_license_key():
                         if session.get('gemini_logged_in'):
@@ -290,9 +287,9 @@ class _Gemini_GUI(object):
                                         "gemini_safe_redirect": safe_redirect_status,
                                         "gemini_trust_domain": trust_domain_list
                                     })
-                                    return redirect(url_for('nested_service.gemini_update_configurate'))
+                                    return redirect(url_for('nested_service.gemini_update_tb_configurate'))
                                 else:
-                                    return redirect(url_for('nested_service.gemini_update_configurate'))
+                                    return redirect(url_for('nested_service.gemini_update_tb_configurate'))
                             else:
                                 global_protect_mode = _Gemini.get_gemini_config(
                                     'gemini_global_protect_mode')
@@ -328,7 +325,7 @@ class _Gemini_GUI(object):
                         return redirect(url_for('nested_service.gemini_update_key'))
                 except Exception as e:
                     logger.error(
-                        "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('nested_service.route.gemini_update_configurate', e))
+                        "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('nested_service.route.gemini_update_tb_configurate', e))
 
             @nested_service.route('/access-control-list', methods=['GET', 'POST'])
             def gemini_access_control_list():
@@ -454,10 +451,6 @@ class _Gemini_GUI(object):
                 except Exception as e:
                     logger.error(
                         "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('nested_service.route.gemini_logout', e))
-
-            @login_manager.unauthorized_handler
-            def unauthorized_handler():
-                return render_template('gemini-protector-gui/home/page-403.html'), 403
 
             @nested_service.errorhandler(403)
             def access_forbidden(error):

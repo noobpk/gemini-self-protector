@@ -9,100 +9,31 @@ from ._config import _Config
 from ._protect import _Protect
 from ._audit import _Audit
 from datetime import datetime, timezone
-import secrets
-
-# It's a class that contains a bunch of methods that are used to interact with the Gemini API
 
 
 class _Gemini(object):
 
-    def init_gemini_config(working_directory):
-        """
-        It creates a config file in the working directory with the following content:
-        :param working_directory: The directory where the gemini-self-protector is installed
-        """
+    def init_gemini_database(working_directory):
         try:
-            init_gemini_config_content = {
-                'gemini-self-protector': {
-                    'gemini_install': False,
-                    'gemini_license_key': None,
-                    'gemini_access_token': None,
-                    'gemini_working_directory': working_directory,
-                    'gemini_secret_key': str(os.urandom(24)),
-                    'gemini_app_path': None,
-                    'gemini_app_username': 'superadmin',
-                    'gemini_config_path': working_directory+'/config.yml',
-                    'gemini_data_store_path': working_directory+'/data.json',
-                    'gemini_acl_path': working_directory+'/acl.json',
-                    'gemini_log_path': working_directory+'/log',
-                    'gemini_audit_dependency': working_directory+'/audit-dependency.json',
-                    'gemini_total_request': 0,
-                    'gemini_normal_request': 0,
-                    'gemini_abnormal_request': 0,
-                    'gemini_global_protect_mode': 'monitor',
-                    'gemini_sensitive_value': 50,
-                    'gemini_max_content_length': 52428800,  # 50 * 1024 * 1024 = 50MB
-                    'gemini_http_method_allow': ['OPTIONS', 'GET', 'POST', 'PUT', 'DELETE'],
-                    'gemini_safe_redirect': 'off',
-                    'gemini_trust_domain': [],
-                    'gemini_cors': {
-                        'origin': '*',
-                        'methods': '*',
-                        'credentials': True,
-                        'headers': ['Content-Type']
-                    },
-                    'gemini_server_name': 'gemini',
-                    'gemini_notification_channel': 'disable',
-                    'gemini_telegram_token': None,
-                    'gemini_telegram_chat_id': None,
-                    'gemini_notification_webhook': None,
-                    'gemini_predict_server': 'http://127.0.0.1:5000'
-                }
-            }
-            _Config(working_directory, init_gemini_config_content)
-
+            _Config(working_directory)
         except Exception as e:
             logger.error(
-                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.init_gemini_config', e))
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.update_gemini_config', e))
 
-    def get_gemini_config(config_key) -> None:
-        """
-        This function is used to get the value of a key from the config file
-
-        :param config_key: The key you want to get the value for
-        :return: _gemini_return
-        """
+    def get_gemini_config() -> None:
         try:
-            _gemini_return = _Config.get_config(config_key)
+            _gemini_return = _Config.get_tb_config()
             return _gemini_return
         except Exception as e:
             logger.error(
                 "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.get_gemini_config', e))
 
-    def update_gemini_config(config_content):
-        """
-        It takes a dictionary as an argument and updates the config file with the values in the
-        dictionary
-
-        :param config_content: This is the content of the config file
-        """
+    def update_gemini_config(update_content):
         try:
-            _Config.update_config(config_content)
+            _Config.update_tb_config(update_content)
         except Exception as e:
             logger.error(
                 "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.update_gemini_config', e))
-
-    def init_gemini_data_store(working_directory):
-        """
-        This function initializes the data store for the gemini package
-
-        :param working_directory: This is the directory where you want to store your data
-        """
-        try:
-            _Config.init_data_store(working_directory)
-        except Exception as e:
-            logger.error(
-                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.init_gemini_data_store', e))
 
     def update_gemini_data_store(_dict):
         """
@@ -169,7 +100,7 @@ class _Gemini(object):
         :param ip: The IP address of the client
         """
         try:
-           return _Config.check_acl(_ip_address)
+            return _Config.check_acl(_ip_address)
         except Exception as e:
             logger.error(
                 "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.check_gemini_acl', e))
@@ -327,7 +258,7 @@ class _Gemini(object):
 
     def handler_cli_license_key():
         try:
-            isKey = _Gemini.get_gemini_config('gemini_license_key')
+            isKey = _Gemini.get_gemini_config().license_key
             if isKey is None:
                 while True:
                     try:
@@ -494,7 +425,7 @@ class _Gemini(object):
         :return: the result of the function call to __protect_flask_response__.
         """
         try:
-            safe_redirect = _Gemini.get_gemini_config('gemini_safe_redirect')
+            safe_redirect = _Gemini.get_gemini_config().safe_redirect
             return _Protect.__protect_flask_response__(safe_redirect, original_response, gemini_protect_mode)
         except Exception as e:
             logger.error(

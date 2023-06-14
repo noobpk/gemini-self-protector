@@ -5,21 +5,22 @@ from ._logger import logger
 from datetime import datetime, timezone
 from urllib.parse import urlparse, urljoin
 import json
+import ast
 
 
 class _Protect(object):
 
     def __secure_response_header__(response):
         try:
-            server_name = _Config.get_config('gemini_server_name')
-            global_protect_mode = _Config.get_config(
-                'gemini_global_protect_mode')
-            http_method_allow = _Config.get_config('gemini_http_method_allow')
-            cors = _Config.get_config('gemini_cors')
+            server_name = _Config.get_tb_config().server_name
+            global_protect_mode = _Config.get_tb_config().global_protect_mode
+            http_method_allow = _Config.get_tb_config().http_method_allow
+            cors = _Config.get_tb_config().cors
             cors_origin = cors['origin']
             cors_method = cors['methods']
             cors_credential = cors['credentials']
             cors_header = cors['headers']
+            http_method_list = ast.literal_eval(http_method_allow)
 
             response.headers['Server'] = server_name
             response.headers['X-Gemini-Self-Protector'] = global_protect_mode
@@ -36,7 +37,7 @@ class _Protect(object):
             response.headers['Expires'] = '0'
             response.headers['X-UA-Compatible'] = 'IE=Edge,chrome=1'
             response.headers['X-Gemini-HTTP-Allow'] = ', '.join(
-                http_method_allow)
+                http_method_list)
             response.headers['Access-Control-Allow-Origin'] = cors_origin
             response.headers['Access-Control-Allow-Methods'] = cors_method
             response.headers['Access-Control-Allow-Credentials'] = cors_credential
@@ -58,41 +59,21 @@ class _Protect(object):
             logger.error(
                 "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Protect.__secure_cookie__', e))
 
-    def __handle_normal_request__(_request, predict, _ticket) -> None:
-        """
-        This function is used to handle normal requests
-
-        :param _request: The request that was sent to the server
-        :param predict: This is the prediction of the model
-        """
+    def __handle_normal_request__(_request) -> None:
         try:
-            normal_request = _Config.get_config('gemini_normal_request')
-            _Config.update_config({'gemini_normal_request': normal_request+1})
-            # now = datetime.now()
-            # current_time = now.strftime("%Y-%m-%d %H:%M:%S")
-            # _dict = {"Time": current_time, "Request": _request, "Predict": predict}
-            # _Config.update_data_store(_dict)
+            normal_request = _Config.get_tb_tracking().normal_request
+            _Config.update_tb_tracking({'normal_request': normal_request+1})
         except Exception as e:
             logger.error(
                 "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Protect.__handle_normal_request__', e))
 
     def __handle_abnormal_request__(_request, _predict, _attack_type, _ticket) -> None:
-        """
-        This function is used to handle abnormal requests
-
-        :param _request: The request that was sent to the server
-        :param _predict: The prediction of the model
-        :param _attack_type: The type of attack that was detected
-        """
         try:
-            abnormal_request = _Config.get_config('gemini_abnormal_request')
-            _Config.update_config(
-                {'gemini_abnormal_request': abnormal_request+1})
-            now = datetime.now()
-            current_time = now.strftime("%Y-%m-%d %H:%M:%S")
-            _dict = {"Time": current_time, "Request": _request, "AttackType": _attack_type,
-                     "Predict": _predict, "IncidentID": str(_ticket["IncidentID"])}
-            _Config.update_data_store(_dict)
+            abnormal_request = _Config.get_tb_tracking().abnormal_request
+            _Config.update_tb_tracking(
+                {'abnormal_request': abnormal_request+1})
+            _Config.store_tb_analysis(
+                _ticket["IP"], _request, _attack_type, _predict, str(_ticket["IncidentID"]))
             logger.warning("[+] Gemini Alert: Abnormal detection - IP: {}. Incident ID: {}".format(
                 _ticket["IP"], _ticket["IncidentID"]))
         except Exception as e:
@@ -101,9 +82,8 @@ class _Protect(object):
 
     def __handle_original_request__(_request, _full_request, _ticket) -> None:
         try:
-            http_method_allow = _Config.get_config('gemini_http_method_allow')
-            max_content_length = _Config.get_config(
-                'gemini_max_content_length')
+            http_method_allow = _Config.get_tb_config().http_method_allow
+            max_content_length = _Config.get_tb_config().max_content_length
 
             req_length = 0
             if 'Content-Length' in _request.headers:
@@ -126,11 +106,11 @@ class _Protect(object):
 
     def __handle_abnormal_response__(_request_response, _predict, _attack_type, _ticket) -> None:
         try:
-            now = datetime.now()
-            current_time = now.strftime("%Y-%m-%d %H:%M:%S")
-            _dict = {"Time": current_time, "Request": _request_response, "AttackType": _attack_type,
-                     "Predict": _predict, "IncidentID": str(_ticket["IncidentID"])}
-            _Config.update_data_store(_dict)
+            abnormal_response = _Config.get_tb_tracking().abnormal_response
+            _Config.update_tb_tracking(
+                {'abnormal_response': abnormal_response+1})
+            _Config.store_tb_analysis(
+                _ticket["IP"], _request_response, _attack_type, _predict, str(_ticket["IncidentID"]))
             logger.warning("[+] Gemini Alert: Abnormal detection - IP: {}. Incident ID: {}".format(
                 _ticket["IP"], _ticket["IncidentID"]))
         except Exception as e:
@@ -140,7 +120,7 @@ class _Protect(object):
     def __handle_original_response__(_request_response, _response, _ticket) -> None:
         try:
             def is_safe_url(target):
-                trust_domain = _Config.get_config('gemini_trust_domain')
+                trust_domain = _Config.get_tb_config('gemini_trust_domain')
                 ref_url = urlparse(request.host_url)
                 test_url = urlparse(urljoin(request.host_url, target))
                 return test_url.scheme in ('http', 'https') and ref_url.netloc == test_url.netloc or test_url.netloc in trust_domain
@@ -166,8 +146,7 @@ class _Protect(object):
 
     def __protect_flask_request__(gemini_protect_mode) -> None:
         try:
-            # It's getting the sensitive value from the config.yml file.
-            sensitive_value = _Config.get_config('gemini_sensitive_value')
+            sensitive_value = _Config.get_tb_config().sensitive_value
             # It's getting the request method, request full path, request headers, and request
             # data. Then it's formatting the request method, request full path, request headers,
             # and request data into a string.
@@ -196,7 +175,7 @@ class _Protect(object):
                     if predict < sensitive_value:
                         status = True
                         _Protect.__handle_normal_request__(
-                            _full_request, predict, _ticket)
+                            _full_request)
                         return {"Status": status, "Ticket": _ticket}
                     else:
                         status = True
@@ -218,7 +197,7 @@ class _Protect(object):
                     if predict < sensitive_value:
                         status = True
                         _Protect.__handle_normal_request__(
-                            _full_request, predict, _ticket)
+                            _full_request)
                         return {"Status": status, "Ticket": _ticket}
                     else:
                         status = False

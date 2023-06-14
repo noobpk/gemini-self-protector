@@ -15,14 +15,7 @@ from datetime import datetime, timezone
 
 class _Utils(object):
 
-    def decoder(string) -> None:
-        """
-        It takes a string, decodes it from a variety of encoding types, and then returns the decoded
-        string
-
-        :param string: The string to decode
-        :return: The decoded string
-        """
+    def decoder(string):
         """Decode a string using the specified encoding type."""
 
         # Remove the invalid escape sequences  - # Remove the backslash
@@ -67,38 +60,39 @@ class _Utils(object):
             except:
                 pass
 
-        # Use a regular expression to find all url end with .js
-        url_pattern = r'(?:https?://|//).+\.js'
+            # Use a regular expression to find all url end with .js
+            url_pattern = r'(?:https?://|//).+\.js'
 
-        matches = re.findall(url_pattern, string)
+            matches = re.findall(url_pattern, string)
 
-        if matches:
-            for match in matches:
-                # alert('noobpk') - 5dc6f09bb9f90381814ff9fcbfe0a685
-                string = string.replace(
-                    match, ' 5dc6f09bb9f90381814ff9fcbfe0a685')
+            if matches:
+                for match in matches:
+                    # alert('noobpk') - 5dc6f09bb9f90381814ff9fcbfe0a685
+                    string = string.replace(
+                        match, ' 5dc6f09bb9f90381814ff9fcbfe0a685')
 
-        # Lowercase string
-        string = string.lower()
+            # Lowercase string
+            string = string.lower()
 
-        # Use a regular expression to find all query
-        sql_pattern = r'(select.+)|(select.+(?:from|where|and).+)|(exec.+)'
+            # Use a regular expression to find all query
+            sql_pattern = [
+                r'(select.+)|(select.+(?:from|where|and).+)|(exec.+)'
+                r".*--$"
+            ]
 
-        match = re.search(sql_pattern, string)
+            for pattern in sql_pattern:
+                if re.search(pattern, string, re.IGNORECASE):
+                    # select * from noobpk; - 90e87fc8ba835e0d2bfeec5e3799ecfe
+                    string = string.replace(
+                        match[0], ' 90e87fc8ba835e0d2bfeec5e3799ecfe')
+                    break
 
-        if match:
-            # select * from noobpk; - 90e87fc8ba835e0d2bfeec5e3799ecfe
-            string = string.replace(
-                match[0], ' 90e87fc8ba835e0d2bfeec5e3799ecfe')
+            string = string.encode('utf-7').decode()
 
-        string = string.encode('utf-7').decode()
+            # Lowercase string
+            string = string.lower()
 
-        string = string.encode('utf-7').decode()
-
-        # Lowercase string
-        string = string.lower()
-
-        return string
+            return string
 
     def web_vuln_detect_predict(payload) -> None:
         """
@@ -109,13 +103,18 @@ class _Utils(object):
         :return: The accuracy of the prediction.
         """
         try:
-            predict_server = _Config.get_config('gemini_predict_server')
+            predict_server = _Config.get_tb_config().predict_server
             headers = {"Content-Type": "application/json"}
             predict = requests.post(
                 f'{predict_server}/predict', json={"data": payload}, headers=headers)
-            response = predict.json()
-            accuracy = response.get('accuracy')
-            return accuracy
+            if (predict):
+                response = predict.json()
+                accuracy = response.get('accuracy')
+                return accuracy
+            else:
+                logger.warning(
+                    "[!] Cannot connect to predict server. Gemini-self protector cannot predit this request.")
+                return 0
         except Exception as e:
             logger.error(
                 "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Utils.web_vuln_detect_predict', e))
@@ -187,7 +186,7 @@ class _Utils(object):
 
     def predict_server_status() -> None:
         try:
-            predict_server = _Config.get_config('gemini_predict_server')
+            predict_server = _Config.get_tb_config().predict_server
             response = requests.get(predict_server)
             if response.status_code == 200:
                 return True
@@ -215,8 +214,10 @@ class _Validator(object):
                     access_token = jwt.encode(
                         {"license": license_key}, "secret", algorithm="HS256")
 
-                    _Config.update_config(
-                        {"gemini_license_key": license_key, "gemini_access_token": access_token})
+                    _Config.update_tb_config({
+                        'license_key': license_key,
+                        'access_token': access_token
+                    })
                     return True
                 else:
                     logger.error("[x_x] Invalid License Key")
@@ -235,7 +236,7 @@ class _Validator(object):
         specified license key or not.
         """
         try:
-            current_key = _Config.get_config('gemini_license_key')
+            current_key = _Config.get_tb_config().license_key
             if current_key == '988907ce-9803-11ed-a8fc-0242ac120002':
                 return True
             else:

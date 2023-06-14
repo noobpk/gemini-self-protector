@@ -11,3 +11,4 @@ from ._config import _Config
 from ._protect import _Protect
 from ._audit import _Audit
 from ._gui import _Gemini_GUI
+from ._model import Base, tb_User, tb_Config, tb_Tracking, tb_Analysis, tb_AccessControlList, tb_Dependency
