@@ -1,6 +1,7 @@
 import os
 from ._gemini import _Gemini
 from ._gui import _Gemini_GUI
+from ._cli import _Gemini_CLI
 from functools import wraps
 from flask import Flask, make_response
 from ._logger import logger
@@ -29,12 +30,7 @@ class GeminiManager(object):
                 "[+] Running gemini-self protector - GUI Mode")
             _Gemini_GUI(flask_app)
         else:
-            logger.info(
-                "[+] Running gemini-self protector - CLI Mode")
-            _Gemini.handler_cli_license_key()
-            mode = _Gemini.get_gemini_config().global_protect_mode
-            logger.info(
-                "[+] Gemini Global Mode: {0}".format(mode))
+            _Gemini_CLI()
 
     def flask_protect_extended(self, protect_mode=None) -> None:
         """
@@ -56,25 +52,28 @@ class GeminiManager(object):
                     return response
                 else:
                     global_protect_mode = _Gemini.get_gemini_config().global_protect_mode
-                    if protect_mode is None:
-                        gemini_protect_mode = global_protect_mode
-                    elif protect_mode == 'off' or global_protect_mode == 'off':
-                        gemini_protect_mode = 'off'
+                    if protect_mode == 'off' or global_protect_mode == 'off':
                         response = make_response(f(*args, **kwargs))
                         return response
+                    elif protect_mode is None:
+                        currunt_protect_mode = global_protect_mode
                     else:
-                        gemini_protect_mode = protect_mode
-                        print(gemini_protect_mode)
-                        protect_request = _Gemini.__load_protect_flask_request__(
-                            gemini_protect_mode)
-                        if protect_request["Status"]:
+                        currunt_protect_mode = protect_mode
+
+                    gemini_protect_mode = currunt_protect_mode
+                    logger.info("[+] This request is currently being executed with the protective {0} mode.".format(
+                        'monitoring' if gemini_protect_mode == 'monitor' else 'blocking'))
+                    protect_request = _Gemini.__load_protect_flask_request__(
+                        gemini_protect_mode)
+                    is_protect_response = _Gemini.get_gemini_config().safe_response
+                    if protect_request["Status"]:
+                        if int(is_protect_response):
                             response = make_response(f(*args, **kwargs))
                             protect_response = _Gemini.__load_protect_flask_response__(
                                 response, gemini_protect_mode)
                             if protect_response["Status"]:
                                 response = _Gemini.make_secure_response_header(
                                     response)
-                                return response
                             else:
                                 current_time = protect_response["Ticket"]["Time"]
                                 ip_address = protect_response["Ticket"]["IP"]
@@ -83,8 +82,12 @@ class GeminiManager(object):
                                     current_time, ip_address, incedent_id), 200)
                                 response = _Gemini.make_secure_response_header(
                                     response)
-                                return response
                         else:
+                            logger.warning(
+                                "[!] Your response is currently unprotected. You can enable response protection in the configuration.")
+                            response = make_response(f(*args, **kwargs))
+                    else:
+                        if int(is_protect_response):
                             current_time = protect_request["Ticket"]["Time"]
                             ip_address = protect_request["Ticket"]["IP"]
                             incedent_id = protect_request["Ticket"]["IncidentID"]
@@ -92,7 +95,15 @@ class GeminiManager(object):
                                 current_time, ip_address, incedent_id), 200)
                             response = _Gemini.make_secure_response_header(
                                 response)
-                            return response
+                        else:
+                            logger.warning(
+                                "[!] Your response is currently unprotected. You can enable response protection in the configuration.")
+                            current_time = protect_request["Ticket"]["Time"]
+                            ip_address = protect_request["Ticket"]["IP"]
+                            incedent_id = protect_request["Ticket"]["IncidentID"]
+                            response = make_response("This request was blocked by Gemini \n The Runtime Application Self-Protection Solution \n\n Time: {} \n Your IP : {} \n\n Incident ID: {}".format(
+                                current_time, ip_address, incedent_id), 200)
+                    return response
             return __gemini_self_protect
         return _gemini_self_protect
 

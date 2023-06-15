@@ -222,7 +222,7 @@ class _Protect(object):
 
     def __protect_flask_response__(safe_redirect, original_response, gemini_protect_mode) -> None:
         try:
-            if safe_redirect == 'on':
+            if int(safe_redirect):
                 req_method = request.method
                 req_full_path = request.full_path
                 req_headers = ''  # request.headers
@@ -268,7 +268,8 @@ class _Protect(object):
                     status = True
                     return {"Status": status}
             else:
-                logger.info("[+] Gemini-Self-Protector Safe Redirect is Off")
+                logger.info(
+                    "[!]Safe Redirect is Off. You can enable safe redirect in the configuration.")
                 status = True
                 return {"Status": status}
         except Exception as e:

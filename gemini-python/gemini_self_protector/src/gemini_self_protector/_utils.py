@@ -60,39 +60,39 @@ class _Utils(object):
             except:
                 pass
 
-            # Use a regular expression to find all url end with .js
-            url_pattern = r'(?:https?://|//).+\.js'
+        # Use a regular expression to find all url end with .js
+        url_pattern = r'(?:https?://|//).+\.js'
 
-            matches = re.findall(url_pattern, string)
+        matches = re.findall(url_pattern, string)
 
-            if matches:
-                for match in matches:
-                    # alert('noobpk') - 5dc6f09bb9f90381814ff9fcbfe0a685
-                    string = string.replace(
-                        match, ' 5dc6f09bb9f90381814ff9fcbfe0a685')
+        if matches:
+            for match in matches:
+                # alert('noobpk') - 5dc6f09bb9f90381814ff9fcbfe0a685
+                string = string.replace(
+                    match, ' 5dc6f09bb9f90381814ff9fcbfe0a685')
 
-            # Lowercase string
-            string = string.lower()
+        # Lowercase string
+        string = string.lower()
 
-            # Use a regular expression to find all query
-            sql_pattern = [
-                r'(select.+)|(select.+(?:from|where|and).+)|(exec.+)'
-                r".*--$"
-            ]
+        # Use a regular expression to find all query
+        sql_pattern = [
+            r'(select.+)|(select.+(?:from|where|and).+)|(exec.+)'
+            r".*--$"
+        ]
 
-            for pattern in sql_pattern:
-                if re.search(pattern, string, re.IGNORECASE):
-                    # select * from noobpk; - 90e87fc8ba835e0d2bfeec5e3799ecfe
-                    string = string.replace(
-                        match[0], ' 90e87fc8ba835e0d2bfeec5e3799ecfe')
-                    break
+        for pattern in sql_pattern:
+            if re.search(pattern, string, re.IGNORECASE):
+                # select * from noobpk; - 90e87fc8ba835e0d2bfeec5e3799ecfe
+                string = string.replace(
+                    match[0], ' 90e87fc8ba835e0d2bfeec5e3799ecfe')
+                break
 
-            string = string.encode('utf-7').decode()
+        string = string.encode('utf-7').decode()
 
-            # Lowercase string
-            string = string.lower()
+        # Lowercase string
+        string = string.lower()
 
-            return string
+        return string
 
     def web_vuln_detect_predict(payload) -> None:
         """
@@ -184,17 +184,19 @@ class _Utils(object):
         ''')
         print("")
 
-    def predict_server_status() -> None:
+    def predict_server_health() -> None:
         try:
             predict_server = _Config.get_tb_config().predict_server
-            response = requests.get(predict_server)
-            if response.status_code == 200:
+            headers = {"Content-Type": "application/json"}
+            response = requests.post(
+                f'{predict_server}/predict', json={"data": "healthcheck"}, headers=headers)
+            if response and response.status_code == 200:
                 return True
             else:
                 return False
         except Exception as e:
             logger.error(
-                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Validator.predict_server_status', e))
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Validator.predict_server_health', e))
 
 
 class _Validator(object):
@@ -392,3 +394,22 @@ class _Validator(object):
         except Exception as e:
             logger.error(
                 "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Validator.validate_trust_domain', e))
+
+    def validate_predict_server(server) -> None:
+        try:
+            if re.match(r'https?://\S+', server):
+                headers = {"Content-Type": "application/json"}
+                response = requests.post(
+                    f'{server}/predict', json={"data": "healthcheck"}, headers=headers)
+                if response.status_code == 200:
+                    _Config.update_tb_config({
+                        'predict_server': server,
+                    })
+                    return True
+                else:
+                    return False
+            else:
+                return False
+        except Exception as e:
+            logger.error(
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Validator.validate_predict_server', e))

@@ -36,8 +36,8 @@ class _Config(object):
                 cors={'origin': '*', 'methods': '*',
                       'credentials': True, 'headers': ['Content-Type']},
                 server_name='gemini',
-                predict_server='http://127.0.0.1:5000',
                 safe_redirect=False,
+                safe_response=False,
                 notification_channel=False
             )
             tracking = tb_Tracking(
@@ -252,7 +252,6 @@ class _Config(object):
         try:
             audit_dependency_path = _Config.get_tb_config(
                 'gemini_audit_dependency')
-            print()
             now = datetime.now()
             current_time = now.strftime("%Y-%m-%d %H:%M:%S")
             with open(audit_dependency_path, "r") as f:

@@ -4,12 +4,15 @@ from sqlalchemy.orm import declarative_base
 Base = declarative_base()
 
 # Define the model
+
+
 class tb_User(Base):
     __tablename__ = 'users'
 
     id = Column(Integer, primary_key=True)
     name = Column(String)
     password = Column(String)
+
 
 class tb_Config(Base):
     __tablename__ = 'configs'
@@ -28,6 +31,7 @@ class tb_Config(Base):
     notification_webhook = Column(String)
     predict_server = Column(String)
     safe_redirect = Column(String)
+    safe_response = Column(String)
     secret_key = Column(String)
     sensitive_value = Column(Integer)
     server_name = Column(String)
@@ -37,6 +41,7 @@ class tb_Config(Base):
     working_directory = Column(String)
     created_at = Column(DateTime, default=func.now())
     updated_at = Column(DateTime, default=func.now(), onupdate=func.now())
+
 
 class tb_Tracking(Base):
     __tablename__ = 'trackings'
@@ -49,6 +54,7 @@ class tb_Tracking(Base):
     total_request = Column(Integer)
     created_at = Column(DateTime, default=func.now())
     updated_at = Column(DateTime, default=func.now(), onupdate=func.now())
+
 
 class tb_Analysis(Base):
     __tablename__ = 'analysis'
@@ -65,6 +71,7 @@ class tb_Analysis(Base):
     created_at = Column(DateTime, default=func.now())
     updated_at = Column(DateTime, default=func.now(), onupdate=func.now())
 
+
 class tb_AccessControlList(Base):
     __tablename__ = 'acls'
 
@@ -74,6 +81,7 @@ class tb_AccessControlList(Base):
     desciption = Column(String)
     created_at = Column(DateTime, default=func.now())
     updated_at = Column(DateTime, default=func.now(), onupdate=func.now())
+
 
 class tb_Dependency(Base):
     __tablename__ = 'dependencies'

@@ -256,51 +256,6 @@ class _Gemini(object):
             logger.error(
                 "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.validator_trust_domain', e))
 
-    def handler_cli_license_key():
-        try:
-            isKey = _Gemini.get_gemini_config().license_key
-            if isKey is None:
-                while True:
-                    try:
-                        key = input("Please enter your license key: ")
-                    except Exception as e:
-                        logger.error(
-                            "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.handler_cli_license_key', e))
-                        continue
-                    else:
-                        break
-
-                if _Gemini.validator_license_key(key):
-                    logger.info(
-                        "[+] License Activate Successful. Thank for using Gemini-Self Protector")
-                else:
-                    _Gemini.handler_cli_license_key()
-            else:
-                logger.info(
-                    "[+] Verify license key.....")
-                if _Gemini.validator_license_key(isKey):
-                    logger.info(
-                        "[+] Verify license key successful")
-                else:
-                    while True:
-                        try:
-                            key = input("Please update your license key: ")
-                        except Exception as e:
-                            logger.error(
-                                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.handler_cli_license_key', e))
-                            continue
-                        else:
-                            break
-
-                    if _Gemini.validator_license_key(key):
-                        logger.info(
-                            "[+] License Activate Successful. Thank for using Gemini-Self Protector")
-                    else:
-                        _Gemini.handler_cli_license_key()
-        except Exception as e:
-            logger.error(
-                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.handler_cli_license_key', e))
-
     def init_gemini_dashboard(flask_template_folder, flask_static_folder):
         """
         This function initializes the Gemini dashboard by initializing the Gemini template and static
@@ -530,9 +485,16 @@ class _Gemini(object):
             logger.error(
                 "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.calulate_total_access', e))
 
-    def check_predict_server() -> None:
+    def health_check_predict_server() -> None:
         try:
-            return _Utils.predict_server_status()
+            return _Utils.predict_server_health()
         except Exception as e:
             logger.error(
                 "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.check_predict_server', e))
+
+    def validator_predict_server(server) -> None:
+        try:
+            return _Validator.validate_predict_server(server)
+        except Exception as e:
+            logger.error(
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.validator_predict_server', e))
