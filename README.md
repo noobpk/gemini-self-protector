@@ -99,26 +99,33 @@ Gemini supports 3 modes and recommends sensitivity levels for the application to
 | monitor | 70        |
 | block   | 50        |
 
+## Support Predict Server
+
+| Address | Version |
+| ------- | --------- |
+| https://web-vuln-detect.my-app.in  | 19-06-2023  |
+
 ## License Key
 
 The license key is used for authentication with the API.
 
 Key: `988907ce-9803-11ed-a8fc-0242ac120002`
 
-## Dashboard Features
+## GUI Features
 
-👉 Hot Configuration config.yml
+👉 Monitor Abnormal Request / Response
 
-👉 Access List Control
+👉 Hot Configuration
+
+👉 Access Control List
 
 👉 Log Activity
 
 👉 Dependency Vulnerability Check
 
-👉 Monitor Abnormal Request
-
 ## Theme
 https://appseed.us/product/datta-able/flask/
+
 ## Contributing
 
 Interested in contributing? Check out the contributing guidelines. Please note that this project is released with a Code of Conduct. By contributing to this project, you agree to abide by its terms.
