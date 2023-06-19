@@ -2,16 +2,21 @@ from flask import Flask, Blueprint, request, make_response, render_template, ses
 from ._logger import logger
 from ._gemini import _Gemini
 from flask_sqlalchemy import SQLAlchemy
-from argon2 import PasswordHasher
+from argon2 import PasswordHasher, exceptions as argon2_exceptions
 from datetime import datetime, timezone
 import ipaddress
 import re
 import os
-
+import json
+import ast
+from math import floor
 
 class _Gemini_GUI(object):
 
     def __init__(self, flask_app: Flask) -> None:
+        logger.info(
+            "[+] Running gemini-self protector - GUI Mode")
+        
         @flask_app.before_request
         def count_request_to_service():
             _Gemini.calulate_total_access()
@@ -21,31 +26,35 @@ class _Gemini_GUI(object):
             'nested_service', __name__, template_folder="templates", static_folder='static')
 
         if flask_app.secret_key is None:
-            flask_app.secret_key = _Gemini.get_gemini_config(
-                'gemini_secret_key')
+            flask_app.secret_key = _Gemini.get_gemini_config().secret_key
 
         if flask_app.template_folder and flask_app.static_folder:
-            if _Gemini.get_gemini_config('gemini_app_path') is None:
+            if _Gemini.get_gemini_config().app_path is None:
                 _Gemini.init_gemini_app_path()
 
             _Gemini.init_gemini_dashboard(
                 flask_app.template_folder, flask_app.static_folder)
 
-            gemini_app_path = _Gemini.get_gemini_config('gemini_app_path')
+            gemini_app_path = _Gemini.get_gemini_config().app_path
             logger.info(
-                "[+] Access Your Gemini Dashboard as Path: http://0.0.0.0:port/{0}".format(gemini_app_path))
+                "[+] Access Your Gemini Dashboard as Path: http://host:port/{0}".format(gemini_app_path))
 
-            @nested_service.app_template_filter('datetimeformat')
-            def datetimeformat(value, format='%d %B %H:%M'):
+            @nested_service.app_template_filter('gemini_datetime_format')
+            def datetime_format(value, format='%d %B %H:%M'):
                 if isinstance(value, str):
                     value = datetime.strptime(value, '%Y-%m-%d %H:%M:%S')
                 return value.strftime(format)
 
+            @nested_service.app_template_filter('gemini_round_number')
+            def round_number(value, decimals=2):
+                multiplier = 10 ** decimals
+                return floor(value * multiplier + 0.5) / multiplier
+
             @nested_service.route('/', methods=['GET', 'POST'])
             def gemini_init():
                 try:
-                    isInstall = _Gemini.get_gemini_config('gemini_install')
-                    if isInstall:
+                    isInstall = _Gemini.get_gemini_config().isinstall
+                    if int(isInstall):
                         if _Gemini.is_valid_license_key():
                             if session.get('gemini_logged_in'):
                                 return redirect(url_for('nested_service.gemini_dashboard'))
@@ -62,8 +71,8 @@ class _Gemini_GUI(object):
             @nested_service.route('/install', methods=['GET', 'POST'])
             def gemini_install():
                 try:
-                    isInstall = _Gemini.get_gemini_config('gemini_install')
-                    if isInstall:
+                    isInstall = _Gemini.get_gemini_config().isinstall
+                    if int(isInstall):
                         return redirect(url_for('nested_service.gemini_dashboard'))
                     else:
                         if request.method == 'POST':
@@ -74,6 +83,7 @@ class _Gemini_GUI(object):
                             confirm_password = request.form['cpwd']
                             notification_channel = request.form['radio-channel']
                             license_key = request.form['license-key']
+                            predict_server = request.form['predit-server-value']
                             telegram_token = ''
                             telegram_chat_id = ''
                             notification_webhook = ''
@@ -85,28 +95,31 @@ class _Gemini_GUI(object):
                             else:
                                 notification_webhook = request.form['channel-webhook']
 
-                            if _Gemini.validator_protect_mode(protect_mode) and _Gemini.validator_sensitive_value(sensitive_value) and _Gemini.validator_app_path(app_path) and _Gemini.validator_dashboard_password(password, confirm_password) and _Gemini.validator_notification_channel(notification_channel) and _Gemini.validator_license_key(license_key):
+                            if _Gemini.validator_protect_mode(protect_mode) and _Gemini.validator_sensitive_value(sensitive_value) and _Gemini.validator_app_path(app_path) and _Gemini.validator_dashboard_password(password, confirm_password) and _Gemini.validator_notification_channel(notification_channel) and _Gemini.validator_license_key(license_key) and _Gemini.validator_predict_server(predict_server):
                                 ph = PasswordHasher()
                                 _Gemini.update_gemini_config({
-                                    "gemini_install": True,
-                                    "gemini_global_protect_mode": protect_mode,
-                                    "gemini_sensitive_value": int(sensitive_value),
-                                    "gemini_app_path": app_path,
-                                    "gemini_notification_channel": notification_channel,
-                                    "gemini_telegram_token": telegram_token,
-                                    "gemini_telegram_chat_id": telegram_chat_id,
-                                    "gemini_notification_webhook": notification_webhook,
-                                    "gemini_app_password": ph.hash(password),
+                                    "isinstall": True,
+                                    "global_protect_mode": protect_mode,
+                                    "sensitive_value": int(sensitive_value),
+                                    "app_path": app_path,
+                                    "notification_channel": notification_channel,
+                                    "telegram_token": telegram_token,
+                                    "telegram_chat_id": telegram_chat_id,
+                                    "notification_webhook": notification_webhook,
+                                    "predict_server": predict_server
+                                })
+                                _Gemini.update_gemini_user({
+                                    "password": ph.hash(password),
                                 })
                                 logger.info(
                                     "[+] Install gemini-self-protector successful.!")
+                                flash('Instal gemini-self-protector successful. Login and explore now', 'login')
                                 return redirect(url_for('nested_service.gemini_login'))
                         else:
-                            sensitive_value = _Gemini.get_gemini_config(
-                                'gemini_sensitive_value')
-                            app_path = _Gemini.get_gemini_config(
-                                'gemini_app_path')
+                            sensitive_value = _Gemini.get_gemini_config().sensitive_value
+                            app_path = _Gemini.get_gemini_config().app_path
                             return render_template('gemini-protector-gui/install.html', _sensitive_value=sensitive_value, _app_path=app_path)
+                
                 except Exception as e:
                     logger.error(
                         "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('nested_service.route.gemini_install', e))
@@ -114,11 +127,12 @@ class _Gemini_GUI(object):
             @nested_service.route('/update-key', methods=['GET', 'POST'])
             def gemini_update_key():
                 try:
-                    isInstall = _Gemini.get_gemini_config('gemini_install')
-                    if isInstall:
+                    isInstall = _Gemini.get_gemini_config().isinstall
+                    if int(isInstall):
                         if request.method == 'POST':
                             key = request.form['key']
                             if _Gemini.validator_license_key(key):
+                                flash('License key update successful', 'key_update_success')
                                 return redirect(url_for('nested_service.gemini_dashboard'))
                             else:
                                 return render_template('gemini-protector-gui/license.html', msg="Invalid license key")
@@ -133,8 +147,8 @@ class _Gemini_GUI(object):
             @nested_service.route('/login', methods=['GET', 'POST'])
             def gemini_login():
                 try:
-                    isInstall = _Gemini.get_gemini_config('gemini_install')
-                    if isInstall:
+                    isInstall = _Gemini.get_gemini_config().isinstall
+                    if int(isInstall):
                         if _Gemini.is_valid_license_key():
                             if request.method == 'GET' and session.get('gemini_logged_in'):
                                 return redirect(url_for('nested_service.gemini_dashboard'))
@@ -142,22 +156,25 @@ class _Gemini_GUI(object):
                                 username = request.form['username']
                                 password = request.form['password']
                                 ph = PasswordHasher()
-                                app_username = _Gemini.get_gemini_config(
-                                    'gemini_app_username')
-                                app_password = _Gemini.get_gemini_config(
-                                    'gemini_app_password')
+                                app_username = _Gemini.get_gemini_user().username
+                                app_password = _Gemini.get_gemini_user().password
                                 if username == app_username and ph.verify(app_password, password):
                                     logger.info("[+] Login successful.!")
                                     session['gemini_logged_in'] = True
+                                    flash('Welcome back {}!'.format(app_username), 'login')
                                     return redirect(url_for('nested_service.gemini_dashboard'))
                                 else:
                                     return render_template('gemini-protector-gui/accounts/login.html', msg="Incorrect Username / Password")
                             else:
                                 return render_template('gemini-protector-gui/accounts/login.html')
                         else:
+                            flash('Please update license key!', 'required')
                             return redirect(url_for('nested_service.gemini_update_key'))
                     else:
+                        flash('Please install!', 'required')
                         return redirect(url_for('nested_service.gemini_install'))
+                except argon2_exceptions.VerifyMismatchError:
+                    return render_template('gemini-protector-gui/accounts/login.html', msg="Incorrect Username / Password")
                 except Exception as e:
                     logger.error(
                         "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('nested_service.route.gemini_login', e))
@@ -181,8 +198,7 @@ class _Gemini_GUI(object):
                             else:
                                 return render_template('gemini-protector-gui/home/profile.html', msg="Invalid password")
                         else:
-                            app_username = _Gemini.get_gemini_config(
-                                'gemini_app_username')
+                            app_username = _Gemini.get_gemini_user().username
 
                             return render_template('gemini-protector-gui/home/profile.html', _username=app_username,)
                     else:
@@ -196,40 +212,31 @@ class _Gemini_GUI(object):
                 try:
                     if _Gemini.is_valid_license_key():
                         if session.get('gemini_logged_in'):
-                            total_request = _Gemini.get_gemini_config(
-                                'gemini_total_request')
-                            normal_request = _Gemini.get_gemini_config(
-                                'gemini_normal_request')
-                            abnormal_request = _Gemini.get_gemini_config(
-                                'gemini_abnormal_request')
-                            sensitive_value = _Gemini.get_gemini_config(
-                                'gemini_sensitive_value')
-                            global_protect_mode = _Gemini.get_gemini_config(
-                                'gemini_global_protect_mode')
-                            app_username = _Gemini.get_gemini_config(
-                                'gemini_app_username')
-                            load_data_log = _Gemini.load_gemini_log()
-                            load_data_store = _Gemini.load_gemini_data_store()
+                            total_request = _Gemini.get_gemini_summary().total_request
+                            normal_request = _Gemini.get_gemini_summary().normal_request
+                            abnormal_request = _Gemini.get_gemini_summary().abnormal_request
+                            normal_response = _Gemini.get_gemini_summary().normal_response
+                            abnormal_response = _Gemini.get_gemini_summary().abnormal_response
+                            sensitive_value = _Gemini.get_gemini_config().sensitive_value
+                            global_protect_mode = _Gemini.get_gemini_config().global_protect_mode
+                            app_username = _Gemini.get_gemini_user().username
+                            # load_data_log = _Gemini.load_gemini_log()
+                            request_log = _Gemini.get_gemini_request_log()
+                            predict_server = _Gemini.get_gemini_config().predict_server
+                            notification_channel = _Gemini.get_gemini_config().notification_channel
+                            predict_server_status = _Gemini.health_check_predict_server()
 
-                            predict_server = _Gemini.get_gemini_config(
-                                'gemini_predict_server')
-                            notification_channel = _Gemini.get_gemini_config(
-                                'gemini_notification_channel')
-                            predict_server_status = _Gemini.check_predict_server()
-
-                            sorted_data_store = sorted(
-                                load_data_store, key=lambda x: x['Time'])
+                            sorted_request_log_data = sorted(request_log, key=lambda x: x.time)
 
                             page = int(request.args.get('page', 1))
                             per_page = 5
 
-                            total_records = len(sorted_data_store)
-                            total_pages = (total_records +
-                                           per_page - 1) // per_page
+                            total_records = len(sorted_request_log_data)
+                            total_pages = (total_records + per_page - 1) // per_page
 
                             start_index = (page - 1) * per_page
                             end_index = start_index + per_page
-                            limited_data_store = sorted_data_store[start_index:end_index]
+                            limited_request_log_data = sorted_request_log_data[start_index:end_index]
 
                             return render_template('gemini-protector-gui/home/index.html',
                                                    _username=app_username,
@@ -238,10 +245,12 @@ class _Gemini_GUI(object):
                                                    _normal_request=normal_request,
                                                    _abnormal_request=abnormal_request,
                                                    _sensitive_value=sensitive_value,
-                                                   _gemini_log=load_data_log,
-                                                   _gemini_data_store_show=limited_data_store,
+                                                   _normal_response=normal_response,
+                                                   _abnormal_response=abnormal_response,
+                                                #    _gemini_log=load_data_log,
+                                                   _gemini_request_log_data=limited_request_log_data,
                                                    _gemini_page_pagination=len(
-                                                       load_data_store),
+                                                       request_log),
                                                    _current_page=page,
                                                    _total_pages=total_pages,
                                                    _gemini_predict_server_status=predict_server_status,
@@ -259,7 +268,7 @@ class _Gemini_GUI(object):
                         "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('nested_service.route.gemini_dashboard', e))
 
             @nested_service.route('/configurate', methods=['GET', 'POST'])
-            def gemini_update_tb_configurate():
+            def gemini_configurate():
                 try:
                     if _Gemini.is_valid_license_key():
                         if session.get('gemini_logged_in'):
@@ -273,40 +282,41 @@ class _Gemini_GUI(object):
                                 safe_redirect_status = request.form['safe_redirect_status']
                                 trust_domain_list = request.form.get(
                                     'trust_domain_list').split(',')
-
+                                protect_response_status=request.form['protect_response_status']
                                 trust_domain_list = [d.strip()
                                                      for d in trust_domain_list]
+                                acl_status=request.form['acl_status']
 
-                                if _Gemini.validator_protect_mode(protect_mode) and _Gemini.validator_sensitive_value(sensitive_value) and max_content_length.isdigit() and _Gemini.validator_http_method(http_method) and _Gemini.validator_safe_redirect_status(safe_redirect_status) and _Gemini.validator_trust_domain(trust_domain_list):
+                                if _Gemini.validator_protect_mode(protect_mode) and _Gemini.validator_sensitive_value(sensitive_value) and max_content_length.isdigit() and _Gemini.validator_http_method(http_method) and _Gemini.validator_on_off_status(safe_redirect_status) and _Gemini.validator_trust_domain(trust_domain_list) and _Gemini.validator_on_off_status(protect_response_status) and _Gemini.validator_on_off_status(acl_status):
                                     _Gemini.update_gemini_config({
-                                        "gemini_predict_server": predict_server,
-                                        "gemini_global_protect_mode": protect_mode,
-                                        "gemini_sensitive_value": int(sensitive_value),
-                                        "gemini_max_content_length": int(max_content_length) * 1024 * 1024,
-                                        "gemini_http_method_allow": http_method,
-                                        "gemini_safe_redirect": safe_redirect_status,
-                                        "gemini_trust_domain": trust_domain_list
+                                        "predict_server": predict_server,
+                                        "global_protect_mode": protect_mode,
+                                        "sensitive_value": int(sensitive_value),
+                                        "max_content_length": int(max_content_length) * 1024 * 1024,
+                                        "http_method_allow": json.dumps(http_method),
+                                        "safe_redirect": int(safe_redirect_status),
+                                        "protect_response": int(protect_response_status),
+                                        "trust_domain": json.dumps(trust_domain_list),
+                                        "enable_acl": int(acl_status),
                                     })
-                                    return redirect(url_for('nested_service.gemini_update_tb_configurate'))
+                                    flash('Configuration update successful', 'config_update_success')
+                                    return redirect(url_for('nested_service.gemini_configurate'))
                                 else:
-                                    return redirect(url_for('nested_service.gemini_update_tb_configurate'))
+                                    flash('Configuration update failed', 'config_update_fail')
+                                    return redirect(url_for('nested_service.gemini_configurate'))
                             else:
-                                global_protect_mode = _Gemini.get_gemini_config(
-                                    'gemini_global_protect_mode')
-                                sensitive_value = _Gemini.get_gemini_config(
-                                    'gemini_sensitive_value')
-                                max_content_length = _Gemini.get_gemini_config(
-                                    'gemini_max_content_length')
-                                server_name = _Gemini.get_gemini_config(
-                                    'gemini_server_name')
-                                http_method_allow = _Gemini.get_gemini_config(
-                                    'gemini_http_method_allow')
-                                safe_redirect_status = _Gemini.get_gemini_config(
-                                    'gemini_safe_redirect')
-                                trust_domain_list = _Gemini.get_gemini_config(
-                                    'gemini_trust_domain')
-                                predict_server = _Gemini.get_gemini_config(
-                                    'gemini_predict_server')
+                                global_protect_mode = _Gemini.get_gemini_config().global_protect_mode
+                                sensitive_value = _Gemini.get_gemini_config().sensitive_value
+                                max_content_length = _Gemini.get_gemini_config().max_content_length
+                                server_name = _Gemini.get_gemini_config().server_name
+                                http_method_allow = _Gemini.get_gemini_config().http_method_allow
+                                safe_redirect_status = _Gemini.get_gemini_config().safe_redirect
+                                trust_domain_list = _Gemini.get_gemini_config().trust_domain
+                                trust_domain_list = ast.literal_eval(trust_domain_list)
+                                predict_server = _Gemini.get_gemini_config().predict_server,
+                                protect_response_status = _Gemini.get_gemini_config().protect_response,
+                                is_enable_acl = _Gemini.get_gemini_config().enable_acl
+
                                 return render_template('gemini-protector-gui/home/config.html',
                                                        _protect_mode=global_protect_mode,
                                                        _sensitive_value=sensitive_value,
@@ -317,7 +327,9 @@ class _Gemini_GUI(object):
                                                        _safe_redirect_status=safe_redirect_status,
                                                        _trust_domain_list=", ".join(
                                                            trust_domain_list),
-                                                       _predict_server=predict_server
+                                                       _predict_server=predict_server[0],
+                                                       _protect_response=protect_response_status[0],
+                                                       _is_enable_acl=is_enable_acl
                                                        )
                         else:
                             return redirect(url_for('nested_service.gemini_login'))
@@ -325,7 +337,7 @@ class _Gemini_GUI(object):
                         return redirect(url_for('nested_service.gemini_update_key'))
                 except Exception as e:
                     logger.error(
-                        "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('nested_service.route.gemini_update_tb_configurate', e))
+                        "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('nested_service.route.gemini_configurate', e))
 
             @nested_service.route('/access-control-list', methods=['GET', 'POST'])
             def gemini_access_control_list():
@@ -340,39 +352,36 @@ class _Gemini_GUI(object):
                                 ipv4_pattern = r'^(\d{1,3}\.){3}\d{1,3}$'
                                 ipv6_pattern = r'^([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}$'
 
-                                err_msg = 'Cannot add acl with your input'
-
                                 if (bool(re.match(ipv4_pattern, ip_address)) or bool(re.match(ipv6_pattern, ip_address))):
                                     ip = ipaddress.ip_address(ip_address)
-                                    current_time = datetime.now()
-                                    formatted_time = current_time.strftime(
-                                        '%Y-%m-%d %H:%M:%S')
-                                    _dict = {"Ip": str(
-                                        ip), "Access": access_type, "Desciption": description,  "Time": str(formatted_time)}
-                                    if _Gemini.update_gemini_acl(_dict):
-                                        return redirect(url_for('nested_service.gemini_access_control_list'))
-                                    else:
-                                        return redirect(url_for('nested_service.gemini_access_control_list'))
+                                    
+                                    if ip:
+                                        _Gemini.store_gemini_acl(ipaddress=ip_address, isallow=access_type, desciption=description)
+                                    flash('AC add successful', 'acl_success')
+                                    return redirect(url_for('nested_service.gemini_access_control_list'))
                                 else:
+                                    flash('ACL add failed', 'acl_fail')
                                     return redirect(url_for('nested_service.gemini_access_control_list'))
                             else:
-                                load_data_acl = _Gemini.load_gemini_acl()
-                                sorted_data_store = sorted(
-                                    load_data_acl, key=lambda x: x['Time'])
+                                is_enable_acl = _Gemini.get_gemini_config().enable_acl
+                                access_control_list = _Gemini.get_gemini_acl()
+                                sorted_access_control_list_data = sorted(
+                                    access_control_list, key=lambda x: x.created_at)
 
                                 page = int(request.args.get('page', 1))
                                 per_page = 5
 
-                                total_records = len(sorted_data_store)
+                                total_records = len(sorted_access_control_list_data)
                                 total_pages = (total_records +
                                                per_page - 1) // per_page
 
                                 start_index = (page - 1) * per_page
                                 end_index = start_index + per_page
-                                limited_data_store = sorted_data_store[start_index:end_index]
+                                limited_access_control_list = sorted_access_control_list_data[start_index:end_index]
 
                                 return render_template('gemini-protector-gui/home/acl.html',
-                                                       _gemini_acl=limited_data_store,
+                                                       _is_enable_acl=is_enable_acl,
+                                                       _gemini_acl=limited_access_control_list,
                                                        _current_page=page,
                                                        _total_pages=total_pages,
                                                        )
@@ -396,13 +405,11 @@ class _Gemini_GUI(object):
 
                             if ip:
                                 _Gemini.remove_gemini_acl(str(ip))
-                                logger.info("[+] Remove acl successfully.!")
-                                return redirect(url_for('nested_service.gemini_dashboard'))
+                                flash('AC remove successful', 'acl_success')
+                                return redirect(url_for('nested_service.gemini_access_control_list'))
                             else:
-                                logger.info(
-                                    "[+] IP address {} is not valid".format(ip_address))
-                                flash('Cannot remove acl with your input.')
-                                return redirect(url_for('nested_service.gemini_dashboard'))
+                                flash('AC remove failed. IP address {} is not valid'.format(ip_address), 'acl_fail')
+                                return redirect(url_for('nested_service.gemini_access_control_list'))
                         else:
                             logger.warning("[!] Unauthentication Access.!")
                             flash('Please login')
@@ -424,15 +431,32 @@ class _Gemini_GUI(object):
                                 if filename == 'requirements.txt':
                                     _Gemini.__audit_dependency_vulnerability__(
                                         file_path)
+                                    flash('Check dependency successful', 'audit_success')
                                     return redirect(url_for('nested_service.gemini_dependency_audit'))
                                 else:
+                                    flash('Check dependency failed', 'audit_fail')
                                     return redirect(url_for('nested_service.gemini_dependency_audit'))
                             else:
                                 dependency_file = _Gemini.get_dependency_file()
-                                dependency_result = _Gemini.load_gemini_dependency_result()
+                                dependency_result = _Gemini.get_gemini_audit_dependency()
+                                sorted_dependency_result = sorted(dependency_result, key=lambda x: x.created_at)
+
+                                page = int(request.args.get('page', 1))
+                                per_page = 5
+
+                                total_records = len(sorted_dependency_result)
+                                total_pages = (total_records + per_page - 1) // per_page
+
+                                start_index = (page - 1) * per_page
+                                end_index = start_index + per_page
+                                limited_dependency_result = sorted_dependency_result[start_index:end_index]
                                 return render_template('gemini-protector-gui/home/dependency.html',
                                                        _gemini_dependency_file=dependency_file,
-                                                       _gemini_dependency_result=dependency_result,
+                                                       _gemini_dependency_result=limited_dependency_result,
+                                                       gemini_page_pagination=len(
+                                                       dependency_result),
+                                                        _current_page=page,
+                                                        _total_pages=total_pages,
                                                        )
                         else:
                             return redirect(url_for('nested_service.gemini_login'))
@@ -445,8 +469,9 @@ class _Gemini_GUI(object):
             @nested_service.route('/logout')
             def gemini_logout():
                 try:
+                    app_username = _Gemini.get_gemini_user().username
                     session['gemini_logged_in'] = False
-                    flash('Logout successfully!')
+                    flash('Goodbye {}!'.format(app_username), 'logout')
                     return redirect(url_for('nested_service.gemini_login'))
                 except Exception as e:
                     logger.error(

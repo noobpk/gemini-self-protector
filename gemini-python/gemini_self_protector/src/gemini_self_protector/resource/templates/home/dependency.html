@@ -36,37 +36,50 @@
                                                     </tr>
                                                 </thead>
                                                 <tbody>
-                                                    {% for entry in _gemini_dependency_result['gemini_audit_dependency']
-                                                    %}
-                                                    {% for timestamp, details in entry.items() %}
-                                                    {% for detail in details %}
+                                                    {% for result in _gemini_dependency_result %}
                                                     <tr>
                                                         <td>
-                                                            {%if detail['cve_id'] == 'N/A' %}
+                                                            {%if result.cve_id == 'N/A' %}
                                                             <i class="feather icon-package f-30 text-c-green"></i>
                                                             {%else%}
                                                             <i class="feather icon-package f-30 text-c-red"></i>
                                                             {%endif%}
                                                         </td>
-                                                        <td>{{ timestamp }}</td>
-                                                        <td>{{ detail['package'] }}</td>
-                                                        <td>{{ detail['version'] }}</td>
-                                                        {% if detail['cve_id'] %}
+                                                        <td>{{ result.created_at | gemini_datetime_format('%d %B
+                                                            %H:%M') }}</td>
+                                                        <td>{{ result.package }}</td>
+                                                        <td>{{ result.version }}</td>
+                                                        {% if result.cve_id %}
                                                         <td><a
-                                                                href="https://nvd.nist.gov/vuln/detail/{{ detail['cve_id'] }}">{{
-                                                                detail['cve_id'] }}</a></td>
+                                                                href="https://nvd.nist.gov/vuln/detail/{{ result.cve_id }}">{{
+                                                                result.cve_id }}</a></td>
                                                         {% else %}
                                                         <td>Not found</td>
                                                         {% endif %}
-                                                        <td>{{ detail['severity'] }}</td>
+                                                        <td>{{ result.severity }}</td>
                                                     </tr>
-                                                    {% endfor %}
-                                                    {% endfor %}
                                                     {% endfor %}
                                                 </tbody>
                                             </table>
                                         </div>
-
+                                        <nav aria-label="Page navigation example">
+                                            <ul class="pagination">
+                                                {% if _current_page > 1 %}
+                                                <li class="page-item"><a class="page-link"
+                                                        href="?page={{ _current_page - 1 }}">Previous</a></li>
+                                                {% endif %}
+                                                {% for page_num in range(1, _total_pages + 1) %}
+                                                <li
+                                                    class="page-item {% if page_num == _current_page %}active{% endif %}">
+                                                    <a class="page-link" href="?page={{ page_num }}">{{ page_num }}</a>
+                                                </li>
+                                                {% endfor %}
+                                                {% if _current_page < _total_pages %} <li class="page-item"><a
+                                                        class="page-link" href="?page={{ _current_page + 1 }}">Next</a>
+                                                    </li>
+                                                    {% endif %}
+                                            </ul>
+                                        </nav>
                                     </div>
                                 </div>
                             </div>

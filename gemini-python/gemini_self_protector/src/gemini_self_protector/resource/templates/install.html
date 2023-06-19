@@ -1,7 +1,7 @@
 <link rel="stylesheet" href="{{ url_for('static', filename='gemini-protector-static/css/install.css') }}">
 {% extends "gemini-protector-gui/layouts/base-fullscreen.html" %}
 
-{% block title %} Login {% endblock %}
+{% block title %} Install {% endblock %}
 
 {% block content %}
 <div class="install-main-container">
@@ -53,8 +53,20 @@
                                                     <div class="form-group">
                                                         <input type="number" min="0" max="100"
                                                             class="form-control wizard-required" id="sensitiveValue"
-                                                            name="sensitive-value" value="{{_sensitive_value}}">
+                                                            name="sensitive-value" value="{{_sensitive_value}}"
+                                                            required>
                                                         <!-- <label for="fname" class="wizard-form-text-label">Value</label> -->
+                                                        <div class="wizard-form-error"></div>
+                                                    </div>
+                                                    <h5>Predict Server</h5>
+                                                    <div class="form-group">
+                                                        <input type="text" min="0" max="100"
+                                                            class="form-control wizard-required" id="predictServerValue"
+                                                            name="predit-server-value" required>
+                                                        <a id="predict-server" href="#">Check</a>
+                                                        <div id="loading-spinner" style="display: none; float: right;">
+                                                            <i class="fa fa-spinner fa-spin"></i>
+                                                        </div>
                                                         <div class="wizard-form-error"></div>
                                                     </div>
                                                     <div class="form-group clearfix">
@@ -131,7 +143,8 @@
                                                         <input type="text" class="form-control" id="telegram_chat_id"
                                                             name="telegram-chat-id">
                                                         <label for="telegram_chat_id"
-                                                            class="wizard-form-text-label">Telegram Chat
+                                                            class="wizard-form-text-label">Telegram
+                                                            Chat
                                                             ID*</label>
                                                         <div class="wizard-form-error"></div>
                                                     </div>
@@ -178,7 +191,6 @@
         </div>
     </div>
 </div>
-
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 <script src="{{ url_for('static', filename='gemini-protector-static/js/install.js') }}"></script>

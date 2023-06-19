@@ -1,4 +1,14 @@
 jQuery(document).ready(function () {
+    Toastify({
+        text: "Welcome to Gemini-Self Protector Installer",
+        duration: 3000,
+        gravity: "top", // `top` or `bottom`
+        position: "right", // `left`, `center` or `right`
+        stopOnFocus: true, // Prevents dismissing of toast on hover
+        style: {
+            background: "linear-gradient(to right, #00b09b, #96c93d)",
+        },
+    }).showToast();
     // click on next button
     jQuery('.form-wizard-next-btn').click(function () {
         var parentFieldset = jQuery(this).parents('.wizard-fieldset');
@@ -168,5 +178,49 @@ jQuery(document).ready(function () {
             jQuery(this).parent().addClass("focus-input");
             jQuery(this).siblings('.wizard-form-error').slideUp("3000");
         }
+    });
+
+    $("#predict-server").click(function (event) {
+        $("#loading-spinner").show();
+        // Get the input value
+        var inputValue = $("#predictServerValue").val();
+
+        // Make the POST request
+        $.ajax({
+            url: inputValue + '/predict',
+            type: "POST",
+            contentType: "application/json",
+            data: JSON.stringify({ data: "healthcheck" }),
+            success: function (response) {
+                // Handle the success response
+                Toastify({
+                    text: "Connected to this predict server",
+                    duration: 3000,
+                    gravity: "top", // `top` or `bottom`
+                    position: "right", // `left`, `center` or `right`
+                    stopOnFocus: true, // Prevents dismissing of toast on hover
+                    style: {
+                        background: "linear-gradient(to right, #00b09b, #96c93d)",
+                    },
+                }).showToast();
+            },
+            error: function (error) {
+                // Handle the error response
+                Toastify({
+                    text: "Cannot connect to this predict server",
+                    duration: 3000,
+                    gravity: "top", // `top` or `bottom`
+                    position: "right", // `left`, `center` or `right`
+                    stopOnFocus: true, // Prevents dismissing of toast on hover
+                    style: {
+                        background: "linear-gradient(to right, rgb(255, 95, 109), rgb(255, 195, 113))",
+                    },
+                }).showToast();
+            },
+            complete: function () {
+                // Hide the loading spinner when the request is complete
+                $("#loading-spinner").hide();
+            }
+        });
     });
 });

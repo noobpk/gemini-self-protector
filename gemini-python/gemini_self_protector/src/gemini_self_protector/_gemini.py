@@ -35,62 +35,65 @@ class _Gemini(object):
             logger.error(
                 "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.update_gemini_config', e))
 
-    def update_gemini_data_store(_dict):
-        """
-        It takes a dictionary as an argument, and then calls a function from another module, which takes
-        the dictionary as an argument
-
-        :param _dict: This is a dictionary that contains the following keys:
-        """
+    def get_gemini_user() -> None:
         try:
-            _Config.update_data_store(_dict)
+            _gemini_return = _Config.get_tb_user()
+            return _gemini_return
         except Exception as e:
             logger.error(
-                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.update_gemini_data_store', e))
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.get_gemini_user', e))
 
-    def init_gemini_acl(working_directory):
-        """
-        The function is used to initialize the ACL file for the gemini project
-
-        :param working_directory: The directory where the gemini_acl.yaml file is located
-        """
+    def update_gemini_user(update_content):
         try:
-            _Config.init_acl(working_directory)
+            _Config.update_tb_user(update_content)
         except Exception as e:
             logger.error(
-                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.init_gemini_acl', e))
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.update_gemini_user', e))
 
-    def update_gemini_acl(_dict) -> None:
-        """
-        It takes a dictionary as an argument, and then it updates the ACLs in the config file
-
-        :param _dict: This is a dictionary that contains the following keys:
-        """
+    def get_gemini_summary() -> None:
         try:
-            return _Config.update_acl(_dict)
+            _gemini_return = _Config.get_tb_summary()
+            return _gemini_return
         except Exception as e:
             logger.error(
-                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.update_gemini_acl', e))
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.get_gemini_summary', e))
 
-    def load_gemini_acl() -> None:
-        """
-        It reads a JSON file, and returns a list of dictionaries containing the two columns
-        :return: A list of dictionaries containing the three columns
-        """
+    def update_gemini_summary(update_content):
         try:
-            data_store_path = _Gemini.get_gemini_config('gemini_acl_path')
-            # Load the JSON data from a file
-            with open(data_store_path, 'r') as f:
-                data = json.load(f)
-
-            # Create a list of dictionaries containing the three columns
-            rows = [{'Time': d['Time'], 'Ip': d['Ip'], 'Access': d['Access'], 'Desciption': d['Desciption']}
-                    for d in data['gemini_acl']]
-            return rows
-
+            _Config.update_tb_summary(update_content)
         except Exception as e:
             logger.error(
-                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.load_gemini_acl', e))
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.update_gemini_summary', e))
+
+    def get_gemini_request_log() -> None:
+        try:
+            _gemini_return = _Config.get_tb_request_log()
+            return _gemini_return
+        except Exception as e:
+            logger.error(
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.get_gemini_summary', e))
+
+    def store_gemini_request_log(ipaddress, request, attack_type, predict, event_id):
+        try:
+            _Config.store_tb_request_log(ipaddress, request, attack_type, predict, event_id)
+        except Exception as e:
+            logger.error(
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.store_gemini_request_log', e))
+
+    def get_gemini_acl():
+        try:
+            _gemini_return = _Config.get_tb_acl()
+            return _gemini_return
+        except Exception as e:
+            logger.error(
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.get_gemini_acl', e))
+
+    def store_gemini_acl(ipaddress, isallow, desciption):
+        try:
+            _Config.store_tb_acl(ipaddress, isallow, desciption)
+        except Exception as e:
+            logger.error(
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.store_gemini_acl', e))
 
     def check_gemini_acl(_ip_address) -> None:
         """
@@ -107,17 +110,18 @@ class _Gemini(object):
 
     def remove_gemini_acl(_ip_address):
         try:
-            _Config.remove_acl(_ip_address)
+            _Config.remove_record_acl(_ip_address)
         except Exception as e:
             logger.error(
                 "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.remove_gemini_acl', e))
 
-    def init_gemini_audit_dependency(working_directory):
+    def get_gemini_audit_dependency() -> None:
         try:
-            _Config.init_audit_dependency(working_directory)
+            _gemini_return = _Config.get_tb_dependency()
+            return _gemini_return
         except Exception as e:
             logger.error(
-                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.init_gemini_audit_dependency', e))
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.get_gemini_audit_dependency', e))
 
     def validator_license_key(license_key):
         """
@@ -219,22 +223,10 @@ class _Gemini(object):
             logger.error(
                 "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.validator_dashboard_password', e))
 
-    def validator_safe_redirect_status(safe_redirect_status) -> None:
-        """
-        This function validates a safe redirect status and logs an error message if an exception occurs.
-        
-        :param safe_redirect_status: The parameter `safe_redirect_status` is expected to be passed to
-        the function `validator_safe_redirect_status` as an argument. It is not clear from the code
-        snippet what data type this parameter should be, but it is likely that it should be a string or
-        an integer representing an HTTP status code
-        :return: the output of the `_Validator.validate_safe_redirect_status` function, which is not
-        specified in the given code snippet. If an exception is raised, the function logs an error
-        message. However, the function itself does not have a return statement for cases where an
-        exception is not raised.
-        """
+    def validator_on_off_status(on_off_status) -> None:
         try:
-            _gemini_return = _Validator.validate_safe_redirect_status(
-                safe_redirect_status)
+            _gemini_return = _Validator.validate_one_off_status(
+                on_off_status)
             return _gemini_return
         except Exception as e:
             logger.error(
@@ -283,7 +275,7 @@ class _Gemini(object):
         try:
             gemimi_app_path = _Utils.create_path()
             _Gemini.update_gemini_config(
-                {"gemini_app_path": gemimi_app_path})
+                {"app_path": gemimi_app_path})
         except Exception as e:
             logger.error(
                 "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.init_gemini_app_path', e))
@@ -311,31 +303,6 @@ class _Gemini(object):
             logger.error(
                 "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.load_gemini_log', e))
 
-    def load_gemini_data_store() -> None:
-        """
-        It reads a JSON file, creates a list of dictionaries containing the three columns, sorts the
-        list by Time in descending order, and returns the sorted list
-        :return: A list of dictionaries containing the three columns
-        """
-        try:
-            data_store_path = _Gemini.get_gemini_config(
-                'gemini_data_store_path')
-            # Load the JSON data from a file
-            with open(data_store_path, 'r') as f:
-                data = json.load(f)
-
-            # Create a list of dictionaries containing the three columns
-            rows = [{'Time': d['Time'], 'Request': d['Request'], 'AttackType': d['AttackType'],
-                     'Predict': d['Predict'], 'IncidentID': d['IncidentID']} for d in data['gemini_data_stored']]
-            # Sort the list by Time in descending order
-            rows = sorted(rows, key=lambda x: datetime.strptime(
-                x['Time'], '%Y-%m-%d %H:%M:%S'), reverse=True)
-            return rows
-
-        except Exception as e:
-            logger.error(
-                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.load_gemini_data_store', e))
-
     def get_flask_client_ip() -> None:
         """
         It returns the client IP address of the user who is accessing the Flask application
@@ -349,7 +316,7 @@ class _Gemini(object):
 
     def generate_insident_ticket() -> None:
         """
-        It generates a ticket number for an incident
+        It generates a ticket number for an event
         :return: the value of the function _Utils.insident_ticket()
         """
         try:
@@ -431,26 +398,6 @@ class _Gemini(object):
             logger.error(
                 "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.__audit_dependency_vulnerability__', e))
 
-    def load_gemini_dependency_result() -> None:
-        """
-        This function loads a JSON file containing dependency audit results from a specified path.
-        :return: The function is supposed to return a JSON object loaded from a file, but it is not
-        actually returning anything. The return statement is inside the try block, so if an exception is
-        raised, the function will exit without returning anything. To fix this, the return statement
-        should be moved outside the try block, or the function should raise an exception if the file
-        cannot be loaded.
-        """
-        try:
-            dependency_result_path = _Gemini.get_gemini_config(
-                'gemini_audit_dependency')
-            # Load the JSON data from a file
-            with open(dependency_result_path, 'r') as f:
-                data = json.load(f)
-            return data
-        except Exception as e:
-            logger.error(
-                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.load_gemini_dependency_result', e))
-
     def get_gemini_banner():
         """
         The function attempts to load a banner using a utility function and logs an error message if an
@@ -471,16 +418,16 @@ class _Gemini(object):
         otherwise it does not return anything.
         """
         try:
-            app_path = _Gemini.get_gemini_config('gemini_app_path')
+            app_path = _Gemini.get_gemini_config().app_path
             ignored_keyword = "gemini-protector-static"
 
             if request.path.startswith(f"/{app_path}") or ignored_keyword in request.path:
                 return None
 
-            current_access = _Gemini.get_gemini_config('gemini_total_request')
+            current_access = _Gemini.get_gemini_summary().total_request
             current_access += 1
-            _Gemini.update_gemini_config(
-                {"gemini_total_request": current_access})
+            _Gemini.update_gemini_summary(
+                {"total_request": current_access})
         except Exception as e:
             logger.error(
                 "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.calulate_total_access', e))

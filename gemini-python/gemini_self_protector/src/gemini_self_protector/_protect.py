@@ -61,21 +61,21 @@ class _Protect(object):
 
     def __handle_normal_request__(_request) -> None:
         try:
-            normal_request = _Config.get_tb_tracking().normal_request
-            _Config.update_tb_tracking({'normal_request': normal_request+1})
+            normal_request = _Config.get_tb_summary().normal_request
+            _Config.update_tb_summary({'normal_request': normal_request+1})
         except Exception as e:
             logger.error(
                 "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Protect.__handle_normal_request__', e))
 
     def __handle_abnormal_request__(_request, _predict, _attack_type, _ticket) -> None:
         try:
-            abnormal_request = _Config.get_tb_tracking().abnormal_request
-            _Config.update_tb_tracking(
+            abnormal_request = _Config.get_tb_summary().abnormal_request
+            _Config.update_tb_summary(
                 {'abnormal_request': abnormal_request+1})
-            _Config.store_tb_analysis(
-                _ticket["IP"], _request, _attack_type, _predict, str(_ticket["IncidentID"]))
-            logger.warning("[+] Gemini Alert: Abnormal detection - IP: {}. Incident ID: {}".format(
-                _ticket["IP"], _ticket["IncidentID"]))
+            _Config.store_tb_request_log(
+                _ticket["IP"], _request, _attack_type, _predict, str(_ticket["EventID"]))
+            logger.warning("[+] Gemini Alert: Abnormal detection - IP: {}. event ID: {}".format(
+                _ticket["IP"], _ticket["EventID"]))
         except Exception as e:
             logger.error(
                 "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Protect.__handle_abnormal_request__', e))
@@ -106,13 +106,13 @@ class _Protect(object):
 
     def __handle_abnormal_response__(_request_response, _predict, _attack_type, _ticket) -> None:
         try:
-            abnormal_response = _Config.get_tb_tracking().abnormal_response
-            _Config.update_tb_tracking(
+            abnormal_response = _Config.get_tb_summary().abnormal_response
+            _Config.update_tb_summary(
                 {'abnormal_response': abnormal_response+1})
-            _Config.store_tb_analysis(
-                _ticket["IP"], _request_response, _attack_type, _predict, str(_ticket["IncidentID"]))
-            logger.warning("[+] Gemini Alert: Abnormal detection - IP: {}. Incident ID: {}".format(
-                _ticket["IP"], _ticket["IncidentID"]))
+            _Config.store_tb_request_log(
+                _ticket["IP"], _request_response, _attack_type, _predict, str(_ticket["EventID"]))
+            logger.warning("[+] Gemini Alert: Abnormal detection - IP: {}. event ID: {}".format(
+                _ticket["IP"], _ticket["EventID"]))
         except Exception as e:
             logger.error(
                 "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Protect.__handle_abnormal_response__', e))

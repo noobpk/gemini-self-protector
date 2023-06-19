@@ -6,8 +6,7 @@ from ._logger import logger
 import json
 from ipaddress import ip_address
 from datetime import datetime
-from ._model import Base, tb_User, tb_Config, tb_Tracking, tb_Analysis, tb_AccessControlList
-
+from ._model import Base, tb_User, tb_Config, tb_Summary, tb_RequestLog, tb_AccessControlList, tb_Dependency
 
 class _Config(object):
 
@@ -21,10 +20,10 @@ class _Config(object):
             session = Session()
 
             user = tb_User(
-                name='superadmin', password=''
+                username='superadmin', password=''
             )
             config = tb_Config(
-                isinstall=False,
+                isinstall=0,
                 working_directory=working_directory,
                 database_path=database_file,
                 secret_key=str(os.urandom(24)),
@@ -35,14 +34,18 @@ class _Config(object):
                     ['OPTIONS', 'GET', 'POST', 'PUT', 'DELETE']),
                 cors={'origin': '*', 'methods': '*',
                       'credentials': True, 'headers': ['Content-Type']},
+                trust_domain= json.dumps(['localhost.dev']),
                 server_name='gemini',
-                safe_redirect=False,
-                safe_response=False,
-                notification_channel=False
+                safe_redirect=0,
+                protect_response=0,
+                notification_channel=0,
+                enable_acl=0
             )
-            tracking = tb_Tracking(
+            tracking = tb_Summary(
                 abnormal_request=0,
                 normal_request=0,
+                abnormal_response=0,
+                normal_response=0,
                 total_request=0
             )
             session.add(user)
@@ -70,7 +73,7 @@ class _Config(object):
 
     def get_model_instance_first(session, model):
         try:
-            instance = session.query(model).first()
+            instance = session.query(model).filter_by(id=1).first()
             session.close()
             return instance
         except Exception as e:
@@ -114,41 +117,41 @@ class _Config(object):
             logger.error(
                 "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Config.update_tb_config', e))
 
-    def get_tb_tracking() -> None:
+    def get_tb_summary() -> None:
         try:
             session = _Config.get_session()
-            tracking = _Config.get_model_instance_first(session, tb_Tracking)
+            tracking = _Config.get_model_instance_first(session, tb_Summary)
             return tracking
         except Exception as e:
             logger.error(
-                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Config.get_tb_tracking', e))
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Config.get_tb_summary', e))
 
-    def update_tb_tracking(update_content):
+    def update_tb_summary(update_content):
         try:
             session = _Config.get_session()
-            _Config.update_model_instance(session, tb_Tracking, update_content)
+            _Config.update_model_instance(session, tb_Summary, update_content)
         except Exception as e:
             logger.error("[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format(
-                '_Config.update_tb_tracking', e))
+                '_Config.update_tb_summary', e))
 
-    def get_tb_analysis() -> None:
+    def get_tb_request_log() -> None:
         try:
             session = _Config.get_session()
-            analysis = _Config.get_model_instance_first(session, tb_Analysis)
+            analysis = _Config.get_model_instance_all(session, tb_RequestLog)
             return analysis
         except Exception as e:
             logger.error(
-                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Config.get_tb_analysis', e))
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Config.get_tb_request_log', e))
 
-    def store_tb_analysis(ipaddress, request, attack_type, predict, incident_id):
+    def store_tb_request_log(ipaddress, request, attack_type, predict, event_id):
         try:
             session = _Config.get_session()
-            new_analysis = tb_Analysis(
+            new_analysis = tb_RequestLog(
                 ipaddress=ipaddress,
                 request=request,
                 attack_type=attack_type,
                 predict=predict,
-                incident_id=incident_id,
+                event_id=event_id,
                 status='active',
                 review=False
             )
@@ -157,7 +160,7 @@ class _Config(object):
             session.close()
         except Exception as e:
             logger.error("[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format(
-                '_Config.store_tb_analysis', e))
+                '_Config.store_tb_request_log', e))
 
     def get_tb_acl() -> None:
         try:
@@ -168,26 +171,20 @@ class _Config(object):
             logger.error(
                 "[x_x] Something went wrong, please check your error message.\n Message - {0}".format('_Config.get_tb_acl', e))
 
-    def update_acl(_dict) -> None:
-
+    def store_tb_acl(ipaddress, isallow, desciption):
         try:
-            acl_path = _Config.get_tb_config('gemini_acl_path')
-            with open(acl_path, "r") as f:
-                existing_data = json.load(f)
-
-            existing_ips = [item["Ip"] for item in existing_data["gemini_acl"]]
-
-            if _dict["Ip"] in existing_ips:
-                return False
-            else:
-                existing_data["gemini_acl"].append(_dict)
-                # Write the add new data back to the file
-                with open(acl_path, "w") as f:
-                    json.dump(existing_data, f, indent=4)
-                return True
+            session = _Config.get_session()
+            new_acl = tb_AccessControlList(
+                ipaddress=ipaddress,
+                is_allowed=isallow,
+                desciption=desciption
+            )
+            session.add(new_acl)
+            session.commit()
+            session.close()
         except Exception as e:
             logger.error(
-                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Config.update_acl', e))
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Config.store_tb_acl', e))
 
     def check_acl(_ip_address) -> None:
         try:
@@ -195,7 +192,7 @@ class _Config(object):
             acl_record = session.query(tb_AccessControlList).filter_by(
                 ipaddress=_ip_address).first()
             session.close()
-            if acl_record:
+            if acl_record and acl_record.is_allowed == 0:
                 return True
             else:
                 return False
@@ -203,7 +200,7 @@ class _Config(object):
             logger.error(
                 "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Config.check_acl', e))
 
-    def remove_acl(_ip_address):
+    def remove_record_acl(_ip_address):
         """
         It opens a json file, reads the contents, removes an object from the json file, and then writes
         the contents back to the file
@@ -211,57 +208,54 @@ class _Config(object):
         :param _ip_address: The IP address to be removed from the ACL
         """
         try:
-            acl_path = _Config.get_tb_config('gemini_acl_path')
-            with open(acl_path, "r") as f:
-                acl_data = json.load(f)
-
-            for acl in acl_data["gemini_acl"]:
-                if acl.get("Ip") == _ip_address:
-                    acl_data["gemini_acl"].remove(acl)
-            with open(acl_path, "w") as f:
-                json.dump(acl_data, f, indent=4)
+            session = _Config.get_session()
+            acl_record = session.query(tb_AccessControlList).filter_by(
+                ipaddress=_ip_address).first()
+            if acl_record:
+                session.delete(acl_record)
+                session.commit()
         except Exception as e:
             logger.error(
                 "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Config.remove_acl', e))
 
-    def init_audit_dependency(working_directory):
-        """
-        This function creates an empty json file called audit_dependency.json in the working directory
-
-        :param working_directory: The directory where the audit_dependency.json file is located
-        """
-        data_file = working_directory+'/audit-dependency.json'
+    def get_tb_user() -> None:
         try:
-            # create an empty dictionary
-            data = {"gemini_audit_dependency": []}
-
-            # Write the empty dictionary to the new file
-            with open(data_file, "w") as f:
-                # use pickle to dump the dictionary to the file
-                json.dump(data, f,  indent=4)
+            session = _Config.get_session()
+            user = _Config.get_model_instance_first(session, tb_User)
+            return user
         except Exception as e:
             logger.error(
-                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Config.init_audit_dependency', e))
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Config.get_tb_user', e))
 
-    def update_audit_dependency(_dict):
-        """
-        It takes a dictionary as an argument, and appends it to a JSON file
-
-        :param _dict: This is the dictionary that you want to add to the json file
-        """
+    def update_tb_user(update_content):
         try:
-            audit_dependency_path = _Config.get_tb_config(
-                'gemini_audit_dependency')
-            now = datetime.now()
-            current_time = now.strftime("%Y-%m-%d %H:%M:%S")
-            with open(audit_dependency_path, "r") as f:
-                existing_data = json.load(f)
-
-            existing_data["gemini_audit_dependency"].append(
-                {str(current_time): _dict})
-            # Write the add new data back to the file
-            with open(audit_dependency_path, "w") as f:
-                json.dump(existing_data, f, indent=4)
+            session = _Config.get_session()
+            _Config.update_model_instance(session, tb_User, update_content)
         except Exception as e:
             logger.error(
-                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Config.update_audit_dependency', e))
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Config.update_tb_user', e))
+
+    def get_tb_dependency() -> None:
+        try:
+            session = _Config.get_session()
+            dependency = _Config.get_model_instance_all(session, tb_Dependency)
+            return dependency
+        except Exception as e:
+            logger.error(
+                "[x_x] Something went wrong, please check your error message.\n Message - {0}".format('_Config.get_tb_dependency', e))
+
+    def store_tb_dependency(package, version, cve_id, severity):
+        try:
+            session = _Config.get_session()
+            new_record = tb_Dependency(
+                package=package,
+                version=version,
+                cve_id=cve_id,
+                severity=severity
+            )
+            session.add(new_record)
+            session.commit()
+            session.close()
+        except Exception as e:
+            logger.error(
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Config.store_tb_dependency', e))

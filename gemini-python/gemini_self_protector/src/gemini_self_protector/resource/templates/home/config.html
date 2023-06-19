@@ -1,6 +1,6 @@
 {% extends "gemini-protector-gui/layouts/base.html" %}
 
-{% block title %} Profile {% endblock %}
+{% block title %} Configurate {% endblock %}
 
 <!-- Specific CSS goes HERE -->
 {% block stylesheets %}{% endblock stylesheets %}
@@ -24,6 +24,40 @@
                                     </div>
                                     <div class="card-body">
                                         <form role="form" method="post" action="">
+                                            <div class="form-group">
+                                                <label>Access List Control</label>
+                                                <div class="custom-control custom-radio custom-control-inline">
+                                                    <input type="radio" id="acl-on" name="acl_status" value="1"
+                                                        class="custom-control-input" {% if _is_enable_acl==1 %}checked{%
+                                                        endif %}>
+                                                    <label class="custom-control-label" for="acl-on">On</label>
+                                                </div>
+                                                <div class="custom-control custom-radio custom-control-inline">
+                                                    <input type="radio" id="acl-off" name="acl_status" value="0"
+                                                        class="custom-control-input" {% if _is_enable_acl==0 %}checked{%
+                                                        endif %}>
+                                                    <label class="custom-control-label" for="acl-off">Off</label>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label>Protect Response</label>
+                                                <div class="custom-control custom-radio custom-control-inline">
+                                                    <input type="radio" id="protect-response-status-on"
+                                                        name="protect_response_status" value="1"
+                                                        class="custom-control-input" {% if _protect_response==1
+                                                        %}checked{% endif %}>
+                                                    <label class="custom-control-label"
+                                                        for="protect-response-status-on">On</label>
+                                                </div>
+                                                <div class="custom-control custom-radio custom-control-inline">
+                                                    <input type="radio" id="protect-response-status-off"
+                                                        name="protect_response_status" value="0"
+                                                        class="custom-control-input" {% if _protect_response==0
+                                                        %}checked{% endif %}>
+                                                    <label class="custom-control-label"
+                                                        for="protect-response-status-off">Off</label>
+                                                </div>
+                                            </div>
                                             <div class="form-group">
                                                 <label>Predict Server</label>
                                                 <input type="text" class="form-control" placeholder="http://127.0.0.1"
@@ -56,20 +90,24 @@
                                                 <input type="text" class="form-control" placeholder="50"
                                                     value="{{_sensitive_value}}" name="sensitive_value">
                                             </div>
-                                            <label>Safe Redirect</label>
-                                            <div class="custom-control custom-radio custom-control-inline">
-                                                <input type="radio" id="safe-redirect-status-on"
-                                                    name="safe_redirect_status" value="on" class="custom-control-input"
-                                                    {% if _safe_redirect_status=='on' %}checked{% endif %}>
-                                                <label class="custom-control-label"
-                                                    for="safe-redirect-status-on">On</label>
-                                            </div>
-                                            <div class="custom-control custom-radio custom-control-inline">
-                                                <input type="radio" id="safe-redirect-status-off"
-                                                    name="safe_redirect_status" value="off" class="custom-control-input"
-                                                    {% if _safe_redirect_status=='off' %}checked{% endif %}>
-                                                <label class="custom-control-label"
-                                                    for="safe-redirect-status-off">Off</label>
+                                            <div class="form-group">
+                                                <label>Safe Redirect</label>
+                                                <div class="custom-control custom-radio custom-control-inline">
+                                                    <input type="radio" id="safe-redirect-status-on"
+                                                        name="safe_redirect_status" value="1"
+                                                        class="custom-control-input" {% if _safe_redirect_status==1
+                                                        %}checked{% endif %}>
+                                                    <label class="custom-control-label"
+                                                        for="safe-redirect-status-on">On</label>
+                                                </div>
+                                                <div class="custom-control custom-radio custom-control-inline">
+                                                    <input type="radio" id="safe-redirect-status-off"
+                                                        name="safe_redirect_status" value="0"
+                                                        class="custom-control-input" {% if _safe_redirect_status==0
+                                                        %}checked{% endif %}>
+                                                    <label class="custom-control-label"
+                                                        for="safe-redirect-status-off">Off</label>
+                                                </div>
                                             </div>
                                             <div class="form-group">
                                                 <label>Max Content-Length: 1 * 1024 * 1024 = 1MB</label>
@@ -148,4 +186,37 @@
 {% endblock content %}
 
 <!-- Specific Page JS goes HERE  -->
-{% block javascripts %}{% endblock javascripts %}
+{% block javascripts %}
+{% with messages = get_flashed_messages(with_categories=true) %}
+{% for category, message in messages %}
+{% if category == 'config_update_success' %}
+<script>
+    Toastify({
+        text: "{{ messages[0][1]|safe }}",
+        duration: 3000,
+        gravity: "top", // `top` or `bottom`
+        position: "right", // `left`, `center` or `right`
+        stopOnFocus: true, // Prevents dismissing of toast on hover
+        style: {
+            background: "linear-gradient(to right, #00b09b, #96c93d)",
+        },
+    }).showToast();
+</script>
+{% endif %}
+{% if category == 'config_update_fail' %}
+<script>
+    Toastify({
+        text: "{{ messages[0][1]|safe }}",
+        duration: 3000,
+        gravity: "top", // `top` or `bottom`
+        position: "right", // `left`, `center` or `right`
+        stopOnFocus: true, // Prevents dismissing of toast on hover
+        style: {
+            background: "linear-gradient(to right, rgb(255, 95, 109), rgb(255, 195, 113))",
+        },
+    }).showToast();
+</script>
+{% endif %}
+{% endfor %}
+{% endwith %}
+{% endblock javascripts %}

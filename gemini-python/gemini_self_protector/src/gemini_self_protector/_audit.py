@@ -40,19 +40,9 @@ class _Audit(object):
                 for result in data['result']['CVE_Items']:
                     cve_id = result['cve']['CVE_data_meta']['ID']
                     severity = result['impact']['baseMetricV3']['cvssV3']['baseSeverity']
-                    audit_result.append({
-                        'package': name,
-                        'version': version,
-                        'cve_id': cve_id,
-                        'severity': severity
-                    })
+                    _Config.store_tb_dependency(name, version, cve_id, severity)
             else:
-                audit_result.append({
-                    'package': name,
-                    'version': version,
-                    'cve_id': 'N/A',
-                    'severity': 'N/A'
-                })
+                _Config.store_tb_dependency(name, version, 'N/A', 'N/A')
             time.sleep(7)
 
-        _Config.update_audit_dependency(audit_result)
+        

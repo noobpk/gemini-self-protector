@@ -66,11 +66,62 @@
                                     </div>
                                 </div>
                             </div>
+                            <div class="col-md-6 col-xl-4">
+                                <div class="card">
+                                    <div class="card-block">
+                                        <div class="row d-flex align-items-center">
+                                            <div class="col-auto">
+                                                {%if _gemini_predict_server_status %}
+                                                <i class="feather icon-server f-30 text-c-green"></i>
+                                                {%else%}
+                                                <i class="feather icon-server f-30 text-c-red"></i>
+                                                {% endif %}
+                                            </div>
+                                            <div class="col">
+                                                <h3 class="f-w-300">{%if _gemini_predict_server_status %} Online
+                                                    {%else%}Offline {% endif %}
+                                                </h3>
+                                                <span class="d-block text-uppercase">PREDICT SERVER</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 col-xl-4">
+                                <div class="card">
+                                    <div class="card-block">
+                                        <div class="row d-flex align-items-center">
+                                            <div class="col-auto">
+                                                <i class="feather icon-cloud-drizzle f-30 text-c-green"></i>
+                                            </div>
+                                            <div class="col">
+                                                <h3 class="f-w-300">{{_normal_response}}</h3>
+                                                <span class="d-block text-uppercase">NORMAL RESPONSES</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 col-xl-4">
+                                <div class="card">
+                                    <div class="card-block">
+                                        <div class="row d-flex align-items-center">
+                                            <div class="col-auto">
+                                                <i class="feather icon-cloud-rain f-30 text-c-red"></i>
+                                            </div>
+                                            <div class="col">
+                                                <h3 class="f-w-300">{{_abnormal_response}}</h3>
+                                                <span class="d-block text-uppercase">ABNORMAL RESPONSES</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                             <!--[ request section ] end-->
                             <div class="col-xl-8 col-md-6">
                                 <div class="card Recent-Users">
                                     <div class="card-header">
-                                        <h5>Recent abnormal requests</h5>
+                                        <h5>Recent abnormal requests / responses</h5>
                                     </div>
                                     <div class="card-block table-border-style px-0 py-3">
                                         <div class="table-responsive">
@@ -78,27 +129,34 @@
                                                 <thead>
                                                     <tr>
                                                         <th class="text-right"></th>
-                                                        <th>Ticket</th>
+                                                        <th>EventID</th>
                                                         <th>Predit</th>
                                                         <th>Time</th>
                                                         <th>Review</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
-                                                    {% for row in _gemini_data_store_show %}
+                                                    {% for row in _gemini_request_log_data %}
                                                     <tr class="unread">
                                                         <td>
                                                             <i class="feather icon-cloud-rain f-30 text-c-red"></i>
                                                         </td>
                                                         <td>
-                                                            <h6 class="mb-1">{{ row['IncidentID'] }}</h6>
-                                                            <p class="m-0">{{ row['AttackType'] }}</p>
+                                                            <h6 class="mb-1">{{ row.event_id }}</h6>
+                                                            <p class="m-0">{{ row.attack_type }}</p>
                                                         </td>
                                                         <td>
-                                                            <h6 class="text-muted">{{row['Predict'] }}</h6>
+                                                            {%if row.predict %}
+                                                            <h6 class="text-muted">{{ row.predict | gemini_round_number
+                                                                }}</h6>
+                                                            {%else%}
+                                                            <h6 class="text-muted">{{ row.predict }}</h6>
+                                                            {%endif%}
                                                         </td>
                                                         <td>
-                                                            <h6 class="text-muted">{{ row['Time']|datetimeformat('%d %B
+                                                            <h6 class="text-muted">{{ row.time |
+                                                                gemini_datetime_format('%d
+                                                                %B
                                                                 %H:%M') }}</h6>
                                                         </td>
                                                         <td>
@@ -160,7 +218,7 @@
                                         {% endif %}
                                     </div>
                                 </div>
-                                <div class="card">
+                                <!-- <div class="card">
                                     <div class="card-block border-bottom">
                                         <div class="row d-flex align-items-center">
                                             <div class="col-auto">
@@ -189,7 +247,7 @@
                                             </div>
                                         </div>
                                     </div>
-                                </div>
+                                </div> -->
                             </div>
                             <!-- [ statistics year chart ] end -->
 
@@ -207,4 +265,37 @@
 {% endblock content %}
 
 <!-- Specific Page JS goes HERE  -->
-{% block javascripts %}{% endblock javascripts %}
+{% block javascripts %}
+{% with messages = get_flashed_messages(with_categories=true) %}
+{% for category, message in messages %}
+{% if category == 'login' %}
+<script>
+    Toastify({
+        text: "{{ messages[0][1]|safe }}",
+        duration: 3000,
+        gravity: "top", // `top` or `bottom`
+        position: "right", // `left`, `center` or `right`
+        stopOnFocus: true, // Prevents dismissing of toast on hover
+        style: {
+            background: "linear-gradient(to right, #00b09b, #96c93d)",
+        },
+    }).showToast();
+</script>
+{% endif %}
+{% if category == 'key_update_success' %}
+<script>
+    Toastify({
+        text: "{{ messages[0][1]|safe }}",
+        duration: 3000,
+        gravity: "top", // `top` or `bottom`
+        position: "right", // `left`, `center` or `right`
+        stopOnFocus: true, // Prevents dismissing of toast on hover
+        style: {
+            background: "linear-gradient(to right, #00b09b, #96c93d)",
+        },
+    }).showToast();
+</script>
+{% endif %}
+{% endfor %}
+{% endwith %}
+{% endblock javascripts %}

@@ -105,8 +105,7 @@ class _Utils(object):
         try:
             predict_server = _Config.get_tb_config().predict_server
             headers = {"Content-Type": "application/json"}
-            predict = requests.post(
-                f'{predict_server}/predict', json={"data": payload}, headers=headers)
+            predict = requests.post(f'{predict_server}/predict', json={"data": payload}, headers=headers)
             if (predict):
                 response = predict.json()
                 accuracy = response.get('accuracy')
@@ -115,6 +114,10 @@ class _Utils(object):
                 logger.warning(
                     "[!] Cannot connect to predict server. Gemini-self protector cannot predit this request.")
                 return 0
+        except requests.exceptions.RequestException as e:
+            logger.warning(
+                    "[!] Cannot connect to predict server. Gemini-self protector cannot predit this request.")
+            return 0
         except Exception as e:
             logger.error(
                 "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Utils.web_vuln_detect_predict', e))
@@ -134,29 +137,29 @@ class _Utils(object):
             logger.error(
                 "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Utils.flask_client_ip', e))
 
-    def generate_incident_id() -> None:
+    def generate_event_id() -> None:
         """
         This function generates a random UUID and returns it
         :return: A random UUID.
         """
         try:
-            incident_id = uuid.uuid4()
-            return incident_id
+            event_id = uuid.uuid4()
+            return event_id
         except Exception as e:
             logger.error(
-                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Utils.generate_incident_id', e))
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Utils.generate_event_id', e))
 
     def insident_ticket() -> None:
         """
-        It returns a list of three items: the IP address of the client, a unique incident ID, and the
+        It returns a list of three items: the IP address of the client, a unique event ID, and the
         current time
         :return: A list of three items.
         """
         try:
             time = datetime.now(timezone.utc)
             ip = _Utils.flask_client_ip()
-            incident_id = _Utils.generate_incident_id()
-            return {"Time": time, "IP": ip, "IncidentID": incident_id}
+            event_id = _Utils.generate_event_id()
+            return {"Time": time, "IP": ip, "EventID": event_id}
         except Exception as e:
             logger.error(
                 "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Utils.insident_ticket', e))
@@ -187,13 +190,15 @@ class _Utils(object):
     def predict_server_health() -> None:
         try:
             predict_server = _Config.get_tb_config().predict_server
-            headers = {"Content-Type": "application/json"}
-            response = requests.post(
-                f'{predict_server}/predict', json={"data": "healthcheck"}, headers=headers)
-            if response and response.status_code == 200:
-                return True
-            else:
-                return False
+            if predict_server:
+                headers = {"Content-Type": "application/json"}
+                response = requests.post(
+                    f'{predict_server}/predict', json={"data": "healthcheck"}, headers=headers)
+                if response and response.status_code == 200:
+                    return True
+                else:
+                    return False
+            return False
         except Exception as e:
             logger.error(
                 "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Validator.predict_server_health', e))
@@ -262,7 +267,7 @@ class _Validator(object):
             else:
                 logger.error(
                     "[x_x] Invalid Protect Mode. Protect mode must be: monitor - block - off")
-                return True
+                return False
         except Exception as e:
             logger.error(
                 "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Validator.validate_protect_mode', e))
@@ -346,20 +351,14 @@ class _Validator(object):
             logger.error(
                 "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Validator.validate_http_method', e))
 
-    def validate_safe_redirect_status(safe_redirect_status) -> None:
-        """
-        If the value of safe_redirect_status is in the array arr_status, return True, else return False.
-
-        :param safe_redirect_status: This is the status of the safe redirect. It can be either on or off
-        :return: True or False
-        """
+    def validate_one_off_status(on_off_status) -> None:
         try:
-            arr_status = ['on', 'off']
-            if safe_redirect_status in arr_status:
+            arr_status = ['1', '0']
+            if on_off_status in arr_status:
                 return True
             else:
                 logger.error(
-                    "[x_x] Invalid Safe Redirect Status. Safe Redirect Status must be: ON - OFF")
+                    "[x_x] Invalid Status. Safe Redirect or Protect Response Status must be: 1 - 0")
                 return False
         except Exception as e:
             logger.error(
