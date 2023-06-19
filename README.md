@@ -34,7 +34,7 @@ For more details: [Web-Vuln-Detection-Predict](https://github.com/noobpk/Web-Vul
 
 | Injections                 | Supported          |
 | -------------------------- | ------------------ |
-| Command Injection          |                    |
+| Command Injection          | :white_check_mark: |
 | Cross-Site Scripting       | :white_check_mark: |
 | Cross-Site Request Forgery |                    |
 | CSS & HTML Injection       |                    |
