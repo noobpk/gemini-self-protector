@@ -218,36 +218,14 @@
                                         {% endif %}
                                     </div>
                                 </div>
-                                <!-- <div class="card">
-                                    <div class="card-block border-bottom">
-                                        <div class="row d-flex align-items-center">
-                                            <div class="col-auto">
-                                                {%if _gemini_predict_server_status %}
-                                                <i class="feather icon-server f-30 text-c-green"></i>
-                                                {%else%}
-                                                <i class="feather icon-server f-30 text-c-red"></i>
-                                                {% endif %}
-                                            </div>
-                                            <div class="col">
-                                                <h3 class="f-w-300">{%if _gemini_predict_server_status %} Online
-                                                    {%else%}Offline {% endif %}
-                                                </h3>
-                                                <span class="d-block text-uppercase">PREDICT SERVER</span>
-                                            </div>
-                                        </div>
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h5>Abnormal Chart</h5>
                                     </div>
                                     <div class="card-block">
-                                        <div class="row d-flex align-items-center">
-                                            <div class="col-auto">
-                                                <i class="feather icon-package f-30 text-c-blue"></i>
-                                            </div>
-                                            <div class="col">
-                                                <h3 class="f-w-300">{{_gemini_notification_channel|title}}</h3>
-                                                <span class="d-block text-uppercase">REALTIME NOTIFICATION</span>
-                                            </div>
-                                        </div>
+                                        <div id="morris-donut-chart" style="height:300px"></div>
                                     </div>
-                                </div> -->
+                                </div>
                             </div>
                             <!-- [ statistics year chart ] end -->
 
@@ -266,12 +244,59 @@
 
 <!-- Specific Page JS goes HERE  -->
 {% block javascripts %}
+<script
+    src="{{ url_for('static', filename='gemini-protector-static/plugins/chart-morris/js/raphael.min.js') }}"></script>
+<script
+    src="{{ url_for('static', filename='gemini-protector-static/plugins/chart-morris/js/morris.min.js') }}"></script>
+<script>
+    var graph = Morris.Donut({
+        element: 'morris-donut-chart',
+        data: [
+            {
+                value: {{ _gemini_attack_counts['Malicious Request'] }},
+                label: 'Malicious Request'
+            },
+            {
+                value: {{ _gemini_attack_counts['ACL Block'] }},
+                label: 'ACL Block'
+            },
+            {
+                value: {{ _gemini_attack_counts['Malicious Response'] }},
+                label: 'Malicious Response'
+            },
+            {
+                value: {{ _gemini_attack_counts['Unvalidated Redirects'] }},
+                label: 'Unvalidated Redirects'
+            },
+            {
+                value: {{ _gemini_attack_counts['Large Requests'] }},
+                label: 'Large Requests'
+            },
+            {
+                value: {{ _gemini_attack_counts['HTTP Method Tampering'] }},
+                label: 'HTTP Method Tampering'
+            }
+        ],
+    colors: [
+        '#ce3322',
+        '#59dca6',
+        '#04a9f5',
+        '#1dc4e9',
+        '#A389D4',
+        '#fff26e'
+    ],
+        resize: true,
+            formatter: function (x) {
+                return "val : " + x
+            }
+    });
+</script>
 {% with messages = get_flashed_messages(with_categories=true) %}
 {% for category, message in messages %}
 {% if category == 'login' %}
 <script>
     Toastify({
-        text: "{{ messages[0][1]|safe }}",
+        text: "{{ messages[0][1] | safe }}",
         duration: 3000,
         gravity: "top", // `top` or `bottom`
         position: "right", // `left`, `center` or `right`
@@ -285,7 +310,7 @@
 {% if category == 'key_update_success' %}
 <script>
     Toastify({
-        text: "{{ messages[0][1]|safe }}",
+        text: "{{ messages[0][1] | safe }}",
         duration: 3000,
         gravity: "top", // `top` or `bottom`
         position: "right", // `left`, `center` or `right`

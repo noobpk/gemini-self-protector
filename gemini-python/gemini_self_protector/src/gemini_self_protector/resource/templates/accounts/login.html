@@ -66,6 +66,20 @@
     }).showToast();
 </script>
 {% endif %}
+{% if category == 'required_login' %}
+<script>
+    Toastify({
+        text: "{{ messages[0][1]|safe }}",
+        duration: 3000,
+        gravity: "top", // `top` or `bottom`
+        position: "right", // `left`, `center` or `right`
+        stopOnFocus: true, // Prevents dismissing of toast on hover
+        style: {
+            background: "linear-gradient(to right, rgb(255, 95, 109), rgb(255, 195, 113))",
+        },
+    }).showToast();
+</script>
+{% endif %}
 {% if category == 'error' %}
 <div class="flash-message error">
     {{ message }}

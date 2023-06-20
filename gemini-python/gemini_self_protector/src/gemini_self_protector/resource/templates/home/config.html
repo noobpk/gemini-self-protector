@@ -24,6 +24,7 @@
                                     </div>
                                     <div class="card-body">
                                         <form role="form" method="post" action="">
+                                            <!-- [ ACL ] start -->
                                             <div class="form-group">
                                                 <label>Access List Control</label>
                                                 <div class="custom-control custom-radio custom-control-inline">
@@ -39,81 +40,55 @@
                                                     <label class="custom-control-label" for="acl-off">Off</label>
                                                 </div>
                                             </div>
+                                            <!-- [ ACL ] stop -->
+                                            <!-- [ Protect Mode ] start -->
                                             <div class="form-group">
-                                                <label>Protect Response</label>
+                                                <label>Protect Mode</label>
                                                 <div class="custom-control custom-radio custom-control-inline">
-                                                    <input type="radio" id="protect-response-status-on"
-                                                        name="protect_response_status" value="1"
-                                                        class="custom-control-input" {% if _protect_response==1
-                                                        %}checked{% endif %}>
+                                                    <input type="radio" id="protect-mode-monitor" name="protect_mode"
+                                                        value="monitor" class="custom-control-input" {% if
+                                                        _protect_mode=='monitor' %}checked{% endif %}>
                                                     <label class="custom-control-label"
-                                                        for="protect-response-status-on">On</label>
+                                                        for="protect-mode-monitor">Monitor</label>
                                                 </div>
                                                 <div class="custom-control custom-radio custom-control-inline">
-                                                    <input type="radio" id="protect-response-status-off"
-                                                        name="protect_response_status" value="0"
-                                                        class="custom-control-input" {% if _protect_response==0
-                                                        %}checked{% endif %}>
+                                                    <input type="radio" id="protect-mode-block" name="protect_mode"
+                                                        value="block" class="custom-control-input" {% if
+                                                        _protect_mode=='block' %}checked{% endif %}>
                                                     <label class="custom-control-label"
-                                                        for="protect-response-status-off">Off</label>
+                                                        for="protect-mode-block">Block</label>
+                                                </div>
+                                                <div class="custom-control custom-radio custom-control-inline">
+                                                    <input type="radio" id="protect-mode-off" name="protect_mode"
+                                                        value="off" class="custom-control-input" {% if
+                                                        _protect_mode=='off' %}checked{% endif %}>
+                                                    <label class="custom-control-label"
+                                                        for="protect-mode-off">Off</label>
                                                 </div>
                                             </div>
+                                            <!-- [ Protect Mode ] stop -->
+                                            <!-- [ Predict Server ] start -->
                                             <div class="form-group">
                                                 <label>Predict Server</label>
                                                 <input type="text" class="form-control" placeholder="http://127.0.0.1"
                                                     value="{{_predict_server}}" name="predict_server">
                                             </div>
-                                            <label>Protect Mode</label>
-                                            <div class="custom-control custom-radio custom-control-inline">
-                                                <input type="radio" id="protect-mode-monitor" name="protect_mode"
-                                                    value="monitor" class="custom-control-input" {% if
-                                                    _protect_mode=='monitor' %}checked{% endif %}>
-                                                <label class="custom-control-label"
-                                                    for="protect-mode-monitor">Monitor</label>
-                                            </div>
-                                            <div class="custom-control custom-radio custom-control-inline">
-                                                <input type="radio" id="protect-mode-block" name="protect_mode"
-                                                    value="block" class="custom-control-input" {% if
-                                                    _protect_mode=='block' %}checked{% endif %}>
-                                                <label class="custom-control-label"
-                                                    for="protect-mode-block">Block</label>
-                                            </div>
-                                            <div class="custom-control custom-radio custom-control-inline">
-                                                <input type="radio" id="protect-mode-off" name="protect_mode"
-                                                    value="off" class="custom-control-input" {% if _protect_mode=='off'
-                                                    %}checked{% endif %}>
-                                                <label class="custom-control-label" for="protect-mode-off">Off</label>
-                                            </div>
-
+                                            <!-- [ Predict Server ] stop -->
+                                            <!-- [ Sensitive Value ] start -->
                                             <div class="form-group">
                                                 <label>Sensitive Value</label>
                                                 <input type="text" class="form-control" placeholder="50"
                                                     value="{{_sensitive_value}}" name="sensitive_value">
                                             </div>
-                                            <div class="form-group">
-                                                <label>Safe Redirect</label>
-                                                <div class="custom-control custom-radio custom-control-inline">
-                                                    <input type="radio" id="safe-redirect-status-on"
-                                                        name="safe_redirect_status" value="1"
-                                                        class="custom-control-input" {% if _safe_redirect_status==1
-                                                        %}checked{% endif %}>
-                                                    <label class="custom-control-label"
-                                                        for="safe-redirect-status-on">On</label>
-                                                </div>
-                                                <div class="custom-control custom-radio custom-control-inline">
-                                                    <input type="radio" id="safe-redirect-status-off"
-                                                        name="safe_redirect_status" value="0"
-                                                        class="custom-control-input" {% if _safe_redirect_status==0
-                                                        %}checked{% endif %}>
-                                                    <label class="custom-control-label"
-                                                        for="safe-redirect-status-off">Off</label>
-                                                </div>
-                                            </div>
+                                            <!-- [ Sensitive Value ] stop -->
+                                            <!-- [ Content-Lenght ] start -->
                                             <div class="form-group">
                                                 <label>Max Content-Length: 1 * 1024 * 1024 = 1MB</label>
                                                 <input type="text" class="form-control" placeholder="2"
                                                     value="{{_max_content_length}}" name="max_content_length">
                                             </div>
+                                            <!-- [ Content-Lenght ] stop -->
+                                            <!-- [ HTTP Allow ] start -->
                                             <div class="form-group checkbox-group">
                                                 <label>HTTP Method Allow</label>
                                                 <div class="custom-control custom-checkbox">
@@ -161,12 +136,57 @@
                                                         name="http_method[]">CONNECT</label>
                                                 </div>
                                             </div>
+                                            <!-- [ HTTP Allow ] stop -->
+                                            <!-- [ Protect Response ] start -->
+                                            <div class="form-group">
+                                                <label>Protect Response (Web / API)</label>
+                                                <div class="custom-control custom-radio custom-control-inline">
+                                                    <input type="radio" id="protect-response-status-on"
+                                                        name="protect_response_status" value="1"
+                                                        class="custom-control-input" {% if _protect_response==1
+                                                        %}checked{% endif %}>
+                                                    <label class="custom-control-label"
+                                                        for="protect-response-status-on">On</label>
+                                                </div>
+                                                <div class="custom-control custom-radio custom-control-inline">
+                                                    <input type="radio" id="protect-response-status-off"
+                                                        name="protect_response_status" value="0"
+                                                        class="custom-control-input" {% if _protect_response==0
+                                                        %}checked{% endif %}>
+                                                    <label class="custom-control-label"
+                                                        for="protect-response-status-off">Off</label>
+                                                </div>
+                                            </div>
+                                            <!-- [ Protect Response ] stop -->
+                                            <!-- [ Safe Redirect ] start -->
+                                            <div class="form-group">
+                                                <label>Safe Redirect (Web)</label>
+                                                <div class="custom-control custom-radio custom-control-inline">
+                                                    <input type="radio" id="safe-redirect-status-on"
+                                                        name="safe_redirect_status" value="1"
+                                                        class="custom-control-input" {% if _safe_redirect_status==1
+                                                        %}checked{% endif %}>
+                                                    <label class="custom-control-label"
+                                                        for="safe-redirect-status-on">On</label>
+                                                </div>
+                                                <div class="custom-control custom-radio custom-control-inline">
+                                                    <input type="radio" id="safe-redirect-status-off"
+                                                        name="safe_redirect_status" value="0"
+                                                        class="custom-control-input" {% if _safe_redirect_status==0
+                                                        %}checked{% endif %}>
+                                                    <label class="custom-control-label"
+                                                        for="safe-redirect-status-off">Off</label>
+                                                </div>
+                                            </div>
+                                            <!-- [ Safe Redirect ] stop -->
+                                            <!-- [ Trust Domain ] start -->
                                             <div class="form-group">
                                                 <label>Trust Domain</label>
                                                 <input type="text" class="form-control"
                                                     placeholder="github.com, gitlab.com" value="{{_trust_domain_list}}"
                                                     name="trust_domain_list">
                                             </div>
+                                            <!-- [ Trust Domain ] stop -->
                                             <button type="submit" class="btn btn-primary">Submit</button>
                                         </form>
                                     </div>

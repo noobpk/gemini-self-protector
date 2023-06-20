@@ -120,7 +120,7 @@ class _Protect(object):
     def __handle_original_response__(_request_response, _response, _ticket) -> None:
         try:
             def is_safe_url(target):
-                trust_domain = _Config.get_tb_config('gemini_trust_domain')
+                trust_domain = _Config.get_tb_config().trust_domain
                 ref_url = urlparse(request.host_url)
                 test_url = urlparse(urljoin(request.host_url, target))
                 return test_url.scheme in ('http', 'https') and ref_url.netloc == test_url.netloc or test_url.netloc in trust_domain
@@ -147,78 +147,51 @@ class _Protect(object):
     def __protect_flask_request__(gemini_protect_mode) -> None:
         try:
             sensitive_value = _Config.get_tb_config().sensitive_value
-            # It's getting the request method, request full path, request headers, and request
-            # data. Then it's formatting the request method, request full path, request headers,
-            # and request data into a string.
             req_method = request.method
             req_full_path = request.full_path
             req_headers = ''  # str(request.headers)
             req_body = None
+            
             if request.data:
                 req_body = request.data.decode('utf-8')
             elif request.values:
                 data = request.values.to_dict()
                 req_body = json.dumps(data)
-            else:
-                req_body = None
 
             _full_request = '{} {}\n{}\n{}'.format(
                 req_method, req_full_path, req_headers, req_body)
 
             _ticket = _Utils.insident_ticket()
-            if gemini_protect_mode == 'monitor':
+
+            if gemini_protect_mode in ('monitor', 'block'):
                 if _Protect.__handle_original_request__(request, _full_request, _ticket):
-                    # It's decoding the request body.
                     payload = _Utils.decoder(_full_request)
-                    # It's using the payload to predict if it's a web vulnerability or not.
-                    predict = _Utils.web_vuln_detect_predict(payload)
-                    if predict < sensitive_value:
-                        status = True
-                        _Protect.__handle_normal_request__(
-                            _full_request)
-                        return {"Status": status, "Ticket": _ticket}
-                    else:
-                        status = True
-                        _Protect.__handle_abnormal_request__(
-                            _full_request, predict, "Malicious Request", _ticket)
-                        return {"Status": status, "Ticket": _ticket}
-                else:
-                    status = True
-                    return {"Status": status, "Ticket": _ticket}
-            elif gemini_protect_mode == 'block':
-                if _Protect.__handle_original_request__(request, _full_request, _ticket):
-                    # It's decoding the request body.
-                    payload = _Utils.decoder(_full_request)
-                    # It's using the payload to predict if it's a web vulnerability or not.
+
                     predict = _Utils.web_vuln_detect_predict(payload)
 
-                    # It's checking if the predict value is less than the sensitive value. If it is, then it
-                    # will return a status of True (safe). If it's not, then it will return a status of False (unsafe).
                     if predict < sensitive_value:
                         status = True
-                        _Protect.__handle_normal_request__(
-                            _full_request)
-                        return {"Status": status, "Ticket": _ticket}
+                        _Protect.__handle_normal_request__(_full_request)
+                    else:
+                        _Protect.__handle_abnormal_request__(_full_request, predict, "Malicious Request", _ticket)
+                        if gemini_protect_mode == 'monitor':
+                            status = True
+                        else:
+                            status = False
+                else:
+                    if gemini_protect_mode == 'monitor':
+                        status = True
                     else:
                         status = False
-                        _Protect.__handle_abnormal_request__(
-                            _full_request, predict, "Malicious Request", _ticket)
-                        return {"Status": status, "Ticket": _ticket}
-                else:
-                    status = False
-                    return {"Status": status, "Ticket": _ticket}
-            elif gemini_protect_mode == 'off':
-                logger.info("[+] Gemini-Self-Protector is Off")
-                status = True
-                return {"Status": status}
+
+                return {"Status": status, "Ticket": _ticket}
             else:
-                logger.error(
-                    "[x_x] Invalid Protect Mode. Protect mode must be: monitor - block - off")
+                logger.error("[x_x] Invalid Protect Mode. Protect mode must be: monitor - block - off")
                 status = True
                 return {"Status": status}
+
         except Exception as e:
-            logger.error(
-                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Protect.__protect_flask_request__', e))
+            logger.error("[x_x] Something went wrong, please check your error message.\n Message - {}".format(e))
 
     def __protect_flask_response__(safe_redirect, original_response, gemini_protect_mode) -> None:
         try:
@@ -227,13 +200,12 @@ class _Protect(object):
                 req_full_path = request.full_path
                 req_headers = ''  # request.headers
                 req_body = None
+                
                 if request.data:
                     req_body = request.data.decode('utf-8')
                 elif request.values:
                     data = request.values.to_dict()
                     req_body = json.dumps(data)
-                else:
-                    req_body = None
 
                 res_status = original_response.status
                 res_headers = original_response.headers
@@ -244,34 +216,24 @@ class _Protect(object):
                     req_method, req_full_path, req_headers, req_body, _full_response)
 
                 _ticket = _Utils.insident_ticket()
-                if gemini_protect_mode == 'monitor':
+
+                if gemini_protect_mode in ('monitor', 'block'):
                     if _Protect.__handle_original_response__(_full_request_response, original_response, _ticket):
                         status = True
-                        return {"Status": status, "Ticket": _ticket}
                     else:
-                        status = True
-                        return {"Status": status, "Ticket": _ticket}
-                elif gemini_protect_mode == 'block':
-                    if _Protect.__handle_original_response__(_full_request_response, original_response, _ticket):
-                        status = True
-                        return {"Status": status, "Ticket": _ticket}
-                    else:
-                        status = False
-                        return {"Status": status, "Ticket": _ticket}
-                elif gemini_protect_mode == 'off':
-                    logger.info("[+] Gemini-Self-Protector is Off")
-                    status = True
-                    return {"Status": status}
+                        if gemini_protect_mode == 'monitor':
+                            status = True
+                        else:
+                            status = False
+
+                    return {"Status": status, "Ticket": _ticket}
                 else:
-                    logger.error(
-                        "[x_x] Invalid Protect Mode. Protect mode must be: monitor - block - off")
+                    logger.error("[x_x] Invalid Protect Mode. Protect mode must be: monitor - block - off")
                     status = True
                     return {"Status": status}
             else:
-                logger.info(
-                    "[!]Safe Redirect is Off. You can enable safe redirect in the configuration.")
                 status = True
                 return {"Status": status}
+
         except Exception as e:
-            logger.error(
-                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Protect.__protect_flask_response__', e))
+            logger.error("[x_x] Something went wrong, please check your error message.\n Message - {}".format(e))
