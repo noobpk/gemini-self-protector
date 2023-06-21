@@ -122,6 +122,10 @@ strong {
   border-radius: 50%;
 }
 
+.img-square {
+  width: 100%;
+}
+
 .page-header-title+.breadcrumb {
   background: transparent;
   padding: 0;
@@ -1689,7 +1693,7 @@ p.text-muted {
 }
 
 .b-brand .b-bg {
-  background: linear-gradient(-135deg, #1de9b6 0%, #1dc4e9 100%);
+  /* background: linear-gradient(-135deg, #1de9b6 0%, #1dc4e9 100%); */
   border-radius: 10px;
   width: 35px;
   height: 35px;
