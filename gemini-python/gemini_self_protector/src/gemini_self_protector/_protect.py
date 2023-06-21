@@ -104,6 +104,14 @@ class _Protect(object):
             logger.error(
                 "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Protect.__handle_original_request__', e))
 
+    def __handle_normal_response__(_response) -> None:
+        try:
+            normal_response = _Config.get_tb_summary().normal_response
+            _Config.update_tb_summary({'normal_response': normal_response+1})
+        except Exception as e:
+            logger.error(
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Protect.__handle_normal_response__', e))
+
     def __handle_abnormal_response__(_request_response, _predict, _attack_type, _ticket) -> None:
         try:
             abnormal_response = _Config.get_tb_summary().abnormal_response
@@ -219,6 +227,7 @@ class _Protect(object):
 
                 if gemini_protect_mode in ('monitor', 'block'):
                     if _Protect.__handle_original_response__(_full_request_response, original_response, _ticket):
+                        _Protect.__handle_normal_response__(res_data)
                         status = True
                     else:
                         if gemini_protect_mode == 'monitor':
