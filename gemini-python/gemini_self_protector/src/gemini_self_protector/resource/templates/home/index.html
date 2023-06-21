@@ -162,10 +162,12 @@
                                                         <td>
                                                             <a href="#!" class="label theme-bg3 text-white f-12"><i
                                                                     class="fa fa-crosshairs"></i></a>
+                                                            {%if row.predict %}
                                                             <a href="#!" class="label theme-bg2 text-white f-12"><i
                                                                     class="fa fa-thumbs-up"></i></a>
                                                             <a href="#!" class="label theme-bg text-white f-12"><i
                                                                     class="fa fa-thumbs-down"></i></a>
+                                                            {%endif%}
                                                         </td>
                                                     </tr>
                                                     {% endfor %}
@@ -254,28 +256,28 @@
         data: [
             {
                 value: {{ _gemini_attack_counts['Malicious Request'] }},
-                label: 'Malicious Request'
+        label: 'Malicious Request'
             },
-            {
-                value: {{ _gemini_attack_counts['ACL Block'] }},
-                label: 'ACL Block'
-            },
-            {
-                value: {{ _gemini_attack_counts['Malicious Response'] }},
-                label: 'Malicious Response'
-            },
-            {
-                value: {{ _gemini_attack_counts['Unvalidated Redirects'] }},
-                label: 'Unvalidated Redirects'
-            },
-            {
-                value: {{ _gemini_attack_counts['Large Requests'] }},
-                label: 'Large Requests'
-            },
-            {
-                value: {{ _gemini_attack_counts['HTTP Method Tampering'] }},
-                label: 'HTTP Method Tampering'
-            }
+    {
+        value: {{ _gemini_attack_counts['ACL Block'] }},
+        label: 'ACL Block'
+    },
+    {
+        value: {{ _gemini_attack_counts['Malicious Response'] }},
+        label: 'Malicious Response'
+    },
+    {
+        value: {{ _gemini_attack_counts['Unvalidated Redirects'] }},
+        label: 'Unvalidated Redirects'
+    },
+    {
+        value: {{ _gemini_attack_counts['Large Requests'] }},
+        label: 'Large Requests'
+    },
+    {
+        value: {{ _gemini_attack_counts['HTTP Method Tampering'] }},
+        label: 'HTTP Method Tampering'
+    }
         ],
     colors: [
         '#ce3322',
