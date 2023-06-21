@@ -24,9 +24,33 @@
                                     </div>
                                     <div class="card-body">
                                         <form role="form" method="post" action="">
+                                            <!-- [ Anti Dos ] start -->
+                                            <div class="form-group">
+                                                <label>Anti DOS</label>
+                                                <div class="custom-control custom-radio custom-control-inline">
+                                                    <input type="radio" id="anti-dos-on" name="anti_dos_status"
+                                                        value="1" class="custom-control-input" {% if _is_anti_dos==1
+                                                        %}checked{% endif %}>
+                                                    <label class="custom-control-label" for="anti-dos-on">On</label>
+                                                </div>
+                                                <div class="custom-control custom-radio custom-control-inline">
+                                                    <input type="radio" id="anti-dos-off" name="anti_dos_status"
+                                                        value="0" class="custom-control-input" {% if _is_anti_dos==0
+                                                        %}checked{% endif %}>
+                                                    <label class="custom-control-label" for="anti-dos-off">Off</label>
+                                                </div>
+                                            </div>
+                                            <!-- [ Anti Dos ] stop -->
+                                            <!-- [ Anti Dos Max Req Per Min ] start -->
+                                            <div class="form-group">
+                                                <label>Max Requests Per Minute (MRPM)</label>
+                                                <input type="text" class="form-control" placeholder="10000"
+                                                    value="{{_max_request_per_min}}" name="max_request_per_min">
+                                            </div>
+                                            <!-- [ Anti Dos Max Req Per Min ] stop -->
                                             <!-- [ ACL ] start -->
                                             <div class="form-group">
-                                                <label>Access List Control</label>
+                                                <label>Access Control List (ACL)</label>
                                                 <div class="custom-control custom-radio custom-control-inline">
                                                     <input type="radio" id="acl-on" name="acl_status" value="1"
                                                         class="custom-control-input" {% if _is_enable_acl==1 %}checked{%

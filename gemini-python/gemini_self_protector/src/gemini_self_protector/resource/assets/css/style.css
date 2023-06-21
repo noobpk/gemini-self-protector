@@ -8884,6 +8884,12 @@ select.form-control-lg:not([size]):not([multiple]) {
   color: #ffffff;
 }
 
+.label.border {
+  border-radius: 15px;
+  margin: 0;
+  padding: 5px 16px;
+}
+
 /**====== Label & Badges css end ======**/
 /**  =====================
       Data Tables css start

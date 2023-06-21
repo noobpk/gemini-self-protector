@@ -231,7 +231,7 @@ class _Gemini_GUI(object):
                     gemini_config = _Gemini.get_gemini_config()
                     gemini_user = _Gemini.get_gemini_user()
                     request_log = _Gemini.get_gemini_request_log()
-                    predict_server_status = _Gemini.health_check_predict_server()
+                    # predict_server_status = _Gemini.health_check_predict_server()
                     
                     sorted_request_log_data = sorted(request_log, key=lambda x: x.time)
                     page = int(request.args.get('page', 1))
@@ -268,8 +268,10 @@ class _Gemini_GUI(object):
                                         _gemini_request_log_data=limited_request_log_data,
                                         _current_page=page,
                                         _total_pages=total_pages,
-                                        _gemini_predict_server_status=predict_server_status,
-                                        _gemini_predict_server=gemini_config.predict_server,
+                                        _anti_dos=gemini_config.anti_dos,
+                                        _max_req_per_min=gemini_config.max_requests_per_minute,
+                                        # _gemini_predict_server_status=predict_server_status,
+                                        # _gemini_predict_server=gemini_config.predict_server,
                                         _gemini_notification_channel=gemini_config.notification_channel,
                                         _gemini_attack_counts=attack_counts
                                         )
@@ -296,8 +298,11 @@ class _Gemini_GUI(object):
                         trust_domain_list = [d.strip() for d in request.form.get('trust_domain_list').split(',')]
                         protect_response_status = request.form['protect_response_status']
                         acl_status = request.form['acl_status']
+                        anti_dos = request.form['anti_dos_status']
+                        max_request_per_min = request.form['max_request_per_min']
 
-                        if _Gemini.validator_protect_mode(protect_mode) and _Gemini.validator_sensitive_value(sensitive_value) and max_content_length.isdigit() and _Gemini.validator_http_method(http_method) and _Gemini.validator_on_off_status(safe_redirect_status) and _Gemini.validator_trust_domain(trust_domain_list) and _Gemini.validator_on_off_status(protect_response_status) and _Gemini.validator_on_off_status(acl_status):
+                        if _Gemini.validator_protect_mode(protect_mode) and _Gemini.validator_sensitive_value(sensitive_value) and max_content_length.isdigit() and _Gemini.validator_http_method(http_method) and _Gemini.validator_on_off_status(safe_redirect_status) and _Gemini.validator_trust_domain(trust_domain_list) and _Gemini.validator_on_off_status(protect_response_status) and _Gemini.validator_on_off_status(acl_status) and _Gemini.validator_on_off_status(anti_dos) and max_request_per_min.isdigit():
+
                             _Gemini.update_gemini_config({
                                 "predict_server": predict_server,
                                 "global_protect_mode": protect_mode,
@@ -308,6 +313,8 @@ class _Gemini_GUI(object):
                                 "protect_response": int(protect_response_status),
                                 "trust_domain": json.dumps(trust_domain_list),
                                 "enable_acl": int(acl_status),
+                                "anti_dos": int(anti_dos),
+                                "max_requests_per_minute": int(max_request_per_min)
                             })
                             flash('Configuration update successful', 'config_update_success')
                         else:
@@ -331,7 +338,9 @@ class _Gemini_GUI(object):
                                             _trust_domain_list=", ".join(trust_domain_list),
                                             _predict_server=gemini_config.predict_server,
                                             _protect_response=gemini_config.protect_response,
-                                            _is_enable_acl=gemini_config.enable_acl
+                                            _is_enable_acl=gemini_config.enable_acl,
+                                            _is_anti_dos=gemini_config.anti_dos,
+                                            _max_request_per_min=gemini_config.max_requests_per_minute
                                             )
                 except Exception as e:
                     logger.error("[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('nested_service.route.gemini_configurate', e))

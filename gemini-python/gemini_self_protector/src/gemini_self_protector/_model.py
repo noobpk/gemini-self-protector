@@ -35,6 +35,8 @@ class tb_Config(Base):
     sensitive_value = Column(Integer)
     server_name = Column(String)
     protect_response = Column(Integer)
+    anti_dos = Column(Integer)
+    max_requests_per_minute = Column(Integer)
     enable_acl = Column(Integer)
     telegram_chat_id = Column(String)
     telegram_token = Column(String)
@@ -75,7 +77,6 @@ class tb_RequestLog(Base):
     review = Column(String)
     created_at = Column(DateTime, default=func.now())
     updated_at = Column(DateTime, default=func.now(), onupdate=func.now())
-
 
 class tb_AccessControlList(Base):
     __tablename__ = 'acls'

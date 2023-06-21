@@ -26,11 +26,22 @@
                                     <div class="card-block">
                                         <div class="row d-flex align-items-center">
                                             <div class="col-auto">
-                                                <i class="feather icon-cloud-lightning f-30 text-c-blue"></i>
+                                                {%if _anti_dos %}
+                                                <i class="feather icon-activity f-30 text-c-green"></i>
+                                                {%else%}
+                                                <i class="feather icon-activity f-30 text-c-red"></i>
+                                                {% endif %}
                                             </div>
                                             <div class="col">
-                                                <h3 class="f-w-300">{{_total_request}}</h3>
-                                                <span class="d-block text-uppercase">TOTAL REQUESTS</span>
+                                                <h3 class="f-w-300">{%if _anti_dos %} On
+                                                    {%else%} Off {% endif %}
+                                                    <div class="col-auto">
+                                                        <label
+                                                            class="label border theme-bg2 text-white f-14 f-w-400 float-right">{{_max_req_per_min}}
+                                                            MRPM</label>
+                                                    </div>
+                                                </h3>
+                                                <span class="d-block text-uppercase">ANTI DOS</span>
                                             </div>
                                         </div>
                                     </div>
@@ -41,11 +52,11 @@
                                     <div class="card-block">
                                         <div class="row d-flex align-items-center">
                                             <div class="col-auto">
-                                                <i class="feather icon-cloud-snow f-30 text-c-green"></i>
+                                                <i class="feather icon-cloud-lightning f-30 text-c-blue"></i>
                                             </div>
                                             <div class="col">
-                                                <h3 class="f-w-300">{{_normal_request}}</h3>
-                                                <span class="d-block text-uppercase">NORMAL REQUESTS</span>
+                                                <h3 class="f-w-300">{{_total_request}}</h3>
+                                                <span class="d-block text-uppercase">TOTAL REQUESTS</span>
                                             </div>
                                         </div>
                                     </div>
@@ -71,17 +82,11 @@
                                     <div class="card-block">
                                         <div class="row d-flex align-items-center">
                                             <div class="col-auto">
-                                                {%if _gemini_predict_server_status %}
-                                                <i class="feather icon-server f-30 text-c-green"></i>
-                                                {%else%}
-                                                <i class="feather icon-server f-30 text-c-red"></i>
-                                                {% endif %}
+                                                <i class="feather icon-cloud-snow f-30 text-c-green"></i>
                                             </div>
                                             <div class="col">
-                                                <h3 class="f-w-300">{%if _gemini_predict_server_status %} Online
-                                                    {%else%}Offline {% endif %}
-                                                </h3>
-                                                <span class="d-block text-uppercase">PREDICT SERVER</span>
+                                                <h3 class="f-w-300">{{_normal_request}}</h3>
+                                                <span class="d-block text-uppercase">NORMAL REQUESTS</span>
                                             </div>
                                         </div>
                                     </div>
@@ -210,13 +215,13 @@
                                                 class="text-muted f-14">Global</sub></h2>
                                         {% if _protect_mode == 'monitor' %}
                                         <h6 class="text-muted mt-4 mb-0">Gemini is monitoring all requests</h6>
-                                        <i class="fab fa-angellist text-c-purple f-50"></i>
+                                        <i class="fa fa-binoculars text-c-purple f-50"></i>
                                         {% elif _protect_mode == 'block' %}
                                         <h6 class="text-muted mt-4 mb-0">Gemini is blocking abnormal requests</h6>
                                         <i class="fas fa-ban text-c-purple f-50"></i>
                                         {% else %}
                                         <h6 class="text-muted mt-4 mb-0">Gemini is sleeping</h6>
-                                        <i class="fas fa-power-off text-c-purple f-50"></i>
+                                        <i class="fas fa-power-off text-c-red f-50"></i>
                                         {% endif %}
                                     </div>
                                 </div>
@@ -259,23 +264,23 @@
         label: 'Malicious Request'
             },
     {
-        value: {{ _gemini_attack_counts['ACL Block'] }},
+        value: { { _gemini_attack_counts['ACL Block'] } },
         label: 'ACL Block'
     },
     {
-        value: {{ _gemini_attack_counts['Malicious Response'] }},
+        value: { { _gemini_attack_counts['Malicious Response'] } },
         label: 'Malicious Response'
     },
     {
-        value: {{ _gemini_attack_counts['Unvalidated Redirects'] }},
+        value: { { _gemini_attack_counts['Unvalidated Redirects'] } },
         label: 'Unvalidated Redirects'
     },
     {
-        value: {{ _gemini_attack_counts['Large Requests'] }},
+        value: { { _gemini_attack_counts['Large Requests'] } },
         label: 'Large Requests'
     },
     {
-        value: {{ _gemini_attack_counts['HTTP Method Tampering'] }},
+        value: { { _gemini_attack_counts['HTTP Method Tampering'] } },
         label: 'HTTP Method Tampering'
     }
         ],
