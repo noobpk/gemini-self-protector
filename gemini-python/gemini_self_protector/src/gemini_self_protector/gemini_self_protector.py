@@ -46,6 +46,9 @@ class GeminiManager(object):
 
                 if int(is_enable_acl) and _Gemini.check_gemini_acl(_ip_address):
                     _ticket = _Gemini.generate_insident_ticket()
+                    abnormal_request = _Gemini.get_gemini_summary().abnormal_request
+                    _Gemini.update_gemini_summary(
+                        {'abnormal_request': abnormal_request+1})
                     _Gemini.store_gemini_request_log(ipaddress=_ticket["IP"], request=None, attack_type="ACL Block", predict=None, event_id=str(_ticket["EventID"]))
                     response = make_response("Your IP Address was blocked by Gemini \n The Runtime Application Self-Protection Solution \n\n Time: {} \n Your IP : {} \n\n Event ID: {}".format(
                         _ticket["Time"], _ticket["IP"], _ticket["EventID"]), 200)
