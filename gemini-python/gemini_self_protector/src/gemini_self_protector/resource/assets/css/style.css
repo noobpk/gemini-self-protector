@@ -623,12 +623,12 @@ p.text-muted {
 .datta-example-modal {
   position: fixed;
   z-index: 1099;
-  top: 0;
-  right: 0;
-  width: 100%;
-  height: 100%;
+  /* top: 0; */
+  /* right: 0; */
+  width: 70%;
+  height: 70%;
   overflow: hidden;
-  background: #282c34;
+  background: rgb(243, 247, 250);
   -webkit-transform-origin: 50% 0;
   transform-origin: 50% 0;
   -webkit-transform: scale(0);
@@ -723,6 +723,21 @@ p.text-muted {
 .datta-example-modal-close:hover {
   color: #fff;
   opacity: 0.9;
+}
+
+.datta-example-modal-overlay {
+  position: fixed;
+  z-index: 1098;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  display: none;
+}
+
+.datta-example-modal-opened .datta-example-modal-overlay {
+  display: block;
 }
 
 /* Code */

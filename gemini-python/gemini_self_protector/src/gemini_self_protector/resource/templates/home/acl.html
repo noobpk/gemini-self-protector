@@ -57,10 +57,11 @@
                                                             %H:%M') }}</td>
                                                         <td>{{ acl.desciption }}</td>
                                                         <td>
-                                                            <button
-                                                                class="remove-acl-btn label theme-bg2 text-white f-12"
-                                                                data-ip="{{ acl.ipaddress }}"><i
-                                                                    class="fa fa-trash"></i></button>
+                                                            <button class="remove-acl-btn btn btn-danger"
+                                                                data-ip="{{ acl.ipaddress }}"
+                                                                style="padding: 4px 10px; border-radius: 10px;"><i
+                                                                    class="fa fa-trash"
+                                                                    style="margin-right: 0px;"></i></button>
                                                         </td>
                                                     </tr>
                                                     {% endfor %}
