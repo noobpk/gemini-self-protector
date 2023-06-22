@@ -6,12 +6,13 @@ from functools import wraps
 from flask import Flask, make_response
 from ._logger import logger
 from datetime import datetime, timezone
+from cachetools import TTLCache
 
+cache = TTLCache(maxsize=1000, ttl=60)  # Max size of 1000 and TTL of 60 seconds
 
 class GeminiManager(object):
 
     def __init__(self, flask_app: Flask = None):
-
         _Gemini.get_gemini_banner()
 
         # This is creating a directory called gemini-protector in the current working directory.
@@ -31,18 +32,38 @@ class GeminiManager(object):
             _Gemini_CLI()
 
     def flask_protect_extended(self, protect_mode=None) -> None:
-        """
-        This function is used to protect the Flask application from malicious requests
-
-        :param protect_mode: This is the mode you want to use for the protection
-        :return: The function is being returned.
-        """
         def _gemini_self_protect(f):
             @wraps(f)
             def __gemini_self_protect(*args, **kwargs):
+                _Gemini.calulate_total_access()
                 _ip_address = _Gemini.get_flask_client_ip()
+                is_enable_anti_dos = _Gemini.get_gemini_config().anti_dos
                 is_enable_acl = _Gemini.get_gemini_config().enable_acl
                 is_protect_response = _Gemini.get_gemini_config().protect_response
+                mrpm = _Gemini.get_gemini_config().max_requests_per_minute
+
+                if int(is_enable_anti_dos):
+                    request_key = f"{_ip_address}_{datetime.now().strftime('%Y-%m-%d %H:%M')}"
+
+                    request_count = cache.get(request_key)
+                    if request_count is None:
+                        cache[request_key] = 1
+                    elif request_count >= mrpm:
+                        _ticket = _Gemini.generate_insident_ticket()
+                        abnormal_request = _Gemini.get_gemini_summary().abnormal_request
+                        _Gemini.update_gemini_summary(
+                            {'abnormal_request': abnormal_request+1})
+                        _Gemini.store_gemini_request_log(ipaddress=_ticket["IP"], request=None, attack_type="DOS", predict=None, event_id=str(_ticket["EventID"]))
+                        response = make_response("Your IP Address was blocked by Gemini \n The Runtime Application Self-Protection Solution \n\n Time: {} \n Your IP : {} \n\n Event ID: {}".format(
+                            _ticket["Time"], _ticket["IP"], _ticket["EventID"]), 200)
+                        if not int(is_protect_response):
+                            return response
+                    
+                        response = _Gemini.make_secure_response_header(response)
+                        return response
+                    
+                    else:
+                        cache[request_key] += 1
 
                 if int(is_enable_acl) and _Gemini.check_gemini_acl(_ip_address):
                     _ticket = _Gemini.generate_insident_ticket()

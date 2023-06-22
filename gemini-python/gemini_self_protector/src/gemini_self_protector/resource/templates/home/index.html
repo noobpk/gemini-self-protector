@@ -41,7 +41,7 @@
                                                             MRPM</label>
                                                     </div>
                                                 </h3>
-                                                <span class="d-block text-uppercase">ANTI DOS</span>
+                                                <span class="d-block text-uppercase">mANTI DOS</span>
                                             </div>
                                         </div>
                                     </div>
@@ -187,14 +187,31 @@
                                         <li class="page-item"><a class="page-link"
                                                 href="?page={{ _current_page - 1 }}">Previous</a></li>
                                         {% endif %}
-                                        {% for page_num in range(1, _total_pages + 1) %}
-                                        <li class="page-item {% if page_num == _current_page %}active{% endif %}">
+
+                                        {% if _current_page > 4 %}
+                                        <li class="page-item"><a class="page-link" href="?page=1">1</a></li>
+                                        <li class="page-item disabled"><span class="page-link">...</span></li>
+                                        {% endif %}
+
+                                        {% for page_num in range(_current_page - 2, _current_page + 3) %}
+                                        {% if page_num >= 1 and page_num <= _total_pages %} <li
+                                            class="page-item {% if page_num == _current_page %}active{% endif %}">
                                             <a class="page-link" href="?page={{ page_num }}">{{ page_num }}</a>
-                                        </li>
-                                        {% endfor %}
-                                        {% if _current_page < _total_pages %} <li class="page-item"><a class="page-link"
-                                                href="?page={{ _current_page + 1 }}">Next</a></li>
+                                            </li>
                                             {% endif %}
+                                            {% endfor %}
+
+                                            {% if _current_page < _total_pages - 3 %} <li class="page-item disabled">
+                                                <span class="page-link">...</span>
+                                                </li>
+                                                <li class="page-item"><a class="page-link"
+                                                        href="?page={{ _total_pages }}">{{ _total_pages }}</a></li>
+                                                {% endif %}
+
+                                                {% if _current_page < _total_pages %} <li class="page-item"><a
+                                                        class="page-link" href="?page={{ _current_page + 1 }}">Next</a>
+                                                    </li>
+                                                    {% endif %}
                                     </ul>
                                 </nav>
                             </div>
@@ -230,7 +247,13 @@
                                         <h5>Abnormal Chart</h5>
                                     </div>
                                     <div class="card-block">
+                                        {%if _gemini_attack_counts['Malicious Request'] %}
                                         <div id="morris-donut-chart" style="height:300px"></div>
+                                        {%else%}
+                                        <img class="img-square"
+                                            src="{{ url_for('static', filename='gemini-protector-static/images/widget/box.png') }}"
+                                            alt="Generic placeholder image">
+                                        {%endif%}
                                     </div>
                                 </div>
                             </div>
@@ -264,24 +287,28 @@
         label: 'Malicious Request'
             },
     {
-        value: { { _gemini_attack_counts['ACL Block'] } },
+        value: {{ _gemini_attack_counts['ACL Block'] }},
         label: 'ACL Block'
     },
     {
-        value: { { _gemini_attack_counts['Malicious Response'] } },
+        value: {{ _gemini_attack_counts['Malicious Response'] }},
         label: 'Malicious Response'
     },
     {
-        value: { { _gemini_attack_counts['Unvalidated Redirects'] } },
+        value: {{ _gemini_attack_counts['Unvalidated Redirects'] }},
         label: 'Unvalidated Redirects'
     },
     {
-        value: { { _gemini_attack_counts['Large Requests'] } },
+        value: {{ _gemini_attack_counts['Large Requests'] }},
         label: 'Large Requests'
     },
     {
-        value: { { _gemini_attack_counts['HTTP Method Tampering'] } },
+        value: {{ _gemini_attack_counts['HTTP Method Tampering'] }},
         label: 'HTTP Method Tampering'
+    },
+    {
+        value: {{ _gemini_attack_counts['DOS'] }},
+        label: 'DOS/DDOS'
     }
         ],
     colors: [
@@ -290,7 +317,8 @@
         '#04a9f5',
         '#1dc4e9',
         '#A389D4',
-        '#fff26e'
+        '#fff26e',
+        '#a67b5b',
     ],
         resize: true,
             formatter: function (x) {

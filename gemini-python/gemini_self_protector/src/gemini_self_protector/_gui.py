@@ -17,9 +17,9 @@ class _Gemini_GUI(object):
         logger.info(
             "[+] Running gemini-self protector - GUI Mode")
         
-        @flask_app.before_request
-        def count_request_to_service():
-            _Gemini.calulate_total_access()
+        # @flask_app.before_request
+        # def count_request_to_service():
+        #     _Gemini.calulate_total_access()
 
         # Create a blueprint for the nested Flask service
         nested_service = Blueprint(
@@ -248,7 +248,8 @@ class _Gemini_GUI(object):
                         'Malicious Response': 0,
                         'Unvalidated Redirects': 0,
                         'Large Requests': 0,
-                        'HTTP Method Tampering': 0
+                        'HTTP Method Tampering': 0,
+                        'DOS': 0
                     }
 
                     for log in request_log:

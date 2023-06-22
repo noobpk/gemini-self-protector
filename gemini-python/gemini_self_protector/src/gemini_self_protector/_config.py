@@ -41,7 +41,7 @@ class _Config(object):
                 notification_channel=0,
                 enable_acl=0,
                 anti_dos=1,
-                max_requests_per_minute=1000,
+                max_requests_per_minute=100,
             )
             tracking = tb_Summary(
                 abnormal_request=0,
