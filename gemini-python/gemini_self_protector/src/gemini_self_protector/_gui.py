@@ -1,4 +1,4 @@
-from flask import Flask, Blueprint, request, make_response, render_template, session, redirect, url_for, flash, stream_with_context
+from flask import Flask, Blueprint, request, make_response, render_template, session, redirect, url_for, flash, stream_with_context, jsonify
 from ._logger import logger
 from ._gemini import _Gemini
 from flask_sqlalchemy import SQLAlchemy
@@ -474,6 +474,46 @@ class _Gemini_GUI(object):
 
                 except Exception as e:
                     logger.error("[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('nested_service.route.gemini_dependency_audit', e))
+
+            @nested_service.route('/event', methods=['POST'])
+            def gemini_get_event():
+                try:
+                    if not _Gemini.is_valid_license_key():
+                        return redirect(url_for('nested_service.gemini_update_key'))
+
+                    if not session.get('gemini_logged_in'):
+                        flash('Please login', 'required_login')
+                        return redirect(url_for('nested_service.gemini_login'))
+
+                    event_id = request.json['event_id']
+
+                    record = _Gemini.get_gemini_detail_request_log(event_id)
+                    if record:
+                        return jsonify({
+                            "status": True,
+                            "time": record.time,
+                            "ip_address": record.ipaddress,
+                            "event_id": record.event_id,
+                            "url": record.url,
+                            "user_agent": record.useragent,
+                            "request":  record.request,
+                            "req_body": record.req_body,
+                            "response": record.response,
+                            "res_content": str(record.res_content),
+                            "attack_type": record.attack_type,
+                            "predict": record.predict,
+                            "latitude": record.latitude,
+                            "longitude": record.longitude,
+                            "created_at": record.created_at,
+                            "updated_at": record.updated_at
+                            })
+                    else:
+                        return jsonify({
+                            "status": False,
+                            "message": "Event ID does not exist"
+                        })
+                except Exception as e:
+                    logger.error("[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('nested_service.route.gemini_get_event', e))
 
             @nested_service.route('/logout')
             def gemini_logout():

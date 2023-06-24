@@ -150,16 +150,13 @@ class _Utils(object):
                 "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Utils.generate_event_id', e))
 
     def insident_ticket() -> None:
-        """
-        It returns a list of three items: the IP address of the client, a unique event ID, and the
-        current time
-        :return: A list of three items.
-        """
         try:
             time = datetime.now(timezone.utc)
             ip = _Utils.flask_client_ip()
             event_id = _Utils.generate_event_id()
-            return {"Time": time, "IP": ip, "EventID": event_id}
+            latitude = None
+            longitude = None
+            return {"Time": time, "IP": ip, "EventID": event_id, "Latitude": latitude, "Longitude": longitude}
         except Exception as e:
             logger.error(
                 "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Utils.insident_ticket', e))

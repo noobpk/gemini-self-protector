@@ -145,24 +145,42 @@ class _Config(object):
             logger.error(
                 "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Config.get_tb_request_log', e))
 
-    def store_tb_request_log(ipaddress, request, attack_type, predict, event_id):
+    def store_tb_request_log(ipaddress, url, request, req_body, response, res_content, useragent, attack_type, predict, event_id, latitude, longitude):
         try:
             session = _Config.get_session()
-            new_analysis = tb_RequestLog(
+            new_record = tb_RequestLog(
                 ipaddress=ipaddress,
+                url=url,
                 request=request,
+                req_body=req_body,
+                response=response,
+                res_content=res_content,
+                useragent=useragent,
                 attack_type=attack_type,
                 predict=predict,
                 event_id=event_id,
+                latitude=latitude,
+                longitude=longitude,
                 status='active',
                 review=False
             )
-            session.add(new_analysis)
+            session.add(new_record)
             session.commit()
             session.close()
         except Exception as e:
             logger.error("[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format(
                 '_Config.store_tb_request_log', e))
+
+    def get_tb_request_log_first(event_id) -> None:
+        try:
+            session = _Config.get_session()
+            req_record = session.query(tb_RequestLog).filter_by(
+                event_id=event_id).first()
+            session.close()
+            return req_record
+        except Exception as e:
+            logger.error(
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Config.get_tb_config', e))
 
     def get_tb_acl() -> None:
         try:

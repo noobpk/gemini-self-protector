@@ -126,7 +126,7 @@
                             <div class="col-xl-8 col-md-6">
                                 <div class="card Recent-Users">
                                     <div class="card-header">
-                                        <h5>Recent abnormal requests / responses</h5>
+                                        <h5>Recent events</h5>
                                     </div>
                                     <div class="card-block table-border-style px-0 py-3">
                                         <div class="table-responsive">
@@ -153,10 +153,12 @@
                                                         </td>
                                                         <td>
                                                             {%if row.predict %}
-                                                            <h6 class="text-muted">{{ row.predict | gemini_round_number
+                                                            <h6 id="tb_predict_value" class="text-muted">{{ row.predict
+                                                                | gemini_round_number
                                                                 }}</h6>
                                                             {%else%}
-                                                            <h6 class="text-muted">{{ row.predict }}</h6>
+                                                            <h6 id="tb_predict_value" class="text-muted">{{ row.predict
+                                                                }}</h6>
                                                             {%endif%}
                                                         </td>
                                                         <td>
@@ -276,10 +278,44 @@
                                                         <i class="feather icon-cloud-rain f-30 text-c-red"></i>
                                                     </div>
                                                     <div class="col">
-                                                        <h3 class="f-w-300">eventid</h3>
-                                                        <span class="d-block text-uppercase">type</span>
+                                                        <h3 class="f-w-300" id="event_id_value">eventid</h3>
+                                                        <div class="col-auto">
+                                                            <label id="predict_value"
+                                                                class="label border theme-bg2 text-white f-14 f-w-400 float-right"></label>
+                                                        </div>
+                                                        <span class="d-block text-uppercase"
+                                                            id="attack_type_value">type</span>
                                                     </div>
                                                 </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-xl-11">
+                                        <div class="card">
+                                            <div class="card-header">
+                                                <h5>Event Description</h5>
+                                            </div>
+                                            <div class="card-body">
+                                                <dl class="dl-horizontal row">
+                                                    <dt class="col-sm-3">Time</dt>
+                                                    <dd class="col-sm-9" id="time_value"></dd>
+                                                    <dt class="col-sm-3">IP</dt>
+                                                    <dd class="col-sm-9" id="ip_value"></dd>
+                                                    <dt class="col-sm-3">Location</dt>
+                                                    <dd class="col-sm-9" id="location_value"></dd>
+                                                    <dt class="col-sm-3">URL</dt>
+                                                    <dd class="col-sm-9" id="url_value"></dd>
+                                                    <dt class="col-sm-3">User-Agent</dt>
+                                                    <dd class="col-sm-9" id="user_agent_value"></dd>
+                                                    <dt class="col-sm-3">Reques Headert</dt>
+                                                    <dd class="col-sm-9" id="request_value"></dd>
+                                                    <dt class="col-sm-3">Request Body</dt>
+                                                    <dd class="col-sm-9" id="req_body_value"></dd>
+                                                    <dt class="col-sm-3">Response Header</dt>
+                                                    <dd class="col-sm-9" id="response_value"></dd>
+                                                    <dt class="col-sm-3">Response Content</dt>
+                                                    <dd class="col-sm-9" id="res_content_value"></dd>
+                                                </dl>
                                             </div>
                                         </div>
                                     </div>
@@ -317,27 +353,27 @@
         label: 'Malicious Request'
             },
     {
-        value: { { _gemini_attack_counts['ACL Block'] } },
+        value: {{ _gemini_attack_counts['ACL Block'] }},
         label: 'ACL Block'
     },
     {
-        value: { { _gemini_attack_counts['Malicious Response'] } },
+        value: { { _gemini_attack_counts['Malicious Response'] }},
         label: 'Malicious Response'
     },
     {
-        value: { { _gemini_attack_counts['Unvalidated Redirects'] } },
+        value: {{ _gemini_attack_counts['Unvalidated Redirects'] }},
         label: 'Unvalidated Redirects'
     },
     {
-        value: { { _gemini_attack_counts['Large Requests'] } },
+        value: {{ _gemini_attack_counts['Large Requests'] }},
         label: 'Large Requests'
     },
     {
-        value: { { _gemini_attack_counts['HTTP Method Tampering'] } },
+        value: {{ _gemini_attack_counts['HTTP Method Tampering'] }},
         label: 'HTTP Method Tampering'
     },
     {
-        value: { { _gemini_attack_counts['DOS'] } },
+        value: {{ _gemini_attack_counts['DOS'] }},
         label: 'DOS/DDOS'
     }
         ],
@@ -400,28 +436,37 @@
             var modalId = $(this).attr('id');
             var eventId = modalId.replace('showModalBtn', '');
             var attackType = $(this).closest('tr').find('.m-0').text();
+            var predictValue = $(this).closest('tr').find('#tb_predict_value').text();
 
-            $('.datta-example-modal-content h3.f-w-300').text(eventId);
-            $('.datta-example-modal-content span.d-block.text-uppercase').text(attackType);
+            $('#event_id_value').text(eventId);
+            $('#attack_type_value').text(attackType);
+            $('#predict_value').text(predictValue);
 
             $('.datta-example-modal').addClass('datta-example-modal-opened');
             $('body').addClass('datta-example-modal-opened');
             $('.datta-example-modal-overlay').show();
 
 
-            // $.ajax({
-            //     url: '/event',
-            //     method: 'POST',
-            //     contentType: 'application/json',
-            //     data: JSON.stringify({ event_id: eventID }),
-            //     success: function (data) {
-            //         var responseElement = $('#responseElementId');
-            //         responseElement.text(JSON.stringify(data));
-            //     },
-            //     error: function (error) {
-            //         console.error('Error:', error);
-            //     }
-            // });
+            $.ajax({
+                url: '{{url_for('nested_service.gemini_get_event')}}',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ event_id: eventId }),
+                success: function (data) {
+                    $('#time_value').text(data.time ? data.time : 'N/A');
+                    $('#ip_value').text(data.ip_address ? data.ip_address : 'N/A');
+                    $("#url_value").text(data.url ? data.url : 'N/A');
+                    $("#user_agent_value").text(data.user_agent ? data.user_agent : 'N/A');
+                    $('#location_value').text(data.latitude ? data.latitude + ',' + data.longitude : 'N/A');
+                    $('#request_value').html(data.request ? data.request.replace(/(?:\r\n|\r|\n)/g, '<br>') : 'N/A');
+                    $('#req_body_value').text(data.req_body ? data.req_body : 'N/A');
+                    $('#response_value').html(data.response ? data.response.replace(/(?:\r\n|\r|\n)/g, '<br>') : 'N/A');
+                    $('#res_content_value').text(data.res_content ? data.res_content : 'N/A');
+                },
+                error: function (error) {
+                    console.error('Error:', error);
+                }
+            });
         });
     });
 </script>

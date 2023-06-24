@@ -623,10 +623,10 @@ p.text-muted {
 .datta-example-modal {
   position: fixed;
   z-index: 1099;
-  /* top: 0; */
-  /* right: 0; */
-  width: 70%;
-  height: 70%;
+  top: 0;
+  right: 0;
+  width: auto;
+  height: auto;
   overflow: hidden;
   background: rgb(243, 247, 250);
   -webkit-transform-origin: 50% 0;
@@ -635,6 +635,7 @@ p.text-muted {
   transform: scale(0);
   -webkit-transition: all 0.3s ease-in-out;
   transition: all 0.3s ease-in-out;
+  overflow: auto;
 }
 
 .datta-example-modal-opened {
@@ -651,7 +652,7 @@ p.text-muted {
   margin: auto;
   padding: 50px;
   height: 100vh;
-  overflow: auto;
+  overflow-y: auto;
 }
 
 .datta-example-modal-content>pre {

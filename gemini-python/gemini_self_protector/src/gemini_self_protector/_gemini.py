@@ -73,9 +73,18 @@ class _Gemini(object):
             logger.error(
                 "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.get_gemini_summary', e))
 
-    def store_gemini_request_log(ipaddress, request, attack_type, predict, event_id):
+    def get_gemini_detail_request_log(event_id) -> None:
         try:
-            _Config.store_tb_request_log(ipaddress, request, attack_type, predict, event_id)
+            _gemini_return = _Config.get_tb_request_log_first(event_id)
+            return _gemini_return
+        except Exception as e:
+            logger.error(
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.get_gemini_detail_request_log', e))
+
+
+    def store_gemini_request_log(ipaddress, url, request, response, attack_type, predict, event_id, latitude, longitude):
+        try:
+            _Config.store_tb_request_log(ipaddress, url, request, response, attack_type, predict, event_id, latitude, longitude)
         except Exception as e:
             logger.error(
                 "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.store_gemini_request_log', e))
@@ -96,12 +105,6 @@ class _Gemini(object):
                 "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.store_gemini_acl', e))
 
     def check_gemini_acl(_ip_address) -> None:
-        """
-        This function checks if the IP address is in the ACL list. If it is, it will return True,
-        otherwise it will return False
-
-        :param ip: The IP address of the client
-        """
         try:
             return _Config.check_acl(_ip_address)
         except Exception as e:
@@ -445,3 +448,10 @@ class _Gemini(object):
         except Exception as e:
             logger.error(
                 "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.validator_predict_server', e))
+
+    def __load_mini_anti_dos__() -> None:
+        try:
+            return _Protect.__handle_mini_anti_dos__()
+        except Exception as e:
+            logger.error(
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.__load_mini_anti_dos__', e))

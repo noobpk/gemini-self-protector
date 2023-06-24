@@ -49,13 +49,9 @@ class GeminiManager(object):
                     if request_count is None:
                         cache[request_key] = 1
                     elif request_count >= mrpm:
-                        _ticket = _Gemini.generate_insident_ticket()
-                        abnormal_request = _Gemini.get_gemini_summary().abnormal_request
-                        _Gemini.update_gemini_summary(
-                            {'abnormal_request': abnormal_request+1})
-                        _Gemini.store_gemini_request_log(ipaddress=_ticket["IP"], request=None, attack_type="DOS", predict=None, event_id=str(_ticket["EventID"]))
+                        anti_dos = _Gemini.__load_mini_anti_dos__()
                         response = make_response("Your IP Address was blocked by Gemini \n The Runtime Application Self-Protection Solution \n\n Time: {} \n Your IP : {} \n\n Event ID: {}".format(
-                            _ticket["Time"], _ticket["IP"], _ticket["EventID"]), 200)
+                            anti_dos["Time"], anti_dos["IP"], anti_dos["EventID"]), 200)
                         if not int(is_protect_response):
                             return response
                     
