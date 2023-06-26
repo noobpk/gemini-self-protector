@@ -47,7 +47,8 @@ For more details: [Web-Vuln-Detection-Predict](https://github.com/noobpk/Web-Vul
 | Weak Browser Caching         | :white_check_mark: |
 | Vulnerable Dependencies      | :white_check_mark: |
 | Weak Cryptography            |                    |
-| HTTP Response Headers | :white_check_mark: |
+| HTTP Response Headers        | :white_check_mark: |
+| API Rate Limit               | :white_check_mark: |
 
 ## Gemini Security Response Headers
 
@@ -113,7 +114,7 @@ Key: `988907ce-9803-11ed-a8fc-0242ac120002`
 
 ## GUI Features
 
-👉 Monitor Abnormal Request / Response
+👉 Monitor Abnormal Event
 
 👉 Hot Configuration
 
@@ -129,5 +130,9 @@ https://appseed.us/product/datta-able/flask/
 ## Contributing
 
 Interested in contributing? Check out the contributing guidelines. Please note that this project is released with a Code of Conduct. By contributing to this project, you agree to abide by its terms.
+
+## License
+
+`gemini_self_protector` was created by lethanhphuc. It is licensed under the terms of the MIT license.
 
 ## ChangeLog

@@ -1,10 +1,10 @@
 # gemini_self_protector
 
-Runtime Application Self-Protection
+Gemini - The Runtime Application Self Protection (RASP) Solution Combined With Deep Learning
 
 ## Installation
 
-```bash
+```
 $ pip install gemini_self_protector
 ```
 
@@ -24,22 +24,41 @@ The license key is used for authentication with the API.
 
 Key: `988907ce-9803-11ed-a8fc-0242ac120002`
 
-## Basic Usage
+## Init Gemini self-protector
 
-With the basic usage, Gemini runs in the default mode of "monitor" and allows a sensitivity level of under 50, above which requests will be stored for monitoring purposes. The protection mode and sensitivity can be adjusted in the config.yml file after the first run.
+### CLI Mode
 
 ```
-from flask import Flask
-from flask import jsonify
-from flask import request
-
+from flask import Flask, request
 from gemini_self_protector import GeminiManager
 
 app = Flask(__name__)
 gemini = GeminiManager()
+```
+
+### GUI Mode
+
+```
+from flask import Flask, request
+from gemini_self_protector import GeminiManager
+
+app = Flask(__name__)
+gemini = GeminiManager(app)
+```
+
+## Basic Usage
+
+With the basic usage, Gemini runs in the default mode of "monitoring" and allows a sensitivity level of under 50, above which requests will be stored for monitoring purposes.
+
+```
+from flask import Flask, request, jsonify
+from gemini_self_protector import GeminiManager
+
+app = Flask(__name__)
+gemini = GeminiManager(app)
 
 @app.route('/api/login', methods=['POST'])
-@gemini.flask_protect_extended() <--- Define gemini here
+@gemini.flask_protect_extended() <--- Declare gemini below flask route and without option
 def login():
     username = request.json['username']
     password = request.json['password']
@@ -75,7 +94,7 @@ app = Flask(__name__)
 gemini = GeminiManager(app)
 
 @app.route('/api/login', methods=['POST'])
-@gemini.flask_protect_extended(protect_mode='block') <--- Define gemini with specific protect mode here
+@gemini.flask_protect_extended(protect_mode='block') <--- Declare gemini below flask route with protect mode option
 def login():
     username = request.json['username']
     password = request.json['password']
@@ -95,6 +114,67 @@ def login():
 if __name__ == "__main__":
     app.run()
 ```
+
+## Gemini Protect Against
+
+| Attacks                 | Supported          |
+| ----------------------- | ------------------ |
+| Malformed Content Types |                    |
+| HTTP Method Tampering   | :white_check_mark: |
+| Large Requests          | :white_check_mark: |
+| Path Traversal          |                    |
+| Unvalidated Redirects   | :white_check_mark: |
+
+| Injections                 | Supported          |
+| -------------------------- | ------------------ |
+| Command Injection          | :white_check_mark: |
+| Cross-Site Scripting       | :white_check_mark: |
+| Cross-Site Request Forgery |                    |
+| CSS & HTML Injection       |                    |
+| JSON & XML Injection       |                    |
+| SQL Injection              | :white_check_mark: |
+
+| Weaknesses                   | Supported          |
+| ---------------------------- | ------------------ |
+| Insecure Cookies & Transport |                    |
+| Weak Browser Caching         | :white_check_mark: |
+| Vulnerable Dependencies      | :white_check_mark: |
+| Weak Cryptography            |                    |
+| HTTP Response Headers        | :white_check_mark: |
+| API Rate Limit               | :white_check_mark: |
+
+## Gemini Security Response Headers
+
+| HTTP Response Headers | Default configuration | 
+| ------------------------------ | --------------------- |
+| X-Frame-Options                | SAMEORIGIN            |
+| X-XSS-Protection               | 1; mode=block         |
+| X-Content-Type-Options         | nosniff               |
+| Referrer-Policy                | no-referrer-when-downgrade |
+| Content-Type                   | N/A                   |
+| Strict-Transport-Security      | max-age=31536000; includeSubDomains; preload |
+| Expect-CT                      | enforce; max-age=31536000 |
+| Content-Security-Policy        | N/A                   |
+| X-Permitted-Cross-Domain-Policies | none               |
+| Feature-Policy                 | fullscreen 'self'     |
+| Cache-Control                  | no-cache, no-store, must-revalidate |
+| Pragma                         | no-cache              |
+| Expires                        | 0                     |
+| X-UA-Compatible                | IE=Edge,chrome=1      |
+| Access-Control-Allow-Origin    | *                     |
+| Access-Control-Allow-Methods   | *                     |
+| Access-Control-Allow-Headers   | *                     |
+| Access-Control-Allow-Credentials | true                |
+| Cross-Origin-Opener-Policy     | N/A                   |
+| Cross-Origin-Embedder-Policy   | N/A                   |
+| Cross-Origin-Resource-Policy   | N/A                   |
+| Permissions-Policy             | N/A                   |
+| FLoC                           | N/A                   |
+| Server                         | gemini                |
+| X-Powered-By                   | N/A                   |
+| X-AspNet-Version               | N/A                   |
+| X-AspNetMvc-Version            | N/A                   |
+| X-DNS-Prefetch-Control         | N/A                   |
 
 ## Contributing
 
