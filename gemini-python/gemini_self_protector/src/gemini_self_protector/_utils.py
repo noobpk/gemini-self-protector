@@ -12,16 +12,10 @@ from ._config import _Config
 from ._logger import logger
 from datetime import datetime, timezone
 
+
 class _Utils(object):
 
-    def decoder(string) -> None:
-        """
-        It takes a string, decodes it from a variety of encoding types, and then returns the decoded
-        string
-
-        :param string: The string to decode
-        :return: The decoded string
-        """
+    def decoder(string):
         """Decode a string using the specified encoding type."""
 
         # Remove the invalid escape sequences  - # Remove the backslash
@@ -81,16 +75,17 @@ class _Utils(object):
         string = string.lower()
 
         # Use a regular expression to find all query
-        sql_pattern = r'(select.+)|(select.+(?:from|where|and).+)|(exec.+)'
+        sql_pattern = [
+            r'(select.+)|(select.+(?:from|where|and).+)|(exec.+)'
+            r".*--$"
+        ]
 
-        match = re.search(sql_pattern, string)
-
-        if match:
-            # select * from noobpk; - 90e87fc8ba835e0d2bfeec5e3799ecfe
-            string = string.replace(
-                match[0], ' 90e87fc8ba835e0d2bfeec5e3799ecfe')
-
-        string = string.encode('utf-7').decode()
+        for pattern in sql_pattern:
+            if re.search(pattern, string, re.IGNORECASE):
+                # select * from noobpk; - 90e87fc8ba835e0d2bfeec5e3799ecfe
+                string = string.replace(
+                    match[0], ' 90e87fc8ba835e0d2bfeec5e3799ecfe')
+                break
 
         string = string.encode('utf-7').decode()
 
@@ -108,14 +103,24 @@ class _Utils(object):
         :return: The accuracy of the prediction.
         """
         try:
+            predict_server = _Config.get_tb_config().predict_server
             headers = {"Content-Type": "application/json"}
-            predict = requests.post(
-                'https://web-vuln-detection.hptcybersec.com/predict', json={"data": payload}, headers=headers)
-            response = predict.json()
-            accuracy = response.get('accuracy')
-            return accuracy
+            predict = requests.post(f'{predict_server}/predict', json={"data": payload}, headers=headers)
+            if (predict):
+                response = predict.json()
+                accuracy = response.get('accuracy')
+                return accuracy
+            else:
+                logger.warning(
+                    "[!] Cannot connect to predict server. Gemini-self protector cannot predit this request.")
+                return 0
+        except requests.exceptions.RequestException as e:
+            logger.warning(
+                    "[!] Cannot connect to predict server. Gemini-self protector cannot predit this request.")
+            return 0
         except Exception as e:
-            logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+            logger.error(
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Utils.web_vuln_detect_predict', e))
 
     def flask_client_ip() -> None:
         """
@@ -129,32 +134,32 @@ class _Utils(object):
             else:
                 return request.remote_addr
         except Exception as e:
-            logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+            logger.error(
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Utils.flask_client_ip', e))
 
-    def generate_incident_id() -> None:
+    def generate_event_id() -> None:
         """
         This function generates a random UUID and returns it
         :return: A random UUID.
         """
         try:
-            incident_id = uuid.uuid4()
-            return incident_id
+            event_id = uuid.uuid4()
+            return event_id
         except Exception as e:
-            logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+            logger.error(
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Utils.generate_event_id', e))
 
     def insident_ticket() -> None:
-        """
-        It returns a list of three items: the IP address of the client, a unique incident ID, and the
-        current time
-        :return: A list of three items.
-        """
         try:
             time = datetime.now(timezone.utc)
             ip = _Utils.flask_client_ip()
-            incident_id = _Utils.generate_incident_id()
-            return {"Time": time, "IP": ip, "IncidentID": incident_id}
+            event_id = _Utils.generate_event_id()
+            latitude = None
+            longitude = None
+            return {"Time": time, "IP": ip, "EventID": event_id, "Latitude": latitude, "Longitude": longitude}
         except Exception as e:
-            logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+            logger.error(
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Utils.insident_ticket', e))
 
     def create_path() -> None:
         """
@@ -166,7 +171,35 @@ class _Utils(object):
             dashboard_path = str(random)+'/gemini'
             return dashboard_path
         except Exception as e:
-            logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+            logger.error(
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Utils.create_path', e))
+
+    def load_banner():
+        print('''\033[1;31m \n
+             __   ___                    __   ___       ___     __   __   __  ___  ___  __  ___  __   __  
+            / _` |__   |\/| | |\ | |    /__` |__  |    |__     |__) |__) /  \  |  |__  /  `  |  /  \ |__) 
+            \__> |___  |  | | | \| |    .__/ |___ |___ |       |    |  \ \__/  |  |___ \__,  |  \__/ |  \ 
+                                        https://noobpk.github.io          #noobboy
+                Real-time Protect Your Application - The Runtime Application Self Protection (RASP) Solution
+        ''')
+        print("")
+
+    def predict_server_health() -> None:
+        try:
+            predict_server = _Config.get_tb_config().predict_server
+            if predict_server:
+                headers = {"Content-Type": "application/json"}
+                response = requests.post(
+                    f'{predict_server}/predict', json={"data": "healthcheck"}, headers=headers)
+                if response and response.status_code == 200:
+                    return True
+                else:
+                    return False
+            return False
+        except Exception as e:
+            logger.error(
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Validator.predict_server_health', e))
+
 
 class _Validator(object):
 
@@ -185,15 +218,36 @@ class _Validator(object):
                     access_token = jwt.encode(
                         {"license": license_key}, "secret", algorithm="HS256")
 
-                    _Config.update_config({"gemini_license_key":license_key, "gemini_access_token": access_token})
+                    _Config.update_tb_config({
+                        'license_key': license_key,
+                        'access_token': access_token
+                    })
                     return True
                 else:
                     logger.error("[x_x] Invalid License Key")
                     return False
             else:
+                logger.error("[x_x] Invalid License Key")
                 return False
         except Exception as e:
-            logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+            logger.error(
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Validator.validate_license_key', e))
+
+    def is_valid_license_key() -> None:
+        """
+        The function checks if a given license key is valid and returns a boolean value.
+        :return: a boolean value (True or False) depending on whether the current_key matches the
+        specified license key or not.
+        """
+        try:
+            current_key = _Config.get_tb_config().license_key
+            if current_key == '988907ce-9803-11ed-a8fc-0242ac120002':
+                return True
+            else:
+                return False
+        except Exception as e:
+            logger.error(
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Validator.is_valid_license_key', e))
 
     def validate_protect_mode(protect_mode) -> None:
         """
@@ -210,9 +264,10 @@ class _Validator(object):
             else:
                 logger.error(
                     "[x_x] Invalid Protect Mode. Protect mode must be: monitor - block - off")
-                return True
+                return False
         except Exception as e:
-            logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+            logger.error(
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Validator.validate_protect_mode', e))
 
     def validate_sensitive_value(sensitive_value) -> None:
         """
@@ -230,7 +285,48 @@ class _Validator(object):
                     "[x_x] Invalid Sensitive Value. Sensitive value from 0 to 100")
                 return False
         except Exception as e:
-            logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+            logger.error(
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Validator.validate_sensitive_value', e))
+
+    def validate_app_path(app_path) -> None:
+        try:
+            regex = r"^[0-9a-f]{40}/gemini$"
+            if re.match(regex, app_path):
+                return True
+            else:
+                logger.error(
+                    "[x_x] Invalid Gemini App Path format. Gemini App Path like 0987654321/gemin ")
+                return False
+        except Exception as e:
+            logger.error(
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Validator.validate_app_path', e))
+
+    def validate_dashboard_password(password, confirm_password) -> None:
+        try:
+            regex = r"^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$"
+
+            if re.match(regex, password):
+                return True
+            else:
+                logger.error(
+                    "[x_x] Invalid Dashboard Password. Dashboard Password is Minimum eight characters, at least one letter, one number and one special character")
+                return False
+        except Exception as e:
+            logger.error(
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Validator.validate_dashboard_password', e))
+
+    def validate_notification_channel(notification_channel) -> None:
+        try:
+            arr_noti_channel = ['disable', 'telegram', 'slack', 'mattermost']
+            if notification_channel in arr_noti_channel:
+                return True
+            else:
+                logger.error(
+                    "[x_x] Invalid Notification Channel. Notification channel is Disable - Telegram - Slack - Mattermost")
+                return False
+        except Exception as e:
+            logger.error(
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Validator.validate_notification_channel', e))
 
     def validate_http_method(http_method) -> None:
         """
@@ -240,7 +336,8 @@ class _Validator(object):
         :return: a boolean value.
         """
         try:
-            arr_http_method = ['OPTIONS', 'GET', 'POST', 'PUT', 'DELETE', 'TRACE', 'CONNECT']
+            arr_http_method = ['OPTIONS', 'GET', 'POST',
+                               'PUT', 'DELETE', 'TRACE', 'CONNECT']
             if all(method in arr_http_method for method in http_method):
                 return True
             else:
@@ -248,34 +345,67 @@ class _Validator(object):
                     "[x_x] Invalid HTTP Method. HTTP Method must be: OPTIONS - GET - POST - PUT - DELETE - TRACE - CONNECT")
                 return False
         except Exception as e:
-            logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+            logger.error(
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Validator.validate_http_method', e))
 
-    def validate_safe_redirect_status(safe_redirect_status) -> None:
-        """
-        If the value of safe_redirect_status is in the array arr_status, return True, else return False.
-
-        :param safe_redirect_status: This is the status of the safe redirect. It can be either on or off
-        :return: True or False
-        """
+    def validate_one_off_status(on_off_status) -> None:
         try:
-            arr_status = ['on', 'off']
-            if safe_redirect_status in arr_status:
+            arr_status = ['1', '0']
+            if on_off_status in arr_status:
                 return True
             else:
                 logger.error(
-                    "[x_x] Invalid Safe Redirect Status. Safe Redirect Status must be: ON - OFF")
+                    "[x_x] Invalid Status. Safe Redirect or Protect Response Status must be: 1 - 0")
                 return False
         except Exception as e:
-            logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+            logger.error(
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Validator.validate_safe_redirect_status', e))
 
     def validate_trust_domain(trust_domain_list) -> None:
+        """
+        This function validates a list of trust domains by checking if they are empty strings or if they
+        match a regular expression for valid domain names.
+        
+        :param trust_domain_list: A list of strings representing trust domains that need to be validated
+        :return: The function does not return anything explicitly, but it returns True if the
+        trust_domain_list contains only empty strings or if all the domains in the list are valid
+        according to the regular expression pattern. It returns False if any domain in the list is
+        invalid according to the pattern. If an exception occurs, it logs an error message and does not
+        return anything.
+        """
         try:
-            for domain in trust_domain_list:
-                if not re.match(r'^[a-zA-Z0-9]+([\-\.]{1}[a-zA-Z0-9]+)*\.[a-zA-Z]{2,}$', domain):
-                    logger.error(
-                    "[x_x] Invalid Domain Name")
-                    return False
-                else:
-                    return True
+            contains_only_empty_strings = all(
+                element == '' for element in trust_domain_list)
+            print(contains_only_empty_strings)
+            if contains_only_empty_strings:
+                return True
+            else:
+                for domain in trust_domain_list:
+                    if not re.match(r'^[a-zA-Z0-9]+([\-\.]{1}[a-zA-Z0-9]+)*\.[a-zA-Z]{2,}$', domain):
+                        logger.error(
+                            "[x_x] Invalid Domain Name")
+                        return False
+                    else:
+                        return True
         except Exception as e:
-            logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+            logger.error(
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Validator.validate_trust_domain', e))
+
+    def validate_predict_server(server) -> None:
+        try:
+            if re.match(r'https?://\S+', server):
+                headers = {"Content-Type": "application/json"}
+                response = requests.post(
+                    f'{server}/predict', json={"data": "healthcheck"}, headers=headers)
+                if response.status_code == 200:
+                    _Config.update_tb_config({
+                        'predict_server': server,
+                    })
+                    return True
+                else:
+                    return False
+            else:
+                return False
+        except Exception as e:
+            logger.error(
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Validator.validate_predict_server', e))

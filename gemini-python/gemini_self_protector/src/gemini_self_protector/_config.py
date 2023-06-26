@@ -1,170 +1,226 @@
 import os
 import yaml
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
 from ._logger import logger
 import json
 from ipaddress import ip_address
 from datetime import datetime
+from ._model import Base, tb_User, tb_Config, tb_Summary, tb_RequestLog, tb_AccessControlList, tb_Dependency
 
 class _Config(object):
 
-    def __init__(self, working_directory, config_content):
-        """
-        It takes a working directory and a config content, and then it writes the config content to a
-        file called config.yml in the working directory.
+    def __init__(self, working_directory):
 
-        :param working_directory: /home/user/project/
-        :param config_content: This is a dictionary that contains the configuration parameters
-        """
-        config_file = working_directory+'/config.yml'
+        database_file = working_directory+'/gemini.db'
         try:
-            with open(config_file, "w") as file:
-                yaml.dump(config_content, file)
+            engine = create_engine('sqlite:///'+database_file)
+            Base.metadata.create_all(engine)
+            Session = sessionmaker(bind=engine)
+            session = Session()
+
+            user = tb_User(
+                username='superadmin', password=''
+            )
+            config = tb_Config(
+                isinstall=0,
+                working_directory=working_directory,
+                database_path=database_file,
+                secret_key=str(os.urandom(24)),
+                global_protect_mode='monitor',
+                max_content_length=52428800,
+                sensitive_value=50,
+                http_method_allow=json.dumps(
+                    ['OPTIONS', 'GET', 'POST', 'PUT', 'DELETE']),
+                cors={'origin': '*', 'methods': '*',
+                      'credentials': True, 'headers': ['Content-Type']},
+                trust_domain= json.dumps(['localhost.dev']),
+                server_name='gemini',
+                safe_redirect=0,
+                protect_response=0,
+                notification_channel=0,
+                enable_acl=0,
+                anti_dos=1,
+                max_requests_per_minute=100,
+            )
+            tracking = tb_Summary(
+                abnormal_request=0,
+                normal_request=0,
+                abnormal_response=0,
+                normal_response=0,
+                total_request=0
+            )
+            session.add(user)
+            session.add(config)
+            session.add(tracking)
+            session.commit()
+            session.close()
         except Exception as e:
-            logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+            logger.error(
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Config.__init__', e))
 
-    def get_config(config_key) -> None:
-        """
-        It reads a config file and returns the value of the key that is passed to it
-
-        :param config_key: The key you want to get the value of
-        :return: The value of the key in the config.yml file.
-        """
-        """
-        It reads a config file and returns the value of the key that is passed to it
-
-        :param config_key: The key you want to get the value of
-        :return: The value of the key in the config.yml file.
-        """
+    def get_session():
         try:
             running_directory = os.getcwd()
-            gemini_working_directory = os.path.join(running_directory, r'gemini_protector')
-            config_path = gemini_working_directory+'/config.yml'
-            with open(config_path, "r") as file:
-                config_data = yaml.safe_load(file)
-
-            config_value = config_data["gemini-self-protector"][config_key]
-            return config_value
+            gemini_working_directory = os.path.join(
+                running_directory, r'gemini-protector')
+            engine = create_engine(
+                'sqlite:///'+gemini_working_directory+'/gemini.db')
+            Session = sessionmaker(bind=engine)
+            session = Session()
+            return session
         except Exception as e:
-            logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+            logger.error(
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Config.get_session', e))
 
-    def update_config(config_content):
-        """
-        It takes a dictionary as an argument, and updates the YAML file with the new data
-
-        :param config_content: This is the dictionary that contains the new data that you want to update
-        in the YAML file
-        """
+    def get_model_instance_first(session, model):
         try:
-            config_path = _Config.get_config('gemini_config_path')
-            with open(config_path, "r") as file:
-                config_data = yaml.safe_load(file)
-
-            # Update the YAML data with the new data
-            config_data["gemini-self-protector"].update(config_content)
-
-            # Write the updated YAML data back to the file
-            with open(config_path, "w") as file:
-                yaml.dump(config_data, file)
+            instance = session.query(model).filter_by(id=1).first()
+            session.close()
+            return instance
         except Exception as e:
-            logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+            logger.error("[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format(
+                '_Config.get_model_instance_first', e))
 
-    def init_data_store(working_directory):
-        """
-        It creates a new file called data.json in the working directory and writes an empty dictionary
-        to it
-
-        :param working_directory: The directory where the data.json file will be stored
-        """
-        data_file = working_directory+'/data.json'
+    def get_model_instance_all(session, model):
         try:
-            # create an empty dictionary
-            data = {"gemini_data_stored":[]}
-
-            # Write the empty dictionary to the new file
-            with open(data_file, "w") as f:
-                # use pickle to dump the dictionary to the file
-                json.dump(data, f,  indent=4)
+            instance = session.query(model).all()
+            session.close()
+            return instance
         except Exception as e:
-            logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+            logger.error("[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format(
+                '_Config.get_model_instance_all', e))
 
-    def update_data_store(_dict):
-        """
-        It takes a dictionary as an argument, opens a json file, loads the json file into a variable,
-        appends the dictionary to the variable, and then writes the variable back to the json file
-
-        :param _dict: This is the dictionary that you want to add to the existing data store
-        """
+    def update_model_instance(session, model, update_content):
         try:
-            data_store_path = _Config.get_config('gemini_data_store_path')
-            with open(data_store_path, "r") as f:
-                existing_data = json.load(f)
-
-            existing_data["gemini_data_stored"].append(_dict)
-            # Write the add new data back to the file
-            with open(data_store_path, "w") as f:
-                json.dump(existing_data, f, indent = 4)
+            instance = session.query(model).first()
+            for column_name, new_value in update_content.items():
+                setattr(instance, column_name, new_value)
+            session.commit()
+            session.close()
         except Exception as e:
-            logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+            logger.error("[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format(
+                '_Config.update_model_instance', e))
 
-    def init_acl(working_directory):
-        """
-        This function creates an empty dictionary and writes it to a file called acl.json
-
-        :param working_directory: The directory where the file will be created
-        """
-        data_file = working_directory+'/acl.json'
+    def get_tb_config() -> None:
         try:
-            # create an empty dictionary
-            data = {"gemini_acl":[]}
-
-            # Write the empty dictionary to the new file
-            with open(data_file, "w") as f:
-                # use pickle to dump the dictionary to the file
-                json.dump(data, f,  indent=4)
+            session = _Config.get_session()
+            config = _Config.get_model_instance_first(session, tb_Config)
+            return config
         except Exception as e:
-            logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+            logger.error(
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Config.get_tb_config', e))
 
-    def update_acl(_dict):
-        """
-        It reads the existing JSON file, appends the new data to the existing data, and writes the new
-        data back to the file
-
-        :param _dict: This is the dictionary that you want to add to the existing JSON file
-        """
+    def update_tb_config(update_content):
         try:
-            acl_path = _Config.get_config('gemini_acl_path')
-            with open(acl_path, "r") as f:
-                existing_data = json.load(f)
-
-            existing_data["gemini_acl"].append(_dict)
-            # Write the add new data back to the file
-            with open(acl_path, "w") as f:
-                json.dump(existing_data, f, indent = 4)
+            session = _Config.get_session()
+            _Config.update_model_instance(session, tb_Config, update_content)
         except Exception as e:
-            logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+            logger.error(
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Config.update_tb_config', e))
+
+    def get_tb_summary() -> None:
+        try:
+            session = _Config.get_session()
+            tracking = _Config.get_model_instance_first(session, tb_Summary)
+            return tracking
+        except Exception as e:
+            logger.error(
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Config.get_tb_summary', e))
+
+    def update_tb_summary(update_content):
+        try:
+            session = _Config.get_session()
+            _Config.update_model_instance(session, tb_Summary, update_content)
+        except Exception as e:
+            logger.error("[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format(
+                '_Config.update_tb_summary', e))
+
+    def get_tb_request_log() -> None:
+        try:
+            session = _Config.get_session()
+            analysis = _Config.get_model_instance_all(session, tb_RequestLog)
+            return analysis
+        except Exception as e:
+            logger.error(
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Config.get_tb_request_log', e))
+
+    def store_tb_request_log(ipaddress, url, request, req_body, response, res_content, useragent, attack_type, predict, event_id, latitude, longitude):
+        try:
+            session = _Config.get_session()
+            new_record = tb_RequestLog(
+                ipaddress=ipaddress,
+                url=url,
+                request=request,
+                req_body=req_body,
+                response=response,
+                res_content=res_content,
+                useragent=useragent,
+                attack_type=attack_type,
+                predict=predict,
+                event_id=event_id,
+                latitude=latitude,
+                longitude=longitude,
+                status='active',
+                review=False
+            )
+            session.add(new_record)
+            session.commit()
+            session.close()
+        except Exception as e:
+            logger.error("[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format(
+                '_Config.store_tb_request_log', e))
+
+    def get_tb_request_log_first(event_id) -> None:
+        try:
+            session = _Config.get_session()
+            req_record = session.query(tb_RequestLog).filter_by(
+                event_id=event_id).first()
+            session.close()
+            return req_record
+        except Exception as e:
+            logger.error(
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Config.get_tb_config', e))
+
+    def get_tb_acl() -> None:
+        try:
+            session = _Config.get_session()
+            acl = _Config.get_model_instance_all(session, tb_AccessControlList)
+            return acl
+        except Exception as e:
+            logger.error(
+                "[x_x] Something went wrong, please check your error message.\n Message - {0}".format('_Config.get_tb_acl', e))
+
+    def store_tb_acl(ipaddress, isallow, desciption):
+        try:
+            session = _Config.get_session()
+            new_acl = tb_AccessControlList(
+                ipaddress=ipaddress,
+                is_allowed=isallow,
+                desciption=desciption
+            )
+            session.add(new_acl)
+            session.commit()
+            session.close()
+        except Exception as e:
+            logger.error(
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Config.store_tb_acl', e))
 
     def check_acl(_ip_address) -> None:
-        """
-        It reads a JSON file, converts the IP addresses in the file to IP objects, and then checks if
-        the IP address passed to the function is in the list of IP objects
-
-        :param _ip_address: The IP address that you want to check against the ACL
-        :return: True or False
-        """
         try:
-            acl_path = _Config.get_config('gemini_acl_path')
-            with open(acl_path, "r") as f:
-                acl_data = json.load(f)
-
-            ip_list = [ip_address(entry['Ip']) for entry in acl_data['gemini_acl']]
-            if ip_address(_ip_address) in ip_list:
+            session = _Config.get_session()
+            acl_record = session.query(tb_AccessControlList).filter_by(
+                ipaddress=_ip_address).first()
+            session.close()
+            if acl_record and acl_record.is_allowed == 0:
                 return True
             else:
                 return False
         except Exception as e:
-            logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+            logger.error(
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Config.check_acl', e))
 
-    def remove_acl(_ip_address):
+    def remove_record_acl(_ip_address):
         """
         It opens a json file, reads the contents, removes an object from the json file, and then writes
         the contents back to the file
@@ -172,53 +228,54 @@ class _Config(object):
         :param _ip_address: The IP address to be removed from the ACL
         """
         try:
-            acl_path = _Config.get_config('gemini_acl_path')
-            with open(acl_path, "r") as f:
-                acl_data = json.load(f)
-
-            for acl in acl_data["gemini_acl"]:
-                if acl.get("Ip") == _ip_address:
-                    acl_data["gemini_acl"].remove(acl)
-            with open(acl_path, "w") as f:
-                json.dump(acl_data, f, indent = 4)
+            session = _Config.get_session()
+            acl_record = session.query(tb_AccessControlList).filter_by(
+                ipaddress=_ip_address).first()
+            if acl_record:
+                session.delete(acl_record)
+                session.commit()
         except Exception as e:
-            logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+            logger.error(
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Config.remove_acl', e))
 
-    def init_audit_dependency(working_directory):
-        """
-        This function creates an empty json file called audit_dependency.json in the working directory
-
-        :param working_directory: The directory where the audit_dependency.json file is located
-        """
-        data_file = working_directory+'/audit_dependency.json'
+    def get_tb_user() -> None:
         try:
-            # create an empty dictionary
-            data = {"gemini_audit_dependency":[]}
-
-            # Write the empty dictionary to the new file
-            with open(data_file, "w") as f:
-                # use pickle to dump the dictionary to the file
-                json.dump(data, f,  indent=4)
+            session = _Config.get_session()
+            user = _Config.get_model_instance_first(session, tb_User)
+            return user
         except Exception as e:
-            logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+            logger.error(
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Config.get_tb_user', e))
 
-    def update_audit_dependency(_dict):
-        """
-        It takes a dictionary as an argument, and appends it to a JSON file
-
-        :param _dict: This is the dictionary that you want to add to the json file
-        """
+    def update_tb_user(update_content):
         try:
-            audit_dependency_path = _Config.get_config('gemini_audit_dependency')
-            print()
-            now = datetime.now()
-            current_time = now.strftime("%Y-%m-%d %H:%M:%S")
-            with open(audit_dependency_path, "r") as f:
-                existing_data = json.load(f)
-
-            existing_data["gemini_audit_dependency"].append({str(current_time):_dict})
-            # Write the add new data back to the file
-            with open(audit_dependency_path, "w") as f:
-                json.dump(existing_data, f, indent = 4)
+            session = _Config.get_session()
+            _Config.update_model_instance(session, tb_User, update_content)
         except Exception as e:
-            logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format(e))
+            logger.error(
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Config.update_tb_user', e))
+
+    def get_tb_dependency() -> None:
+        try:
+            session = _Config.get_session()
+            dependency = _Config.get_model_instance_all(session, tb_Dependency)
+            return dependency
+        except Exception as e:
+            logger.error(
+                "[x_x] Something went wrong, please check your error message.\n Message - {0}".format('_Config.get_tb_dependency', e))
+
+    def store_tb_dependency(package, version, cve_id, severity):
+        try:
+            session = _Config.get_session()
+            new_record = tb_Dependency(
+                package=package,
+                version=version,
+                cve_id=cve_id,
+                severity=severity
+            )
+            session.add(new_record)
+            session.commit()
+            session.close()
+        except Exception as e:
+            logger.error(
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Config.store_tb_dependency', e))

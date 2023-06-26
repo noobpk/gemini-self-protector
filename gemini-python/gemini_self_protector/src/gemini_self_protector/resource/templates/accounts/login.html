@@ -1,0 +1,91 @@
+{% extends "gemini-protector-gui/layouts/base-fullscreen.html" %}
+
+{% block title %} Login {% endblock %}
+
+{% block content %}
+
+<div class="auth-wrapper">
+    <div class="auth-content">
+        <div class="auth-bg">
+            <span class="r"></span>
+            <span class="r s"></span>
+            <span class="r s"></span>
+            <span class="r"></span>
+        </div>
+        <div class="card">
+            <div class="card-body text-center">
+                <div class="mb-4">
+                    <i class="feather icon-unlock auth-icon"></i>
+                </div>
+                <h3 class="mb-4">Login</h3>
+
+                <span class="mb-0 text-muted">
+                    {% if msg %}
+                    <span class="text-danger">{{ msg | safe }}</span>
+                    {% else %}
+                    Welcome to Gemini-Self Protector Dashboard
+                    {% endif %}
+                </span>
+
+                <br />
+                <br />
+
+                <form role="form" method="post" action="">
+
+                    <div class="input-group mb-3">
+                        <input class="form-control" placeholder="Username" type="text" name="username" required>
+                    </div>
+
+                    <div class="input-group mb-4">
+                        <input class="form-control" placeholder="Password" type="password" name="password" required>
+                    </div>
+
+                    <button type="submit" name="login" class="btn btn-primary shadow-2 mb-4">Login</button>
+
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock content %}
+{% block javascripts %}
+{% with messages = get_flashed_messages(with_categories=true) %}
+{% for category, message in messages %}
+{% if category == 'logout' %}
+<script>
+    Toastify({
+        text: "{{ messages[0][1]|safe }}",
+        duration: 3000,
+        gravity: "top", // `top` or `bottom`
+        position: "right", // `left`, `center` or `right`
+        stopOnFocus: true, // Prevents dismissing of toast on hover
+        style: {
+            background: "linear-gradient(to right, #00b09b, #96c93d)",
+        },
+    }).showToast();
+</script>
+{% endif %}
+{% if category == 'required_login' %}
+<script>
+    Toastify({
+        text: "{{ messages[0][1]|safe }}",
+        duration: 3000,
+        gravity: "top", // `top` or `bottom`
+        position: "right", // `left`, `center` or `right`
+        stopOnFocus: true, // Prevents dismissing of toast on hover
+        style: {
+            background: "linear-gradient(to right, rgb(255, 95, 109), rgb(255, 195, 113))",
+        },
+    }).showToast();
+</script>
+{% endif %}
+{% if category == 'error' %}
+<div class="flash-message error">
+    {{ message }}
+</div>
+{% endif %}
+<!-- Add more conditions for other message categories if needed -->
+{% endfor %}
+{% endwith %}
+{% endblock javascripts %}

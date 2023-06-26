@@ -10,3 +10,6 @@ from ._template import _Template
 from ._config import _Config
 from ._protect import _Protect
 from ._audit import _Audit
+from ._gui import _Gemini_GUI
+from ._model import Base, tb_User, tb_Config, tb_Summary, tb_RequestLog, tb_AccessControlList, tb_Dependency
+from ._cli import _Gemini_CLI

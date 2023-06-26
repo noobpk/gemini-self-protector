@@ -1,0 +1,215 @@
+{% extends "gemini-protector-gui/layouts/base.html" %}
+
+{% block title %} Access Control List {% endblock %}
+
+<!-- Specific CSS goes HERE -->
+{% block stylesheets %}{% endblock stylesheets %}
+
+{% block content %}
+
+<!-- [ Main Content ] start -->
+<div class="pcoded-main-container">
+    <div class="pcoded-wrapper">
+
+        <div class="pcoded-content">
+            <div class="pcoded-inner-content">
+                <div class="main-body">
+                    <div class="page-wrapper">
+                        <!-- [ Main Content ] start -->
+                        <div class="row">
+                            <div class="col-md-9">
+                                <div class="card Recent-Users">
+                                    <div class="card-header">
+                                        <h5>Access control list</h5>
+                                        {%if _is_enable_acl == 1 %}
+                                        <span class="d-block m-t-5">ACL is <code>one</code></span>
+                                        {%else%}
+                                        <span class="d-block m-t-5">ACL is <code>off</code> enable it in
+                                            configurate</span>
+                                        {%endif%}
+                                    </div>
+                                    <div class="card-block table-border-style">
+                                        <div class="table-responsive">
+                                            <table class="table table-hover">
+                                                <thead>
+                                                    <tr>
+                                                        <th class="text-right"></th>
+                                                        <th>IP</th>
+                                                        <th>Access</th>
+                                                        <th>Time</th>
+                                                        <th>Desciption</th>
+                                                        <th>Action</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {% for acl in _gemini_acl %}
+                                                    <tr>
+                                                        <td>
+                                                            {%if acl.is_allowed == 1 %}
+                                                            <i class="feather icon-check f-30 text-c-green"></i>
+                                                            {%else%}
+                                                            <i class="feather icon-x f-30 text-c-red"></i>
+                                                            {%endif%}
+                                                        </td>
+                                                        <td>{{ acl.ipaddress }}</td>
+                                                        <td>{{ acl.is_allowed }}</td>
+                                                        <td>{{ acl.created_at | gemini_datetime_format('%d %B
+                                                            %H:%M') }}</td>
+                                                        <td>{{ acl.desciption }}</td>
+                                                        <td>
+                                                            <button class="remove-acl-btn btn btn-danger"
+                                                                data-ip="{{ acl.ipaddress }}"
+                                                                style="padding: 4px 10px; border-radius: 10px;"><i
+                                                                    class="fa fa-trash"
+                                                                    style="margin-right: 0px;"></i></button>
+                                                        </td>
+                                                    </tr>
+                                                    {% endfor %}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        <nav aria-label="Page navigation example">
+                                            <ul class="pagination">
+                                                {% if _current_page > 1 %}
+                                                <li class="page-item"><a class="page-link"
+                                                        href="?page={{ _current_page - 1 }}">Previous</a></li>
+                                                {% endif %}
+                                                {% for page_num in range(1, _total_pages + 1) %}
+                                                <li
+                                                    class="page-item {% if page_num == _current_page %}active{% endif %}">
+                                                    <a class="page-link" href="?page={{ page_num }}">{{ page_num }}</a>
+                                                </li>
+                                                {% endfor %}
+                                                {% if _current_page < _total_pages %} <li class="page-item"><a
+                                                        class="page-link" href="?page={{ _current_page + 1 }}">Next</a>
+                                                    </li>
+                                                    {% endif %}
+                                            </ul>
+                                        </nav>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <span class="mb-0 text-muted">
+                                    {% if msg %}
+                                    <span class="text-danger">{{ msg | safe }}</span>
+                                    {% endif %}
+                                </span>
+                                <form role="form" method="post" action="">
+                                    <div class="form-group">
+                                        <label>IP</label>
+                                        <input type="text" class="form-control" placeholder="127.0.0.1, 0.0.0.0"
+                                            name="ip_address" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="Permission">Permission</label>
+                                        <select class="form-control" id="access_type" name="access_type">
+                                            <option value="1">Allow</option>
+                                            <option value="0">Deny</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="Desciption">Desciption</label>
+                                        <input type="text" class="form-control" id="description" name="description"
+                                            placeholder="This rule for...">
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">Submit</button>
+                                </form>
+                            </div>
+                        </div>
+                        <!-- [ Main Content ] end -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+<!-- [ Main Content ] end -->
+
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}
+<script>
+    const removeButtons = document.querySelectorAll('.remove-acl-btn');
+    removeButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const ip = button.getAttribute('data-ip');
+            fetch('{{url_for('nested_service.gemini_remove_acl')}}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: `ip_address=${ip}`
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        Toastify({
+                            text: "AC remove failed.",
+                            duration: 3000,
+                            gravity: "top", // `top` or `bottom`
+                            position: "right", // `left`, `center` or `right`
+                            stopOnFocus: true, // Prevents dismissing of toast on hover
+                            style: {
+                                background: "linear-gradient(to right, rgb(255, 95, 109), rgb(255, 195, 113))",
+                            },
+                        }).showToast();
+                        setTimeout(() => {
+                            location.reload();
+                        }, 3000);
+                    }
+                    Toastify({
+                        text: "AC remove successful",
+                        duration: 3000,
+                        gravity: "top", // `top` or `bottom`
+                        position: "right", // `left`, `center` or `right`
+                        stopOnFocus: true, // Prevents dismissing of toast on hover
+                        style: {
+                            background: "linear-gradient(to right, #00b09b, #96c93d)",
+                        },
+                    }).showToast();
+
+                    setTimeout(() => {
+                        location.reload();
+                    }, 3000);
+                })
+                .catch(error => {
+                    console.error('There was a problem with the fetch operation:', error);
+                });
+        });
+    });
+</script>
+{% with messages = get_flashed_messages(with_categories=true) %}
+{% for category, message in messages %}
+{% if category == 'acl_success' %}
+<script>
+    Toastify({
+        text: "{{ messages[0][1]|safe }}",
+        duration: 3000,
+        gravity: "top", // `top` or `bottom`
+        position: "right", // `left`, `center` or `right`
+        stopOnFocus: true, // Prevents dismissing of toast on hover
+        style: {
+            background: "linear-gradient(to right, #00b09b, #96c93d)",
+        },
+    }).showToast();
+</script>
+{% endif %}
+{% if category == 'acl_fail' %}
+<script>
+    Toastify({
+        text: "{{ messages[0][1]|safe }}",
+        duration: 3000,
+        gravity: "top", // `top` or `bottom`
+        position: "right", // `left`, `center` or `right`
+        stopOnFocus: true, // Prevents dismissing of toast on hover
+        style: {
+            background: "linear-gradient(to right, rgb(255, 95, 109), rgb(255, 195, 113))",
+        },
+    }).showToast();
+</script>
+{% endif %}
+{% endfor %}
+{% endwith %}
+{% endblock javascripts %}

@@ -1,0 +1,473 @@
+{% extends "gemini-protector-gui/layouts/base.html" %}
+
+{% block title %} Dashboard {% endblock %}
+
+<!-- Specific CSS goes HERE -->
+{% block stylesheets %}{% endblock stylesheets %}
+
+{% block content %}
+
+<!-- [ Main Content ] start -->
+<div class="pcoded-main-container">
+    <div class="pcoded-wrapper">
+
+        <div class="pcoded-content">
+            <div class="pcoded-inner-content">
+                <!-- [ breadcrumb ] start -->
+
+                <!-- [ breadcrumb ] end -->
+                <div class="main-body">
+                    <div class="page-wrapper">
+                        <!-- [ Main Content ] start -->
+                        <div class="row">
+                            <!--[ request section ] start-->
+                            <div class="col-md-6 col-xl-4">
+                                <div class="card">
+                                    <div class="card-block">
+                                        <div class="row d-flex align-items-center">
+                                            <div class="col-auto">
+                                                {%if _anti_dos %}
+                                                <i class="feather icon-activity f-30 text-c-green"></i>
+                                                {%else%}
+                                                <i class="feather icon-activity f-30 text-c-red"></i>
+                                                {% endif %}
+                                            </div>
+                                            <div class="col">
+                                                <h3 class="f-w-300">{%if _anti_dos %} On
+                                                    {%else%} Off {% endif %}
+                                                    <div class="col-auto">
+                                                        <label
+                                                            class="label border theme-bg2 text-white f-14 f-w-400 float-right">{{_max_req_per_min}}
+                                                            MRPM</label>
+                                                    </div>
+                                                </h3>
+                                                <span class="d-block text-uppercase">mANTI DOS</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 col-xl-4">
+                                <div class="card">
+                                    <div class="card-block">
+                                        <div class="row d-flex align-items-center">
+                                            <div class="col-auto">
+                                                <i class="feather icon-cloud-lightning f-30 text-c-blue"></i>
+                                            </div>
+                                            <div class="col">
+                                                <h3 class="f-w-300">{{_total_request}}</h3>
+                                                <span class="d-block text-uppercase">TOTAL REQUESTS</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 col-xl-4">
+                                <div class="card">
+                                    <div class="card-block">
+                                        <div class="row d-flex align-items-center">
+                                            <div class="col-auto">
+                                                <i class="feather icon-cloud-rain f-30 text-c-red"></i>
+                                            </div>
+                                            <div class="col">
+                                                <h3 class="f-w-300">{{_abnormal_request}}</h3>
+                                                <span class="d-block text-uppercase">ABNORMAL REQUESTS</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 col-xl-4">
+                                <div class="card">
+                                    <div class="card-block">
+                                        <div class="row d-flex align-items-center">
+                                            <div class="col-auto">
+                                                <i class="feather icon-cloud-snow f-30 text-c-green"></i>
+                                            </div>
+                                            <div class="col">
+                                                <h3 class="f-w-300">{{_normal_request}}</h3>
+                                                <span class="d-block text-uppercase">NORMAL REQUESTS</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 col-xl-4">
+                                <div class="card">
+                                    <div class="card-block">
+                                        <div class="row d-flex align-items-center">
+                                            <div class="col-auto">
+                                                <i class="feather icon-cloud-drizzle f-30 text-c-green"></i>
+                                            </div>
+                                            <div class="col">
+                                                <h3 class="f-w-300">{{_normal_response}}</h3>
+                                                <span class="d-block text-uppercase">NORMAL RESPONSES</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 col-xl-4">
+                                <div class="card">
+                                    <div class="card-block">
+                                        <div class="row d-flex align-items-center">
+                                            <div class="col-auto">
+                                                <i class="feather icon-cloud-rain f-30 text-c-red"></i>
+                                            </div>
+                                            <div class="col">
+                                                <h3 class="f-w-300">{{_abnormal_response}}</h3>
+                                                <span class="d-block text-uppercase">ABNORMAL RESPONSES</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!--[ request section ] end-->
+                            <div class="col-xl-8 col-md-6">
+                                <div class="card Recent-Users">
+                                    <div class="card-header">
+                                        <h5>Recent events</h5>
+                                    </div>
+                                    <div class="card-block table-border-style px-0 py-3">
+                                        <div class="table-responsive">
+                                            <table class="table table-hover">
+                                                <thead>
+                                                    <tr>
+                                                        <th class="text-right"></th>
+                                                        <th>EventID</th>
+                                                        <th>Predit</th>
+                                                        <th>Time</th>
+                                                        <th>Review</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {% for row in _gemini_request_log_data %}
+                                                    <tr class="unread">
+                                                        <td>
+                                                            <i class="feather icon-cloud-rain f-30 text-c-red"></i>
+                                                        </td>
+                                                        <td>
+                                                            <h6 id="{{ row.event_id }}" class="mb-1">{{ row.event_id }}
+                                                            </h6>
+                                                            <p class="m-0">{{ row.attack_type }}</p>
+                                                        </td>
+                                                        <td>
+                                                            {%if row.predict %}
+                                                            <h6 id="tb_predict_value" class="text-muted">{{ row.predict
+                                                                | gemini_round_number
+                                                                }}</h6>
+                                                            {%else%}
+                                                            <h6 id="tb_predict_value" class="text-muted">{{ row.predict
+                                                                }}</h6>
+                                                            {%endif%}
+                                                        </td>
+                                                        <td>
+                                                            <h6 class="text-muted">{{ row.time |
+                                                                gemini_datetime_format('%d
+                                                                %B
+                                                                %H:%M') }}</h6>
+                                                        </td>
+                                                        <td>
+                                                            <button type="button" id="showModalBtn{{ row.event_id }}"
+                                                                class="btn btn-warning showModalBtn"
+                                                                style="padding: 4px 10px; border-radius: 10px;"><i
+                                                                    class="fa fa-crosshairs"
+                                                                    style="margin-right: 0px;"></i></button>
+                                                            {%if row.predict %}
+                                                            <button type="button" class="btn btn-success"
+                                                                style="padding: 4px 10px; border-radius: 10px;"><i
+                                                                    class="fa fa-thumbs-up"
+                                                                    style="margin-right: 0px;"></i></button>
+                                                            <button type="button" class="btn btn-danger"
+                                                                style="padding: 4px 10px; border-radius: 10px;"><i
+                                                                    class="fa fa-thumbs-down"
+                                                                    style="margin-right: 0px;"></i></button>
+                                                            {%endif%}
+                                                        </td>
+                                                    </tr>
+                                                    {% endfor %}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                                <nav aria-label="Page navigation example">
+                                    <ul class="pagination">
+                                        {% if _current_page > 1 %}
+                                        <li class="page-item"><a class="page-link"
+                                                href="?page={{ _current_page - 1 }}">Previous</a></li>
+                                        {% endif %}
+
+                                        {% if _current_page > 4 %}
+                                        <li class="page-item"><a class="page-link" href="?page=1">1</a></li>
+                                        <li class="page-item disabled"><span class="page-link">...</span></li>
+                                        {% endif %}
+
+                                        {% for page_num in range(_current_page - 2, _current_page + 3) %}
+                                        {% if page_num >= 1 and page_num <= _total_pages %} <li
+                                            class="page-item {% if page_num == _current_page %}active{% endif %}">
+                                            <a class="page-link" href="?page={{ page_num }}">{{ page_num }}</a>
+                                            </li>
+                                            {% endif %}
+                                            {% endfor %}
+
+                                            {% if _current_page < _total_pages - 3 %} <li class="page-item disabled">
+                                                <span class="page-link">...</span>
+                                                </li>
+                                                <li class="page-item"><a class="page-link"
+                                                        href="?page={{ _total_pages }}">{{ _total_pages }}</a></li>
+                                                {% endif %}
+
+                                                {% if _current_page < _total_pages %} <li class="page-item"><a
+                                                        class="page-link" href="?page={{ _current_page + 1 }}">Next</a>
+                                                    </li>
+                                                    {% endif %}
+                                    </ul>
+                                </nav>
+                            </div>
+                            <!-- [ statistics year chart ] start -->
+                            <div class="col-xl-4 col-md-6">
+                                <div class="card card-event">
+                                    <div class="card-block">
+                                        <div class="row align-items-center justify-content-center">
+                                            <div class="col">
+                                                <h5 class="m-0">Protect Mode</h5>
+                                            </div>
+                                            <div class="col-auto">
+                                                <label
+                                                    class="label theme-bg2 text-white f-14 f-w-400 float-right">{{_sensitive_value}}%</label>
+                                            </div>
+                                        </div>
+                                        <h2 class="mt-3 f-w-300">{{_protect_mode|title}}<sub
+                                                class="text-muted f-14">Global</sub></h2>
+                                        {% if _protect_mode == 'monitor' %}
+                                        <h6 class="text-muted mt-4 mb-0">Gemini is monitoring all requests</h6>
+                                        <i class="fa fa-binoculars text-c-purple f-50"></i>
+                                        {% elif _protect_mode == 'block' %}
+                                        <h6 class="text-muted mt-4 mb-0">Gemini is blocking abnormal requests</h6>
+                                        <i class="fas fa-ban text-c-purple f-50"></i>
+                                        {% else %}
+                                        <h6 class="text-muted mt-4 mb-0">Gemini is sleeping</h6>
+                                        <i class="fas fa-power-off text-c-red f-50"></i>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h5>Abnormal Chart</h5>
+                                    </div>
+                                    <div class="card-block">
+                                        {%if _gemini_attack_counts['Malicious Request'] %}
+                                        <div id="morris-donut-chart" style="height:300px"></div>
+                                        {%else%}
+                                        <img class="img-square"
+                                            src="{{ url_for('static', filename='gemini-protector-static/images/widget/box.png') }}"
+                                            alt="Generic placeholder image">
+                                        {%endif%}
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- [ statistics year chart ] end -->
+                            <div id="modalId" class="datta-example-modal">
+                                <div class="datta-example-modal-content">
+                                    <div class="col-md-6 col-xl-11">
+                                        <div class="card">
+                                            <div class="card-block">
+                                                <div class="row d-flex align-items-center">
+                                                    <div class="col-auto">
+                                                        <i class="feather icon-cloud-rain f-30 text-c-red"></i>
+                                                    </div>
+                                                    <div class="col">
+                                                        <h3 class="f-w-300" id="event_id_value">eventid</h3>
+                                                        <div class="col-auto">
+                                                            <label id="predict_value"
+                                                                class="label border theme-bg2 text-white f-14 f-w-400 float-right"></label>
+                                                        </div>
+                                                        <span class="d-block text-uppercase"
+                                                            id="attack_type_value">type</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-xl-11">
+                                        <div class="card">
+                                            <div class="card-header">
+                                                <h5>Event Description</h5>
+                                            </div>
+                                            <div class="card-body">
+                                                <dl class="dl-horizontal row">
+                                                    <dt class="col-sm-3">Time</dt>
+                                                    <dd class="col-sm-9" id="time_value"></dd>
+                                                    <dt class="col-sm-3">IP</dt>
+                                                    <dd class="col-sm-9" id="ip_value"></dd>
+                                                    <dt class="col-sm-3">Location</dt>
+                                                    <dd class="col-sm-9" id="location_value"></dd>
+                                                    <dt class="col-sm-3">URL</dt>
+                                                    <dd class="col-sm-9" id="url_value"></dd>
+                                                    <dt class="col-sm-3">User-Agent</dt>
+                                                    <dd class="col-sm-9" id="user_agent_value"></dd>
+                                                    <dt class="col-sm-3">Reques Headert</dt>
+                                                    <dd class="col-sm-9" id="request_value"></dd>
+                                                    <dt class="col-sm-3">Request Body</dt>
+                                                    <dd class="col-sm-9" id="req_body_value"></dd>
+                                                    <dt class="col-sm-3">Response Header</dt>
+                                                    <dd class="col-sm-9" id="response_value"></dd>
+                                                    <dt class="col-sm-3">Response Content</dt>
+                                                    <dd class="col-sm-9" id="res_content_value"></dd>
+                                                </dl>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <button class="btn btn-secondary datta-example-modal-close" type="button">
+                                    <span>&times;</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="datta-example-modal-overlay"></div>
+                        <!-- [ Main Content ] end -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+<!-- [ Main Content ] end -->
+
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}
+<script
+    src="{{ url_for('static', filename='gemini-protector-static/plugins/chart-morris/js/raphael.min.js') }}"></script>
+<script
+    src="{{ url_for('static', filename='gemini-protector-static/plugins/chart-morris/js/morris.min.js') }}"></script>
+<script>
+    var graph = Morris.Donut({
+        element: 'morris-donut-chart',
+        data: [
+            {
+                value: {{ _gemini_attack_counts['Malicious Request'] }},
+        label: 'Malicious Request'
+            },
+    {
+        value: {{ _gemini_attack_counts['ACL Block'] }},
+        label: 'ACL Block'
+    },
+    {
+        value: {{ _gemini_attack_counts['Malicious Response'] }},
+        label: 'Malicious Response'
+    },
+    {
+        value: {{ _gemini_attack_counts['Unvalidated Redirects'] }},
+        label: 'Unvalidated Redirects'
+    },
+    {
+        value: {{ _gemini_attack_counts['Large Requests'] }},
+        label: 'Large Requests'
+    },
+    {
+        value: {{ _gemini_attack_counts['HTTP Method Tampering'] }},
+        label: 'HTTP Method Tampering'
+    },
+    {
+        value: {{ _gemini_attack_counts['DOS'] }},
+        label: 'DOS/DDOS'
+    }
+        ],
+    colors: [
+        '#ce3322',
+        '#59dca6',
+        '#04a9f5',
+        '#1dc4e9',
+        '#A389D4',
+        '#fff26e',
+        '#a67b5b',
+    ],
+        resize: true,
+            formatter: function (x) {
+                return "val : " + x
+            }
+    });
+</script>
+{% with messages = get_flashed_messages(with_categories=true) %}
+{% for category, message in messages %}
+{% if category == 'login' %}
+<script>
+    Toastify({
+        text: "{{ messages[0][1] | safe }}",
+        duration: 3000,
+        gravity: "top", // `top` or `bottom`
+        position: "right", // `left`, `center` or `right`
+        stopOnFocus: true, // Prevents dismissing of toast on hover
+        style: {
+            background: "linear-gradient(to right, #00b09b, #96c93d)",
+        },
+    }).showToast();
+</script>
+{% endif %}
+{% if category == 'key_update_success' %}
+<script>
+    Toastify({
+        text: "{{ messages[0][1] | safe }}",
+        duration: 3000,
+        gravity: "top", // `top` or `bottom`
+        position: "right", // `left`, `center` or `right`
+        stopOnFocus: true, // Prevents dismissing of toast on hover
+        style: {
+            background: "linear-gradient(to right, #00b09b, #96c93d)",
+        },
+    }).showToast();
+</script>
+{% endif %}
+{% endfor %}
+{% endwith %}
+<script>
+    $(document).ready(function () {
+        $('.datta-example-modal-close').on('click', function () {
+            $('.datta-example-modal').removeClass('datta-example-modal-opened');
+            $('.datta-example-modal-overlay').hide();
+            $('body').removeClass('datta-example-modal-opened');
+        });
+
+        $('.showModalBtn').on('click', function (event) {
+            var modalId = $(this).attr('id');
+            var eventId = modalId.replace('showModalBtn', '');
+            var attackType = $(this).closest('tr').find('.m-0').text();
+            var predictValue = $(this).closest('tr').find('#tb_predict_value').text();
+
+            $('#event_id_value').text(eventId);
+            $('#attack_type_value').text(attackType);
+            $('#predict_value').text(predictValue);
+
+            $('.datta-example-modal').addClass('datta-example-modal-opened');
+            $('body').addClass('datta-example-modal-opened');
+            $('.datta-example-modal-overlay').show();
+
+
+            $.ajax({
+                url: '{{url_for('nested_service.gemini_get_event')}}',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ event_id: eventId }),
+                success: function (data) {
+                    $('#time_value').text(data.time ? data.time : 'N/A');
+                    $('#ip_value').text(data.ip_address ? data.ip_address : 'N/A');
+                    $("#url_value").text(data.url ? data.url : 'N/A');
+                    $("#user_agent_value").text(data.user_agent ? data.user_agent : 'N/A');
+                    $('#location_value').text(data.latitude ? data.latitude + ',' + data.longitude : 'N/A');
+                    $('#request_value').html(data.request ? data.request.replace(/(?:\r\n|\r|\n)/g, '<br>') : 'N/A');
+                    $('#req_body_value').text(data.req_body ? data.req_body : 'N/A');
+                    $('#response_value').html(data.response ? data.response.replace(/(?:\r\n|\r|\n)/g, '<br>') : 'N/A');
+                    $('#res_content_value').text(data.res_content ? data.res_content : 'N/A');
+                },
+                error: function (error) {
+                    console.error('Error:', error);
+                }
+            });
+        });
+    });
+</script>
+{% endblock javascripts %}
