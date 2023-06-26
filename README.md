@@ -133,6 +133,24 @@ Key: `988907ce-9803-11ed-a8fc-0242ac120002`
 ## Theme
 https://appseed.us/product/datta-able/flask/
 
+## Screenshot
+
+### Dashboard Screen
+
+![image](https://github.com/noobpk/gemini-self-protector/assets/31820707/112e227b-9f43-4189-b1fd-038e7cd324ee)
+
+### Configurate Screen
+
+![image](https://github.com/noobpk/gemini-self-protector/assets/31820707/e2b4fc0b-c188-4c52-b21e-afd7e8d52582)
+
+### Access Control List
+
+![image](https://github.com/noobpk/gemini-self-protector/assets/31820707/ca2ae9a7-7956-4b83-866d-8fa5f9c4ce2b)
+
+### Dependency Check
+
+![image](https://github.com/noobpk/gemini-self-protector/assets/31820707/e5b58af5-fe2a-4f3a-ab03-e25923bd72ee)
+
 ## Contributing
 
 Interested in contributing? Check out the contributing guidelines. Please note that this project is released with a Code of Conduct. By contributing to this project, you agree to abide by its terms.
