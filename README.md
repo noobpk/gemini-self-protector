@@ -3,6 +3,12 @@
 Gemini - The Runtime Application Self Protection (RASP) Solution Combined With Deep Learning
 
 [![CodeQL](https://github.com/noobpk/gemini-self-protector/actions/workflows/codeql.yml/badge.svg?branch=main)](https://github.com/noobpk/gemini-self-protector/actions/workflows/codeql.yml)
+![Static Badge](https://img.shields.io/badge/python-3.x-blue?logo=python)
+![Static Badge](https://img.shields.io/badge/Deep%20Learning-orange)
+![Static Badge](https://img.shields.io/badge/Convolutional%20Neural%20Network-yellow)
+![Static Badge](https://img.shields.io/badge/Recurrent%20neural%20network-%23ff6666)
+
+
 
 ## Architecture
 
@@ -18,7 +24,7 @@ The architecture of gemini-self-protector is composed of seven layers however it
 
 ## Deep Learning
 
-Gemini uses a deep learning model that combines Convolutional Neural Network (CNN) and a family of recurrent neural network (RNN) techniques to detect and identify vulnerabilities.
+Gemini uses a deep learning model that combines Convolutional Neural Network (CNN) and a family of Recurrent neural network (RNN) techniques to detect and identify vulnerabilities.
 
 For more details: [Web-Vuln-Detection-Predict](https://github.com/noobpk/Web-Vuln-Detection-Predict)
 
