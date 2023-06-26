@@ -158,5 +158,3 @@ Interested in contributing? Check out the contributing guidelines. Please note t
 ## License
 
 `gemini_self_protector` was created by lethanhphuc. It is licensed under the terms of the MIT license.
-
-## ChangeLog
