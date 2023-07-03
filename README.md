@@ -151,6 +151,9 @@ https://appseed.us/product/datta-able/flask/
 
 ![image](https://github.com/noobpk/gemini-self-protector/assets/31820707/e5b58af5-fe2a-4f3a-ab03-e25923bd72ee)
 
+### Endpoint 
+![image](https://github.com/noobpk/gemini-self-protector/assets/31820707/67db7eed-5c12-452d-89ae-80a88b10817a)
+
 ## Contributing
 
 Interested in contributing? Check out the contributing guidelines. Please note that this project is released with a Code of Conduct. By contributing to this project, you agree to abide by its terms.
