@@ -1,7 +1,6 @@
 from flask import Flask, Blueprint, request, make_response, render_template, session, redirect, url_for, flash, stream_with_context, jsonify
 from ._logger import logger
 from ._gemini import _Gemini
-from flask_sqlalchemy import SQLAlchemy
 from argon2 import PasswordHasher, exceptions as argon2_exceptions
 from datetime import datetime, timezone
 import ipaddress
@@ -16,7 +15,7 @@ class _Gemini_GUI(object):
     def __init__(self, flask_app: Flask) -> None:
         logger.info(
             "[+] Running gemini-self protector - GUI Mode")
-        
+
         # @flask_app.before_request
         # def count_request_to_service():
         #     _Gemini.calulate_total_access()
@@ -27,7 +26,12 @@ class _Gemini_GUI(object):
 
         if flask_app.secret_key is None:
             flask_app.secret_key = _Gemini.get_gemini_config().secret_key
-
+        
+        if flask_app.config.get('MAX_CONTENT_LENGTH') is None:
+            flask_app.config.update(
+                MAX_CONTENT_LENGTH= _Gemini.get_gemini_config().max_content_length
+            )
+        
         if flask_app.template_folder and flask_app.static_folder:
             if _Gemini.get_gemini_config().app_path is None:
                 _Gemini.init_gemini_app_path()
@@ -38,7 +42,7 @@ class _Gemini_GUI(object):
             gemini_app_path = _Gemini.get_gemini_config().app_path
             logger.info(
                 "[+] Access Your Gemini Dashboard as Path: http://host:port/{0}".format(gemini_app_path))
-
+            
             @nested_service.app_template_filter('gemini_datetime_format')
             def datetime_format(value, format='%d %B %H:%M'):
                 if isinstance(value, str):
@@ -515,6 +519,51 @@ class _Gemini_GUI(object):
                 except Exception as e:
                     logger.error("[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('nested_service.route.gemini_get_event', e))
 
+            @nested_service.route('/endpoint', methods=['GET'])
+            def gemini_endpoint():
+                try:
+                    if not _Gemini.is_valid_license_key():
+                        return redirect(url_for('nested_service.gemini_update_key'))
+
+                    if not session.get('gemini_logged_in'):
+                        return redirect(url_for('nested_service.gemini_login'))
+                    
+                    app_path = _Gemini.get_gemini_config().app_path
+                    links = []
+                    for rule in flask_app.url_map.iter_rules():
+                        options = {}
+                        for arg in rule.arguments:
+                            options[arg] = "[{0}]".format(arg)
+
+                        methods = ','.join(rule.methods)
+                        url = url_for(rule.endpoint, _external=True, **options)
+                        if app_path not in url:
+                            link = {
+                                'endpoint': rule.endpoint,
+                                'method': methods,
+                                'url': url,
+                            }
+                            links.append(link)
+
+                    _sorted_links = sorted(links, key=lambda x: x['endpoint'])
+                    page = int(request.args.get('page', 1))
+                    per_page = 5
+
+                    total_records = len(_sorted_links)
+                    total_pages = (total_records + per_page - 1) // per_page
+
+                    start_index = (page - 1) * per_page
+                    end_index = start_index + per_page
+                    limited_links = _sorted_links[start_index:end_index]
+                    return render_template('gemini-protector-gui/home/endpoint.html', 
+                                            _sorted_links=limited_links,
+                                            _current_page=page,
+                                            _total_pages=total_pages
+                                           )
+                except Exception as e:
+                    logger.error(
+                        "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('nested_service.route.gemini_endpoint', e))
+            
             @nested_service.route('/logout')
             def gemini_logout():
                 try:
@@ -525,10 +574,6 @@ class _Gemini_GUI(object):
                 except Exception as e:
                     logger.error(
                         "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('nested_service.route.gemini_logout', e))
-
-            @nested_service.route('/chart')
-            def gemini_chart():
-                return render_template('gemini-protector-gui/home/chart-morris.html')
             
             @nested_service.errorhandler(403)
             def access_forbidden(error):
