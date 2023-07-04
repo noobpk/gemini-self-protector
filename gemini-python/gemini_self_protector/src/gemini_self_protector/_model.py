@@ -102,3 +102,12 @@ class tb_Dependency(Base):
     severity = Column(String)
     created_at = Column(DateTime, default=func.now())
     updated_at = Column(DateTime, default=func.now(), onupdate=func.now())
+
+class tb_Feedback(Base):
+    __tablename__ = 'feedbacks'
+
+    id = Column(Integer, primary_key=True)
+    sentence = Column(String)
+    label = Column(String)
+    created_at = Column(DateTime, default=func.now())
+    updated_at = Column(DateTime, default=func.now(), onupdate=func.now())

@@ -121,7 +121,7 @@
     removeButtons.forEach(button => {
         button.addEventListener('click', () => {
             const ip = button.getAttribute('data-ip');
-            fetch('{{url_for('nested_service.gemini_remove_acl')}}', {
+            fetch("{{url_for('nested_service.gemini_remove_acl')}}", {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded'

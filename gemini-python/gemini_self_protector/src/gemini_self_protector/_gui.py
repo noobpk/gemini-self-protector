@@ -1,4 +1,4 @@
-from flask import Flask, Blueprint, request, make_response, render_template, session, redirect, url_for, flash, stream_with_context, jsonify
+from flask import Flask, Blueprint, request, make_response, render_template, session, redirect, url_for, flash, stream_with_context, jsonify, send_file
 from ._logger import logger
 from ._gemini import _Gemini
 from argon2 import PasswordHasher, exceptions as argon2_exceptions
@@ -493,6 +493,8 @@ class _Gemini_GUI(object):
 
                     record = _Gemini.get_gemini_detail_request_log(event_id)
                     if record:
+                        if record.predict is None:
+                            _Gemini.update_gemini_request_log(record.event_id)
                         return jsonify({
                             "status": True,
                             "time": record.time,
@@ -519,6 +521,36 @@ class _Gemini_GUI(object):
                 except Exception as e:
                     logger.error("[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('nested_service.route.gemini_get_event', e))
 
+            @nested_service.route('/event-feedback', methods=['POST'])
+            def gemini_event_feedback():
+                try:
+                    if not _Gemini.is_valid_license_key():
+                        return redirect(url_for('nested_service.gemini_update_key'))
+
+                    if not session.get('gemini_logged_in'):
+                        return redirect(url_for('nested_service.gemini_login'))
+                    
+                    event_id = request.json['event_id']
+                    feedback_value = request.json['feedback_value']
+
+                    record = _Gemini.get_gemini_detail_request_log(event_id)
+                    if record:
+                        sentence = "{}{}".format(record.request, record.req_body)
+                        _Gemini.store_gemini_feedback(sentence, int(feedback_value))
+                        _Gemini.update_gemini_request_log(record.event_id)
+                        return jsonify({
+                            "status": True,
+                            "message": "Update feedback successful"
+                        })
+                    else:
+                        return jsonify({
+                            "status": False,
+                            "message": "Update feedback failed"
+                        })
+                except Exception as e:
+                    logger.error(
+                        "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('nested_service.route.gemini_event_feedback', e))
+            
             @nested_service.route('/endpoint', methods=['GET'])
             def gemini_endpoint():
                 try:
@@ -563,7 +595,52 @@ class _Gemini_GUI(object):
                 except Exception as e:
                     logger.error(
                         "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('nested_service.route.gemini_endpoint', e))
-            
+
+            @nested_service.route('/feedback', methods=['GET'])
+            def gemini_feedback():
+                try:
+                    if not _Gemini.is_valid_license_key():
+                        return redirect(url_for('nested_service.gemini_update_key'))
+
+                    if not session.get('gemini_logged_in'):
+                        return redirect(url_for('nested_service.gemini_login'))
+                    
+                    feedback = _Gemini.get_gemini_feedback()
+
+                    _sorted_links = sorted(feedback, key=lambda x: x.created_at)
+                    page = int(request.args.get('page', 1))
+                    per_page = 5
+
+                    total_records = len(_sorted_links)
+                    total_pages = (total_records + per_page - 1) // per_page
+
+                    start_index = (page - 1) * per_page
+                    end_index = start_index + per_page
+                    limited_links = _sorted_links[start_index:end_index]
+                    return render_template('gemini-protector-gui/home/feedback.html', 
+                                            _sorted_links=limited_links,
+                                            _current_page=page,
+                                            _total_pages=total_pages
+                                           )
+                except Exception as e:
+                    logger.error(
+                        "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('nested_service.route.gemini_endpoint', e))
+
+            @nested_service.route('/export-feedback')
+            def gemini_export_feedback():
+                try:
+                    if not _Gemini.is_valid_license_key():
+                        return redirect(url_for('nested_service.gemini_update_key'))
+
+                    if not session.get('gemini_logged_in'):
+                        return redirect(url_for('nested_service.gemini_login'))
+                    
+                    csv_file = _Gemini.export_gemini_feedback()
+                    return send_file(csv_file, as_attachment=True) 
+                except Exception as e:
+                    logger.error(
+                        "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('nested_service.route.gemini_export_feedback', e))
+
             @nested_service.route('/logout')
             def gemini_logout():
                 try:

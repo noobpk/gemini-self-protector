@@ -13,9 +13,9 @@ from datetime import datetime, timezone
 
 class _Gemini(object):
 
-    def init_gemini_database(working_directory):
+    def init_gemini_database(_working_directory):
         try:
-            _Config(working_directory)
+            _Config(_working_directory)
         except Exception as e:
             logger.error(
                 "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.update_gemini_config', e))
@@ -28,9 +28,9 @@ class _Gemini(object):
             logger.error(
                 "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.get_gemini_config', e))
 
-    def update_gemini_config(update_content):
+    def update_gemini_config(_update_content):
         try:
-            _Config.update_tb_config(update_content)
+            _Config.update_tb_config(_update_content)
         except Exception as e:
             logger.error(
                 "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.update_gemini_config', e))
@@ -73,14 +73,13 @@ class _Gemini(object):
             logger.error(
                 "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.get_gemini_summary', e))
 
-    def get_gemini_detail_request_log(event_id) -> None:
+    def get_gemini_detail_request_log(_event_id) -> None:
         try:
-            _gemini_return = _Config.get_tb_request_log_first(event_id)
+            _gemini_return = _Config.get_tb_request_log_first(_event_id)
             return _gemini_return
         except Exception as e:
             logger.error(
                 "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.get_gemini_detail_request_log', e))
-
 
     def store_gemini_request_log(ipaddress, url, request, response, attack_type, predict, event_id, latitude, longitude):
         try:
@@ -88,6 +87,13 @@ class _Gemini(object):
         except Exception as e:
             logger.error(
                 "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.store_gemini_request_log', e))
+
+    def update_gemini_request_log(_event_id):
+        try:
+            _Config.update_record_request_log(_event_id)
+        except Exception as e:
+            logger.error(
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.update_gemini_request_log', e))
 
     def get_gemini_acl():
         try:
@@ -125,6 +131,30 @@ class _Gemini(object):
         except Exception as e:
             logger.error(
                 "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.get_gemini_audit_dependency', e))
+
+    def get_gemini_feedback() -> None:
+        try:
+            _gemini_return = _Config.get_tb_feedback()
+            return _gemini_return
+        except Exception as e:
+            logger.error(
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.get_gemini_feedback', e))
+
+    def store_gemini_feedback(_sentence, _label):
+        try:
+            _Config.store_tb_feedback(_sentence, _label)
+        except Exception as e:
+            logger.error(
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.store_gemini_feedback', e))
+
+    def export_gemini_feedback() -> str:
+        try:
+            _gemini_return = _Config.export_tb_feedback()
+            return _gemini_return
+        except Exception as e:
+            logger.error(
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.export_gemini_feedback', e))
+
 
     def validator_license_key(license_key):
         """

@@ -1,12 +1,12 @@
 import os
-import yaml
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from ._logger import logger
 import json
+import csv
 from ipaddress import ip_address
 from datetime import datetime
-from ._model import Base, tb_User, tb_Config, tb_Summary, tb_RequestLog, tb_AccessControlList, tb_Dependency
+from ._model import Base, tb_User, tb_Config, tb_Summary, tb_RequestLog, tb_AccessControlList, tb_Dependency, tb_Feedback
 
 class _Config(object):
 
@@ -182,6 +182,19 @@ class _Config(object):
             logger.error(
                 "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Config.get_tb_config', e))
 
+    def update_record_request_log(_event_id) -> None:
+        try:
+            session = _Config.get_session()
+            request_log_record = session.query(tb_RequestLog).filter_by(
+                event_id=_event_id).first()
+            if request_log_record:
+                request_log_record.review = True
+                session.commit()
+                session.close()
+        except Exception as e:
+            logger.error(
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Config.update_record_request_log', e))
+
     def get_tb_acl() -> None:
         try:
             session = _Config.get_session()
@@ -279,3 +292,44 @@ class _Config(object):
         except Exception as e:
             logger.error(
                 "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Config.store_tb_dependency', e))
+
+    def get_tb_feedback() -> None:
+        try:
+            session = _Config.get_session()
+            feedback = _Config.get_model_instance_all(session, tb_Feedback)
+            return feedback
+        except Exception as e:
+            logger.error(
+                "[x_x] Something went wrong, please check your error message.\n Message - {0}".format('_Config.get_tb_dependency', e))
+
+    def store_tb_feedback(_sentence, _label):
+        try:
+            session = _Config.get_session()
+            new_record = tb_Feedback(
+                sentence=_sentence,
+                label=_label,
+            )
+            session.add(new_record)
+            session.commit()
+            session.close()
+        except Exception as e:
+            logger.error(
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Config.store_gemini_feedback', e))
+
+    def export_tb_feedback() -> str:
+        try:
+            session = _Config.get_session()
+            feedback = _Config.get_model_instance_all(session, tb_Feedback)
+
+            gemini_working_directory = _Config.get_tb_config().working_directory
+            csv_file_path = gemini_working_directory+"/feedback.csv"
+
+            with open(csv_file_path, mode='w', newline='') as file:
+                writer = csv.writer(file)
+                writer.writerow(['Sentence', 'Label'])  # Write header
+                for row in feedback:
+                    writer.writerow([row.sentence, row.label])
+
+            return csv_file_path
+        except Exception as e:
+            logger.error("[x_x] Something went wrong, please check your error message.\n Message - {0}".format('_Config.export_tb_feedback', e))
