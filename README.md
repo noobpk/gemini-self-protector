@@ -106,7 +106,7 @@ Gemini supports 3 modes and recommends sensitivity levels for the application to
 | monitor | 70        |
 | block   | 50        |
 
-## Support Predict Server
+## Public Predict Server
 
 | Address | Version |
 | ------- | --------- |
@@ -117,6 +117,16 @@ Gemini supports 3 modes and recommends sensitivity levels for the application to
 The license key is used for authentication with the API.
 
 Key: `988907ce-9803-11ed-a8fc-0242ac120002`
+
+## Deploy Your Predict Server with Docker
+
+```
+wget -O docker-compose.yml 
+```
+
+```
+docker-compose up
+```
 
 ## GUI Features
 
