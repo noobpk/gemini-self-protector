@@ -118,10 +118,10 @@ The license key is used for authentication with the API.
 
 Key: `988907ce-9803-11ed-a8fc-0242ac120002`
 
-## Deploy Your Predict Server with Docker
+## Deploy Predict Server with Docker
 
 ```
-wget -O docker-compose.yml 
+wget -O docker-compose.yml https://raw.githubusercontent.com/noobpk/gemini-self-protector/dev/predict-server/docker-compose.yml
 ```
 
 ```
