@@ -2,7 +2,7 @@ version: "3"
 
 services:
   gemini-web-vuln-detection:
-    image: gemini-web-vuln-detection
+    image: noobpk/gemini-web-vuln-detection
     environment:
       - AUTH_KEY="your-authen-key"
     ports:
