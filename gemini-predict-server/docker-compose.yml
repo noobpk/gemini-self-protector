@@ -1,11 +1,11 @@
 version: "3"
 
 services:
-  gemini-predict-server:
-    image: gemini-predict-server
+  gemini-web-vuln-detection:
+    image: gemini-web-vuln-detection
     environment:
       - AUTH_KEY="your-authen-key"
     ports:
       - "3000:443"
-    container_name: gemini-predict-server
+    container_name: gemini-web-vuln-detection
     restart: unless-stopped
