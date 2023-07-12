@@ -35,7 +35,7 @@ For more details: [Web-Vuln-Detection-Predict](https://github.com/noobpk/Web-Vul
 | Malformed Content Types |                    |
 | HTTP Method Tampering   | :white_check_mark: |
 | Large Requests          | :white_check_mark: |
-| Path Traversal          |                    |
+| Path Traversal          | :white_check_mark: |
 | Unvalidated Redirects   | :white_check_mark: |
 
 | Injections                 | Supported          |
@@ -106,17 +106,32 @@ Gemini supports 3 modes and recommends sensitivity levels for the application to
 | monitor | 70        |
 | block   | 50        |
 
-## Support Predict Server
+## Public Predict Server
 
-| Address | Version |
-| ------- | --------- |
-| https://web-vuln-detect.my-app.in  | 19-06-2023  |
+| Address | Version | License Key |
+| ------- | --------- | --------- |
+| https://web-vuln-detect.my-app.in  | 07-2023  | 988907ce-9803-11ed-a8fc-0242ac120002 |
 
 ## License Key
 
 The license key is used for authentication with the API.
 
-Key: `988907ce-9803-11ed-a8fc-0242ac120002`
+## Deploy Predict Server with Docker
+
+To deploy predict server using docker, follow these steps -
+
+1. Clone this repository on your local machine or any other system where you have installed Docker. Replace `your-auth-key` with whatever you want. Suggest to use `uuid` or `sha256` for this key.
+
+```
+$ wget -O docker-compose.yml https://raw.githubusercontent.com/noobpk/gemini-self-protector/dev/predict-server/docker-compose.yml
+```
+2. Open terminal in that directory
+
+3. Run following command to run container
+
+```
+$ docker-compose up
+```
 
 ## GUI Features
 
@@ -150,6 +165,9 @@ https://appseed.us/product/datta-able/flask/
 ### Dependency Check
 
 ![image](https://github.com/noobpk/gemini-self-protector/assets/31820707/e5b58af5-fe2a-4f3a-ab03-e25923bd72ee)
+
+### Endpoint 
+![image](https://github.com/noobpk/gemini-self-protector/assets/31820707/67db7eed-5c12-452d-89ae-80a88b10817a)
 
 ## Contributing
 

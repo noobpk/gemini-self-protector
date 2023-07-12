@@ -22,11 +22,11 @@
                             class="pcoded-micon"><i class="feather icon-home"></i></span><span
                             class="pcoded-mtext">Dashboard</span></a>
                 </li>
-                <li data-username="Configurate Page"
-                    class="nav-item {% if 'configurate' in segment %} active {% endif %}">
-                    <a href="{{ url_for('nested_service.gemini_configurate') }}" class="nav-link">
-                        <span class="pcoded-micon"><i class="feather icon-settings"></i></span>
-                        <span class="pcoded-mtext">Configurate</span></a>
+
+                <li data-username="Endpoint Page" class="nav-item {% if 'endpoint' in segment %} active {% endif %}">
+                    <a href="{{ url_for('nested_service.gemini_endpoint') }}" class="nav-link">
+                        <span class="pcoded-micon"><i class="feather icon-target"></i></span>
+                        <span class="pcoded-mtext">Endpoint</span></a>
                 </li>
 
                 <li data-username="ACL Page"
@@ -36,17 +36,30 @@
                         <span class="pcoded-mtext">Access Control List</span></a>
                 </li>
 
-                <li data-username="ACL Page"
+                <li data-username="Dependency Page"
                     class="nav-item {% if 'dependency-vulnerability' in segment %} active {% endif %}">
                     <a href="{{ url_for('nested_service.gemini_dependency_audit') }}" class="nav-link">
                         <span class="pcoded-micon"><i class="feather icon-check-square"></i></span>
                         <span class="pcoded-mtext">Dependency Check</span></a>
                 </li>
 
-                <li data-username="ACL Page" class="nav-item {% if 'update-key' in segment %} active {% endif %}">
+                <li data-username="Configurate Page"
+                    class="nav-item {% if 'configurate' in segment %} active {% endif %}">
+                    <a href="{{ url_for('nested_service.gemini_configurate') }}" class="nav-link">
+                        <span class="pcoded-micon"><i class="feather icon-settings"></i></span>
+                        <span class="pcoded-mtext">Configurate</span></a>
+                </li>
+
+                <li data-username="Configurate Page" class="nav-item {% if 'feedback' in segment %} active {% endif %}">
+                    <a href="{{ url_for('nested_service.gemini_feedback') }}" class="nav-link">
+                        <span class="pcoded-micon"><i class="feather icon-star"></i></span>
+                        <span class="pcoded-mtext">Feedback</span></a>
+                </li>
+
+                <li data-username="Key Page" class="nav-item {% if 'update-key' in segment %} active {% endif %}">
                     <a href="{{ url_for('nested_service.gemini_update_key') }}" class="nav-link">
                         <span class="pcoded-micon"><i class="feather icon-heart"></i></span>
-                        <span class="pcoded-mtext">License Key</span></a>
+                        <span class="pcoded-mtext">Key</span></a>
                 </li>
 
                 <li data-username="Disabled Menu" class="nav-item">

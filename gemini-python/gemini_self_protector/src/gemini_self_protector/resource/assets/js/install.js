@@ -183,26 +183,42 @@ jQuery(document).ready(function () {
     $("#predict-server").click(function (event) {
         $("#loading-spinner").show();
         // Get the input value
-        var inputValue = $("#predictServerValue").val();
-
+        var serverValue = $("#predictServerValue").val();
+        var keyAuthValue = $("#keyAuthServerValue").val();
         // Make the POST request
         $.ajax({
-            url: inputValue + '/predict',
+            url: serverValue + '/predict',
             type: "POST",
+            headers: {
+                "Authorization": keyAuthValue
+            },
             contentType: "application/json",
             data: JSON.stringify({ data: "healthcheck" }),
             success: function (response) {
                 // Handle the success response
-                Toastify({
-                    text: "Connected to this predict server",
-                    duration: 3000,
-                    gravity: "top", // `top` or `bottom`
-                    position: "right", // `left`, `center` or `right`
-                    stopOnFocus: true, // Prevents dismissing of toast on hover
-                    style: {
-                        background: "linear-gradient(to right, #00b09b, #96c93d)",
-                    },
-                }).showToast();
+                if (response.accuracy) {
+                    Toastify({
+                        text: "Connected to this predict server",
+                        duration: 3000,
+                        gravity: "top", // `top` or `bottom`
+                        position: "right", // `left`, `center` or `right`
+                        stopOnFocus: true, // Prevents dismissing of toast on hover
+                        style: {
+                            background: "linear-gradient(to right, #00b09b, #96c93d)",
+                        },
+                    }).showToast();
+                } else {
+                    Toastify({
+                        text: "Cannot connect to this predict server",
+                        duration: 3000,
+                        gravity: "top", // `top` or `bottom`
+                        position: "right", // `left`, `center` or `right`
+                        stopOnFocus: true, // Prevents dismissing of toast on hover
+                        style: {
+                            background: "linear-gradient(to right, rgb(255, 95, 109), rgb(255, 195, 113))",
+                        },
+                    }).showToast();
+                }
             },
             error: function (error) {
                 // Handle the error response

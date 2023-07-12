@@ -104,11 +104,14 @@ class _Utils(object):
         """
         try:
             predict_server = _Config.get_tb_config().predict_server
-            headers = {"Content-Type": "application/json"}
-            predict = requests.post(f'{predict_server}/predict', json={"data": payload}, headers=headers)
+            predict_server_key_auth = _Config.get_tb_config().predict_server_key_auth
+            headers = {"Content-Type": "application/json",
+                       "Authorization": predict_server_key_auth}
+            predict = requests.post(
+                f'{predict_server}/predict', json={"data": payload}, headers=headers)
             if (predict):
                 response = predict.json()
-                accuracy = response.get('accuracy')
+                accuracy = response.get('accuracy', 0)
                 return accuracy
             else:
                 logger.warning(
@@ -116,7 +119,7 @@ class _Utils(object):
                 return 0
         except requests.exceptions.RequestException as e:
             logger.warning(
-                    "[!] Cannot connect to predict server. Gemini-self protector cannot predit this request.")
+                "[!] Cannot connect to predict server. Gemini-self protector cannot predit this request.")
             return 0
         except Exception as e:
             logger.error(
@@ -203,51 +206,27 @@ class _Utils(object):
 
 class _Validator(object):
 
-    def validate_license_key(license_key) -> None:
-        """
-        If the license key is valid, then update the config file with the license key and the access
-        token
-
-        :param license_key: The license key that you received from the API
-        :return: True or False
-        """
+    def validate_key_auth(_key) -> None:
         try:
-            if license_key:
-                if license_key == '988907ce-9803-11ed-a8fc-0242ac120002':
-                    # call api and return access_token
-                    access_token = jwt.encode(
-                        {"license": license_key}, "secret", algorithm="HS256")
-
+            if _key:
+                predict_server = _Config.get_tb_config().predict_server
+                headers = {"Content-Type": "application/json",
+                           "Authorization": _key}
+                response = requests.post(
+                    f'{predict_server}/predict', json={"data": "healthcheck"}, headers=headers)
+                data = response.json()
+                if response.status_code == 200 and 'accuracy' in data:
                     _Config.update_tb_config({
-                        'license_key': license_key,
-                        'access_token': access_token
+                        'predict_server_key_auth': _key,
                     })
                     return True
                 else:
-                    logger.error("[x_x] Invalid License Key")
                     return False
             else:
-                logger.error("[x_x] Invalid License Key")
                 return False
         except Exception as e:
             logger.error(
-                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Validator.validate_license_key', e))
-
-    def is_valid_license_key() -> None:
-        """
-        The function checks if a given license key is valid and returns a boolean value.
-        :return: a boolean value (True or False) depending on whether the current_key matches the
-        specified license key or not.
-        """
-        try:
-            current_key = _Config.get_tb_config().license_key
-            if current_key == '988907ce-9803-11ed-a8fc-0242ac120002':
-                return True
-            else:
-                return False
-        except Exception as e:
-            logger.error(
-                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Validator.is_valid_license_key', e))
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Validator.validate_key_auth', e))
 
     def validate_protect_mode(protect_mode) -> None:
         """
@@ -391,16 +370,15 @@ class _Validator(object):
             logger.error(
                 "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Validator.validate_trust_domain', e))
 
-    def validate_predict_server(server) -> None:
+    def validate_predict_server(_server, _key) -> None:
         try:
-            if re.match(r'https?://\S+', server):
-                headers = {"Content-Type": "application/json"}
+            if re.match(r'https?://\S+', _server):
+                headers = {"Content-Type": "application/json",
+                           "Authorization": _key}
                 response = requests.post(
-                    f'{server}/predict', json={"data": "healthcheck"}, headers=headers)
-                if response.status_code == 200:
-                    _Config.update_tb_config({
-                        'predict_server': server,
-                    })
+                    f'{_server}/predict', json={"data": "healthcheck"}, headers=headers)
+                data = response.json()
+                if response.status_code == 200 and 'accuracy' in data:
                     return True
                 else:
                     return False

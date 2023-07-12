@@ -1,0 +1,95 @@
+{% extends "gemini-protector-gui/layouts/base.html" %}
+
+{% block title %} Access Control List {% endblock %}
+
+<!-- Specific CSS goes HERE -->
+{% block stylesheets %}{% endblock stylesheets %}
+
+{% block content %}
+
+<!-- [ Main Content ] start -->
+<div class="pcoded-main-container">
+    <div class="pcoded-wrapper">
+
+        <div class="pcoded-content">
+            <div class="pcoded-inner-content">
+                <div class="main-body">
+                    <div class="page-wrapper">
+                        <!-- [ Main Content ] start -->
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="card Recent-Users">
+                                    <div class="card-header">
+                                        <button class="btn btn-success btnExportCSV" style="float: right;">Export CSV</button>
+                                        <h5>Feedback</h5>
+                                        <span class="d-block m-t-5">help us <code>train</code> with your feedback data and <code>contribute</code> your model. Thank you for your contribution</span>
+                                        <span class="d-block m-t-5">learn more about how to <code>train</code> models and <code>contribute</code> models. <a href="https://github.com/noobpk/gemini-self-protector/wiki" target="_blank">Wiki</a></span>
+                                    </div>
+                                    <div class="card-block table-border-style">
+                                        <div class="table-responsive">
+                                            <table class="table table-hover">
+                                                <thead>
+                                                    <tr>
+                                                        <th class="text-right"></th>
+                                                        <th>Label</th>                                                      
+                                                        <th>Sentence</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {% for link in _sorted_links %}
+                                                    <tr>
+                                                        <td>
+                                                            <i class="feather icon-umbrella f-30 text-c-green"></i>
+                                                        </td>
+                                                        <td>{{ link.label }}</td>
+                                                        <td>{{ link.sentence }}</td>
+                                                    </tr>
+                                                    {% endfor %}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        <nav aria-label="Page navigation example">
+                                            <ul class="pagination">
+                                                {% if _current_page > 1 %}
+                                                <li class="page-item"><a class="page-link"
+                                                        href="?page={{ _current_page - 1 }}">Previous</a></li>
+                                                {% endif %}
+                                                {% for page_num in range(1, _total_pages + 1) %}
+                                                <li
+                                                    class="page-item {% if page_num == _current_page %}active{% endif %}">
+                                                    <a class="page-link" href="?page={{ page_num }}">{{ page_num }}</a>
+                                                </li>
+                                                {% endfor %}
+                                                {% if _current_page < _total_pages %} <li class="page-item"><a
+                                                        class="page-link" href="?page={{ _current_page + 1 }}">Next</a>
+                                                    </li>
+                                                    {% endif %}
+                                            </ul>
+                                        </nav>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- [ Main Content ] end -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+<!-- [ Main Content ] end -->
+
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}
+<script>
+    $(document).ready(function () {
+            $(".btnExportCSV").click(function () {
+                window.location.href = "{{url_for('nested_service.gemini_export_feedback')}}";
+            });
+        });
+
+</script>
+{% endblock javascripts %}

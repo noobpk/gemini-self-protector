@@ -9032,6 +9032,10 @@ table.footable-paging-center>tfoot>tr.footable-paging>td {
   border: 0;
 }
 
+.unread {
+  background-color: rgb(246, 229, 222);
+}
+
 /**====== Foo-table css end ======**/
 /**====== Data Tables css end ======**/
 /**  =====================

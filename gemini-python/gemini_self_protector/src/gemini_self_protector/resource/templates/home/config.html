@@ -94,9 +94,22 @@
                                             <!-- [ Predict Server ] start -->
                                             <div class="form-group">
                                                 <label>Predict Server</label>
-                                                <input type="text" class="form-control" placeholder="http://127.0.0.1"
-                                                    value="{{_predict_server}}" name="predict_server">
+                                                <div class="input-group mb-3">
+                                                    <input id="predictServerValue" type="text" class="form-control"
+                                                        placeholder="http://127.0.0.1" value="{{_predict_server}}"
+                                                        name="predict_server">
+                                                    <div class="input-group-append">
+                                                        <button class="btn btn-primary" id="predict-server-check"
+                                                            type="button">Check
+                                                            <div id="loading-spinner"
+                                                                style="display: none; float: right;">
+                                                                <i class="fa fa-spinner fa-spin"></i>
+                                                            </div>
+                                                        </button>
+                                                    </div>
+                                                </div>
                                             </div>
+
                                             <!-- [ Predict Server ] stop -->
                                             <!-- [ Sensitive Value ] start -->
                                             <div class="form-group">
@@ -263,4 +276,61 @@
 {% endif %}
 {% endfor %}
 {% endwith %}
+<script>
+    $(document).ready(function () {
+        $("#predict-server-check").click(function (event) {
+            $("#loading-spinner").show();
+            var inputValue = $("#predictServerValue").val();
+            $.ajax({
+                url: inputValue + '/predict',
+                type: "POST",
+                contentType: "application/json",
+                data: JSON.stringify({ data: "healthcheck" }),
+                success: function (response) {
+                    if (response.message) {
+                        // Handle the success response
+                        Toastify({
+                            text: "Connected to this predict server",
+                            duration: 3000,
+                            gravity: "top", // `top` or `bottom`
+                            position: "right", // `left`, `center` or `right`
+                            stopOnFocus: true, // Prevents dismissing of toast on hover
+                            style: {
+                                background: "linear-gradient(to right, #00b09b, #96c93d)",
+                            },
+                        }).showToast();
+                    } else {
+                        Toastify({
+                            text: "Cannot connect to this predict server",
+                            duration: 3000,
+                            gravity: "top", // `top` or `bottom`
+                            position: "right", // `left`, `center` or `right`
+                            stopOnFocus: true, // Prevents dismissing of toast on hover
+                            style: {
+                                background: "linear-gradient(to right, rgb(255, 95, 109), rgb(255, 195, 113))",
+                            },
+                        }).showToast();
+                    }
+                },
+                error: function (error) {
+                    // Handle the error response
+                    Toastify({
+                        text: "Cannot connect to this predict server",
+                        duration: 3000,
+                        gravity: "top", // `top` or `bottom`
+                        position: "right", // `left`, `center` or `right`
+                        stopOnFocus: true, // Prevents dismissing of toast on hover
+                        style: {
+                            background: "linear-gradient(to right, rgb(255, 95, 109), rgb(255, 195, 113))",
+                        },
+                    }).showToast();
+                },
+                complete: function () {
+                    // Hide the loading spinner when the request is complete
+                    $("#loading-spinner").hide();
+                }
+            });
+        });
+    });
+</script>
 {% endblock javascripts %}

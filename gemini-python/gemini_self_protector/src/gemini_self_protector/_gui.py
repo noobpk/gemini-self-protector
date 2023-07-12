@@ -1,8 +1,7 @@
-from flask import Flask, Blueprint, request, make_response, render_template, session, redirect, url_for, flash, stream_with_context, jsonify
+from flask import Flask, Blueprint, request, make_response, render_template, session, redirect, url_for, flash, stream_with_context, jsonify, send_file
 from ._logger import logger
 from ._gemini import _Gemini
-from flask_sqlalchemy import SQLAlchemy
-from argon2 import PasswordHasher, exceptions as argon2_exceptions
+from passlib.hash import argon2
 from datetime import datetime, timezone
 import ipaddress
 import re
@@ -16,7 +15,7 @@ class _Gemini_GUI(object):
     def __init__(self, flask_app: Flask) -> None:
         logger.info(
             "[+] Running gemini-self protector - GUI Mode")
-        
+
         # @flask_app.before_request
         # def count_request_to_service():
         #     _Gemini.calulate_total_access()
@@ -27,7 +26,12 @@ class _Gemini_GUI(object):
 
         if flask_app.secret_key is None:
             flask_app.secret_key = _Gemini.get_gemini_config().secret_key
-
+        
+        if flask_app.config.get('MAX_CONTENT_LENGTH') is None:
+            flask_app.config.update(
+                MAX_CONTENT_LENGTH= _Gemini.get_gemini_config().max_content_length
+            )
+        
         if flask_app.template_folder and flask_app.static_folder:
             if _Gemini.get_gemini_config().app_path is None:
                 _Gemini.init_gemini_app_path()
@@ -38,7 +42,7 @@ class _Gemini_GUI(object):
             gemini_app_path = _Gemini.get_gemini_config().app_path
             logger.info(
                 "[+] Access Your Gemini Dashboard as Path: http://host:port/{0}".format(gemini_app_path))
-
+            
             @nested_service.app_template_filter('gemini_datetime_format')
             def datetime_format(value, format='%d %B %H:%M'):
                 if isinstance(value, str):
@@ -82,7 +86,7 @@ class _Gemini_GUI(object):
                             password = request.form['pwd']
                             confirm_password = request.form['cpwd']
                             notification_channel = request.form['radio-channel']
-                            license_key = request.form['license-key']
+                            predict_server_key_auth = request.form['key-auth-server-value']
                             predict_server = request.form['predit-server-value']
                             telegram_token = ''
                             telegram_chat_id = ''
@@ -95,8 +99,7 @@ class _Gemini_GUI(object):
                             else:
                                 notification_webhook = request.form['channel-webhook']
 
-                            if _Gemini.validator_protect_mode(protect_mode) and _Gemini.validator_sensitive_value(sensitive_value) and _Gemini.validator_app_path(app_path) and _Gemini.validator_dashboard_password(password, confirm_password) and _Gemini.validator_notification_channel(notification_channel) and _Gemini.validator_license_key(license_key) and _Gemini.validator_predict_server(predict_server):
-                                ph = PasswordHasher()
+                            if _Gemini.validator_protect_mode(protect_mode) and _Gemini.validator_sensitive_value(sensitive_value) and _Gemini.validator_app_path(app_path) and _Gemini.validator_dashboard_password(password, confirm_password) and _Gemini.validator_notification_channel(notification_channel) and _Gemini.validator_predict_server(predict_server, predict_server_key_auth):
                                 _Gemini.update_gemini_config({
                                     "isinstall": True,
                                     "global_protect_mode": protect_mode,
@@ -106,10 +109,11 @@ class _Gemini_GUI(object):
                                     "telegram_token": telegram_token,
                                     "telegram_chat_id": telegram_chat_id,
                                     "notification_webhook": notification_webhook,
-                                    "predict_server": predict_server
+                                    "predict_server": predict_server,
+                                    "predict_server_key_auth" : predict_server_key_auth
                                 })
                                 _Gemini.update_gemini_user({
-                                    "password": ph.hash(password),
+                                    "password": argon2.hash(password),
                                 })
                                 logger.info(
                                     "[+] Install gemini-self-protector successful.!")
@@ -137,13 +141,12 @@ class _Gemini_GUI(object):
                     
                     if request.method == 'POST':
                         key = request.form['key']
-                        if _Gemini.validator_license_key(key):
-                            flash('License key update successful', 'key_update_success')
+                        if _Gemini.validator_key_auth(key):
+                            flash('Predict server key auth update successful', 'key_update_success')
                             return redirect(url_for('nested_service.gemini_dashboard'))
                         else:
-                            return render_template('gemini-protector-gui/license.html', msg="Invalid license key")
-
-                    return render_template('gemini-protector-gui/license.html')
+                            return render_template('gemini-protector-gui/key.html', msg="Invalid predict server key auth")
+                    return render_template('gemini-protector-gui/key.html')
 
                 except Exception as e:
                     logger.error("[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('nested_service.route.gemini_update_key', e))
@@ -166,22 +169,14 @@ class _Gemini_GUI(object):
                         app_username = _Gemini.get_gemini_user().username
                         app_password = _Gemini.get_gemini_user().password
 
-                        ph = PasswordHasher()
-                        try:
-                            ph.verify(app_password, password)
-                        except argon2_exceptions.VerifyMismatchError:
-                            return render_template('gemini-protector-gui/accounts/login.html', msg="Incorrect Username / Password")
-
-                        if username == app_username:
+                        password_check = argon2.verify(password, app_password)
+                        
+                        if username == app_username and password_check:
                             session['gemini_logged_in'] = True
-
-                            if not _Gemini.is_valid_license_key():
-                                flash('Please update license key!', 'required')
-                                return redirect(url_for('nested_service.gemini_update_key'))
-   
                             flash('Welcome back {}!'.format(app_username), 'login')
                             return redirect(url_for('nested_service.gemini_dashboard'))
-
+                        else:
+                            return render_template('gemini-protector-gui/accounts/login.html', msg="Incorrect Username / Password")
                     return render_template('gemini-protector-gui/accounts/login.html')
 
                 except Exception as e:
@@ -190,9 +185,6 @@ class _Gemini_GUI(object):
             @nested_service.route('/profile')
             def gemini_profile():
                 try:
-                    if not _Gemini.is_valid_license_key():
-                        return redirect(url_for('nested_service.gemini_update_key'))
-
                     if not session.get('gemini_logged_in'):
                         flash('Please login', 'required_login')
                         return redirect(url_for('nested_service.gemini_login'))
@@ -204,9 +196,8 @@ class _Gemini_GUI(object):
                         if not _Gemini.validator_dashboard_password(password, confirm_password):
                             return render_template('gemini-protector-gui/home/profile.html', msg="Invalid password")
 
-                        ph = PasswordHasher()
                         _Gemini.update_gemini_config({
-                            "gemini_app_password": ph.hash(password),
+                            "gemini_app_password": argon2.hash(password),
                         })
                         logger.info("[+] Update password successful.")
                         return redirect(url_for('nested_service.gemini_login'))
@@ -220,9 +211,6 @@ class _Gemini_GUI(object):
             @nested_service.route('/dashboard')
             def gemini_dashboard():
                 try:
-                    if not _Gemini.is_valid_license_key():
-                        return redirect(url_for('nested_service.gemini_update_key'))
-                    
                     if not session.get('gemini_logged_in'):
                         flash('Please login', 'required_login')
                         return redirect(url_for('nested_service.gemini_login'))
@@ -282,9 +270,6 @@ class _Gemini_GUI(object):
             @nested_service.route('/configurate', methods=['GET', 'POST'])
             def gemini_configurate():
                 try:
-                    if not _Gemini.is_valid_license_key():
-                        return redirect(url_for('nested_service.gemini_update_key'))
-
                     if not session.get('gemini_logged_in'):
                         flash('Please login', 'required_login')
                         return redirect(url_for('nested_service.gemini_login'))
@@ -349,9 +334,6 @@ class _Gemini_GUI(object):
             @nested_service.route('/access-control-list', methods=['GET', 'POST'])
             def gemini_access_control_list():
                 try:
-                    if not _Gemini.is_valid_license_key():
-                        return redirect(url_for('nested_service.gemini_update_key'))
-
                     if not session.get('gemini_logged_in'):
                         flash('Please login', 'required_login')
                         return redirect(url_for('nested_service.gemini_login'))
@@ -407,9 +389,6 @@ class _Gemini_GUI(object):
             @nested_service.route('/remove-acl', methods=['POST'])
             def gemini_remove_acl():
                 try:
-                    if not _Gemini.is_valid_license_key():
-                        return redirect(url_for('nested_service.gemini_update_key'))
-
                     if not session.get('gemini_logged_in'):
                         flash('Please login', 'required_login')
                         return redirect(url_for('nested_service.gemini_login'))
@@ -432,9 +411,6 @@ class _Gemini_GUI(object):
             @nested_service.route('/dependency-vulnerability', methods=['GET', 'POST'])
             def gemini_dependency_audit():
                 try:
-                    if not _Gemini.is_valid_license_key():
-                        return redirect(url_for('nested_service.gemini_update_key'))
-
                     if not session.get('gemini_logged_in'):
                         return redirect(url_for('nested_service.gemini_login'))
 
@@ -478,9 +454,6 @@ class _Gemini_GUI(object):
             @nested_service.route('/event', methods=['POST'])
             def gemini_get_event():
                 try:
-                    if not _Gemini.is_valid_license_key():
-                        return redirect(url_for('nested_service.gemini_update_key'))
-
                     if not session.get('gemini_logged_in'):
                         flash('Please login', 'required_login')
                         return redirect(url_for('nested_service.gemini_login'))
@@ -489,6 +462,8 @@ class _Gemini_GUI(object):
 
                     record = _Gemini.get_gemini_detail_request_log(event_id)
                     if record:
+                        if record.predict is None:
+                            _Gemini.update_gemini_request_log(record.event_id)
                         return jsonify({
                             "status": True,
                             "time": record.time,
@@ -515,6 +490,114 @@ class _Gemini_GUI(object):
                 except Exception as e:
                     logger.error("[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('nested_service.route.gemini_get_event', e))
 
+            @nested_service.route('/event-feedback', methods=['POST'])
+            def gemini_event_feedback():
+                try:
+                    if not session.get('gemini_logged_in'):
+                        return redirect(url_for('nested_service.gemini_login'))
+                    
+                    event_id = request.json['event_id']
+                    feedback_value = request.json['feedback_value']
+
+                    record = _Gemini.get_gemini_detail_request_log(event_id)
+                    if record:
+                        sentence = "{}{}".format(record.request, record.req_body)
+                        _Gemini.store_gemini_feedback(sentence, int(feedback_value))
+                        _Gemini.update_gemini_request_log(record.event_id)
+                        return jsonify({
+                            "status": True,
+                            "message": "Update feedback successful"
+                        })
+                    else:
+                        return jsonify({
+                            "status": False,
+                            "message": "Update feedback failed"
+                        })
+                except Exception as e:
+                    logger.error(
+                        "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('nested_service.route.gemini_event_feedback', e))
+            
+            @nested_service.route('/endpoint', methods=['GET'])
+            def gemini_endpoint():
+                try:
+                    if not session.get('gemini_logged_in'):
+                        return redirect(url_for('nested_service.gemini_login'))
+                    
+                    app_path = _Gemini.get_gemini_config().app_path
+                    links = []
+                    for rule in flask_app.url_map.iter_rules():
+                        options = {}
+                        for arg in rule.arguments:
+                            options[arg] = "[{0}]".format(arg)
+
+                        methods = ','.join(rule.methods)
+                        url = url_for(rule.endpoint, _external=True, **options)
+                        if app_path not in url:
+                            link = {
+                                'endpoint': rule.endpoint,
+                                'method': methods,
+                                'url': url,
+                            }
+                            links.append(link)
+
+                    _sorted_links = sorted(links, key=lambda x: x['endpoint'])
+                    page = int(request.args.get('page', 1))
+                    per_page = 5
+
+                    total_records = len(_sorted_links)
+                    total_pages = (total_records + per_page - 1) // per_page
+
+                    start_index = (page - 1) * per_page
+                    end_index = start_index + per_page
+                    limited_links = _sorted_links[start_index:end_index]
+                    return render_template('gemini-protector-gui/home/endpoint.html', 
+                                            _sorted_links=limited_links,
+                                            _current_page=page,
+                                            _total_pages=total_pages
+                                           )
+                except Exception as e:
+                    logger.error(
+                        "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('nested_service.route.gemini_endpoint', e))
+
+            @nested_service.route('/feedback', methods=['GET'])
+            def gemini_feedback():
+                try:
+                    if not session.get('gemini_logged_in'):
+                        return redirect(url_for('nested_service.gemini_login'))
+                    
+                    feedback = _Gemini.get_gemini_feedback()
+
+                    _sorted_links = sorted(feedback, key=lambda x: x.created_at)
+                    page = int(request.args.get('page', 1))
+                    per_page = 5
+
+                    total_records = len(_sorted_links)
+                    total_pages = (total_records + per_page - 1) // per_page
+
+                    start_index = (page - 1) * per_page
+                    end_index = start_index + per_page
+                    limited_links = _sorted_links[start_index:end_index]
+                    return render_template('gemini-protector-gui/home/feedback.html', 
+                                            _sorted_links=limited_links,
+                                            _current_page=page,
+                                            _total_pages=total_pages
+                                           )
+                except Exception as e:
+                    logger.error(
+                        "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('nested_service.route.gemini_endpoint', e))
+
+            @nested_service.route('/export-feedback')
+            def gemini_export_feedback():
+                try:
+                    if not session.get('gemini_logged_in'):
+                        return redirect(url_for('nested_service.gemini_login'))
+                    
+                    csv_file = _Gemini.export_gemini_feedback()
+                    return send_file(csv_file, as_attachment=True) 
+                except Exception as e:
+                    logger.error(
+                        "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('nested_service.route.gemini_export_feedback', e))
+
             @nested_service.route('/logout')
             def gemini_logout():
                 try:
@@ -525,10 +608,6 @@ class _Gemini_GUI(object):
                 except Exception as e:
                     logger.error(
                         "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('nested_service.route.gemini_logout', e))
-
-            @nested_service.route('/chart')
-            def gemini_chart():
-                return render_template('gemini-protector-gui/home/chart-morris.html')
             
             @nested_service.errorhandler(403)
             def access_forbidden(error):

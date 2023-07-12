@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "gemini_self_protector"
-version = "0.1.1"
+version = "0.1.2"
 description = "Runtime Application Self-Protection"
 authors = ["lethanhphuc"]
 license = "MIT"
@@ -9,11 +9,12 @@ readme = "README.md"
 [tool.poetry.dependencies]
 python = "^3.9"
 colorlog = "^6.7.0"
-argon2-cffi = "^21.3.0"
 flask-sqlalchemy = "^3.0.3"
 pyyaml = "^6.0"
 pyjwt = "^2.7.0"
 cachetools = "^5.3.1"
+passlib = "^1.7.4"
+requests = "^2.31.0"
 
 [tool.poetry.dev-dependencies]
 

@@ -22,6 +22,7 @@ class _Protect(object):
             cors_header = cors['headers']
             http_method_list = ast.literal_eval(http_method_allow)
 
+            response.add_etag()
             response.headers['Server'] = server_name
             response.headers['X-Gemini-Self-Protector'] = global_protect_mode
             response.headers['Referrer-Policy'] = 'no-referrer-when-downgrade'
