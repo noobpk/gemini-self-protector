@@ -1,5 +1,12 @@
 # Changelog
 
+## v0.1.2 (12/07/2023)
+
+- Update for work with new predict server
+- Add feedback page
+- Add Endpoint page
+- Fix bug
+
 ## v0.1.1 (24/06/2023)
 
 - Refactor source code
