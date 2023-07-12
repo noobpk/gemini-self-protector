@@ -156,33 +156,13 @@ class _Gemini(object):
                 "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.export_gemini_feedback', e))
 
 
-    def validator_license_key(license_key):
-        """
-        It takes a license key as an argument and validates it
-
-        :param license_key: The license key you received from the license server
-        """
+    def validator_key_auth(_key):
         try:
-            _gemini_return = _Validator.validate_license_key(license_key)
+            _gemini_return = _Validator.validate_key_auth(_key)
             return _gemini_return
         except Exception as e:
             logger.error(
-                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.validator_license_key', e))
-
-    def is_valid_license_key() -> None:
-        """
-        This function attempts to validate a license key and logs an error message if an exception
-        occurs.
-        :return: the output of the `_Validator.is_valid_license_key()` method, which is not specified in
-        the code provided. The return type is also not specified, but it is assumed to be a boolean
-        value since the method name suggests that it is checking if a license key is valid or not.
-        """
-        try:
-            _gemini_return = _Validator.is_valid_license_key()
-            return _gemini_return
-        except Exception as e:
-            logger.error(
-                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.is_valid_license_key', e))
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.validator_key_auth', e))
 
     def validator_protect_mode(protect_mode) -> None:
         """
@@ -472,9 +452,9 @@ class _Gemini(object):
             logger.error(
                 "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.check_predict_server', e))
 
-    def validator_predict_server(server) -> None:
+    def validator_predict_server(_server, _key) -> None:
         try:
-            return _Validator.validate_predict_server(server)
+            return _Validator.validate_predict_server(_server, _key)
         except Exception as e:
             logger.error(
                 "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.validator_predict_server', e))

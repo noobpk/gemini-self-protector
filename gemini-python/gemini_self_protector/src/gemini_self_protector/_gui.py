@@ -1,7 +1,7 @@
 from flask import Flask, Blueprint, request, make_response, render_template, session, redirect, url_for, flash, stream_with_context, jsonify, send_file
 from ._logger import logger
 from ._gemini import _Gemini
-from argon2 import PasswordHasher, exceptions as argon2_exceptions
+from passlib.hash import argon2
 from datetime import datetime, timezone
 import ipaddress
 import re
@@ -86,7 +86,7 @@ class _Gemini_GUI(object):
                             password = request.form['pwd']
                             confirm_password = request.form['cpwd']
                             notification_channel = request.form['radio-channel']
-                            license_key = request.form['license-key']
+                            predict_server_key_auth = request.form['key-auth-server-value']
                             predict_server = request.form['predit-server-value']
                             telegram_token = ''
                             telegram_chat_id = ''
@@ -99,8 +99,7 @@ class _Gemini_GUI(object):
                             else:
                                 notification_webhook = request.form['channel-webhook']
 
-                            if _Gemini.validator_protect_mode(protect_mode) and _Gemini.validator_sensitive_value(sensitive_value) and _Gemini.validator_app_path(app_path) and _Gemini.validator_dashboard_password(password, confirm_password) and _Gemini.validator_notification_channel(notification_channel) and _Gemini.validator_license_key(license_key) and _Gemini.validator_predict_server(predict_server):
-                                ph = PasswordHasher()
+                            if _Gemini.validator_protect_mode(protect_mode) and _Gemini.validator_sensitive_value(sensitive_value) and _Gemini.validator_app_path(app_path) and _Gemini.validator_dashboard_password(password, confirm_password) and _Gemini.validator_notification_channel(notification_channel) and _Gemini.validator_predict_server(predict_server, predict_server_key_auth):
                                 _Gemini.update_gemini_config({
                                     "isinstall": True,
                                     "global_protect_mode": protect_mode,
@@ -110,10 +109,11 @@ class _Gemini_GUI(object):
                                     "telegram_token": telegram_token,
                                     "telegram_chat_id": telegram_chat_id,
                                     "notification_webhook": notification_webhook,
-                                    "predict_server": predict_server
+                                    "predict_server": predict_server,
+                                    "predict_server_key_auth" : predict_server_key_auth
                                 })
                                 _Gemini.update_gemini_user({
-                                    "password": ph.hash(password),
+                                    "password": argon2.hash(password),
                                 })
                                 logger.info(
                                     "[+] Install gemini-self-protector successful.!")
@@ -141,13 +141,12 @@ class _Gemini_GUI(object):
                     
                     if request.method == 'POST':
                         key = request.form['key']
-                        if _Gemini.validator_license_key(key):
-                            flash('License key update successful', 'key_update_success')
+                        if _Gemini.validator_key_auth(key):
+                            flash('Predict server key auth update successful', 'key_update_success')
                             return redirect(url_for('nested_service.gemini_dashboard'))
                         else:
-                            return render_template('gemini-protector-gui/license.html', msg="Invalid license key")
-
-                    return render_template('gemini-protector-gui/license.html')
+                            return render_template('gemini-protector-gui/key.html', msg="Invalid predict server key auth")
+                    return render_template('gemini-protector-gui/key.html')
 
                 except Exception as e:
                     logger.error("[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('nested_service.route.gemini_update_key', e))
@@ -170,22 +169,14 @@ class _Gemini_GUI(object):
                         app_username = _Gemini.get_gemini_user().username
                         app_password = _Gemini.get_gemini_user().password
 
-                        ph = PasswordHasher()
-                        try:
-                            ph.verify(app_password, password)
-                        except argon2_exceptions.VerifyMismatchError:
-                            return render_template('gemini-protector-gui/accounts/login.html', msg="Incorrect Username / Password")
-
-                        if username == app_username:
+                        password_check = argon2.verify(password, app_password)
+                        
+                        if username == app_username and password_check:
                             session['gemini_logged_in'] = True
-
-                            if not _Gemini.is_valid_license_key():
-                                flash('Please update license key!', 'required')
-                                return redirect(url_for('nested_service.gemini_update_key'))
-   
                             flash('Welcome back {}!'.format(app_username), 'login')
                             return redirect(url_for('nested_service.gemini_dashboard'))
-
+                        else:
+                            return render_template('gemini-protector-gui/accounts/login.html', msg="Incorrect Username / Password")
                     return render_template('gemini-protector-gui/accounts/login.html')
 
                 except Exception as e:
@@ -194,9 +185,6 @@ class _Gemini_GUI(object):
             @nested_service.route('/profile')
             def gemini_profile():
                 try:
-                    if not _Gemini.is_valid_license_key():
-                        return redirect(url_for('nested_service.gemini_update_key'))
-
                     if not session.get('gemini_logged_in'):
                         flash('Please login', 'required_login')
                         return redirect(url_for('nested_service.gemini_login'))
@@ -208,9 +196,8 @@ class _Gemini_GUI(object):
                         if not _Gemini.validator_dashboard_password(password, confirm_password):
                             return render_template('gemini-protector-gui/home/profile.html', msg="Invalid password")
 
-                        ph = PasswordHasher()
                         _Gemini.update_gemini_config({
-                            "gemini_app_password": ph.hash(password),
+                            "gemini_app_password": argon2.hash(password),
                         })
                         logger.info("[+] Update password successful.")
                         return redirect(url_for('nested_service.gemini_login'))
@@ -224,9 +211,6 @@ class _Gemini_GUI(object):
             @nested_service.route('/dashboard')
             def gemini_dashboard():
                 try:
-                    if not _Gemini.is_valid_license_key():
-                        return redirect(url_for('nested_service.gemini_update_key'))
-                    
                     if not session.get('gemini_logged_in'):
                         flash('Please login', 'required_login')
                         return redirect(url_for('nested_service.gemini_login'))
@@ -286,9 +270,6 @@ class _Gemini_GUI(object):
             @nested_service.route('/configurate', methods=['GET', 'POST'])
             def gemini_configurate():
                 try:
-                    if not _Gemini.is_valid_license_key():
-                        return redirect(url_for('nested_service.gemini_update_key'))
-
                     if not session.get('gemini_logged_in'):
                         flash('Please login', 'required_login')
                         return redirect(url_for('nested_service.gemini_login'))
@@ -353,9 +334,6 @@ class _Gemini_GUI(object):
             @nested_service.route('/access-control-list', methods=['GET', 'POST'])
             def gemini_access_control_list():
                 try:
-                    if not _Gemini.is_valid_license_key():
-                        return redirect(url_for('nested_service.gemini_update_key'))
-
                     if not session.get('gemini_logged_in'):
                         flash('Please login', 'required_login')
                         return redirect(url_for('nested_service.gemini_login'))
@@ -411,9 +389,6 @@ class _Gemini_GUI(object):
             @nested_service.route('/remove-acl', methods=['POST'])
             def gemini_remove_acl():
                 try:
-                    if not _Gemini.is_valid_license_key():
-                        return redirect(url_for('nested_service.gemini_update_key'))
-
                     if not session.get('gemini_logged_in'):
                         flash('Please login', 'required_login')
                         return redirect(url_for('nested_service.gemini_login'))
@@ -436,9 +411,6 @@ class _Gemini_GUI(object):
             @nested_service.route('/dependency-vulnerability', methods=['GET', 'POST'])
             def gemini_dependency_audit():
                 try:
-                    if not _Gemini.is_valid_license_key():
-                        return redirect(url_for('nested_service.gemini_update_key'))
-
                     if not session.get('gemini_logged_in'):
                         return redirect(url_for('nested_service.gemini_login'))
 
@@ -482,9 +454,6 @@ class _Gemini_GUI(object):
             @nested_service.route('/event', methods=['POST'])
             def gemini_get_event():
                 try:
-                    if not _Gemini.is_valid_license_key():
-                        return redirect(url_for('nested_service.gemini_update_key'))
-
                     if not session.get('gemini_logged_in'):
                         flash('Please login', 'required_login')
                         return redirect(url_for('nested_service.gemini_login'))
@@ -524,9 +493,6 @@ class _Gemini_GUI(object):
             @nested_service.route('/event-feedback', methods=['POST'])
             def gemini_event_feedback():
                 try:
-                    if not _Gemini.is_valid_license_key():
-                        return redirect(url_for('nested_service.gemini_update_key'))
-
                     if not session.get('gemini_logged_in'):
                         return redirect(url_for('nested_service.gemini_login'))
                     
@@ -554,9 +520,6 @@ class _Gemini_GUI(object):
             @nested_service.route('/endpoint', methods=['GET'])
             def gemini_endpoint():
                 try:
-                    if not _Gemini.is_valid_license_key():
-                        return redirect(url_for('nested_service.gemini_update_key'))
-
                     if not session.get('gemini_logged_in'):
                         return redirect(url_for('nested_service.gemini_login'))
                     
@@ -599,9 +562,6 @@ class _Gemini_GUI(object):
             @nested_service.route('/feedback', methods=['GET'])
             def gemini_feedback():
                 try:
-                    if not _Gemini.is_valid_license_key():
-                        return redirect(url_for('nested_service.gemini_update_key'))
-
                     if not session.get('gemini_logged_in'):
                         return redirect(url_for('nested_service.gemini_login'))
                     
@@ -629,9 +589,6 @@ class _Gemini_GUI(object):
             @nested_service.route('/export-feedback')
             def gemini_export_feedback():
                 try:
-                    if not _Gemini.is_valid_license_key():
-                        return redirect(url_for('nested_service.gemini_update_key'))
-
                     if not session.get('gemini_logged_in'):
                         return redirect(url_for('nested_service.gemini_login'))
                     

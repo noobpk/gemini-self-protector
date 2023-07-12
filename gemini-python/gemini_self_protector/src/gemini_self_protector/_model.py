@@ -18,9 +18,8 @@ class tb_Config(Base):
     __tablename__ = 'configs'
 
     id = Column(Integer, primary_key=True)
-    license_key = Column(String)
+    predict_server_key_auth = Column(String)
     isinstall = Column(Integer)
-    access_token = Column(String)
     app_path = Column(String)
     database_path = Column(String)
     cors = Column(JSON)
@@ -81,6 +80,7 @@ class tb_RequestLog(Base):
     created_at = Column(DateTime, default=func.now())
     updated_at = Column(DateTime, default=func.now(), onupdate=func.now())
 
+
 class tb_AccessControlList(Base):
     __tablename__ = 'acls'
 
@@ -102,6 +102,7 @@ class tb_Dependency(Base):
     severity = Column(String)
     created_at = Column(DateTime, default=func.now())
     updated_at = Column(DateTime, default=func.now(), onupdate=func.now())
+
 
 class tb_Feedback(Base):
     __tablename__ = 'feedbacks'

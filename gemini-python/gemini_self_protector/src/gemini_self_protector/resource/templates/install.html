@@ -27,7 +27,7 @@
                                                         <li class="active"><span>1</span></li>
                                                         <li><span>2</span></li>
                                                         <li><span>3</span></li>
-                                                        <li><span>4</span></li>
+                                                        <!-- <li><span>4</span></li> -->
                                                     </ul>
                                                 </div>
                                                 <fieldset class="wizard-fieldset show">
@@ -60,10 +60,16 @@
                                                     </div>
                                                     <h5>Predict Server</h5>
                                                     <div class="form-group">
-                                                        <input type="text" min="0" max="100"
-                                                            class="form-control wizard-required" id="predictServerValue"
-                                                            name="predit-server-value" required>
-                                                        <a id="predict-server" href="#">Check</a>
+                                                        <input type="text" class="form-control wizard-required"
+                                                            id="predictServerValue" name="predit-server-value" required>
+                                                        <div class="wizard-form-error"></div>
+                                                    </div>
+                                                    <h5>Predict Server Key Auth</h5>
+                                                    <div class="form-group">
+                                                        <input type="text" class="form-control wizard-required"
+                                                            id="keyAuthServerValue" name="key-auth-server-value"
+                                                            required>
+                                                        <a id="predict-server" href="#">Check Connection</a>
                                                         <div id="loading-spinner" style="display: none; float: right;">
                                                             <i class="fa fa-spinner fa-spin"></i>
                                                         </div>
@@ -155,23 +161,12 @@
                                                             class="wizard-form-text-label">Webhook</label>
                                                         <div class="wizard-form-error"></div>
                                                     </div>
-                                                    <div class="form-group clearfix">
+                                                    <!-- <div class="form-group clearfix">
                                                         <a href="javascript:;"
                                                             class="form-wizard-previous-btn float-left">Previous</a>
                                                         <a href="javascript:;"
                                                             class="form-wizard-next-btn float-right">Next</a>
-                                                    </div>
-                                                </fieldset>
-                                                <fieldset class="wizard-fieldset">
-                                                    <h5>License</h5>
-                                                    <div class="form-group">
-                                                        <input type="text" class="form-control wizard-required"
-                                                            id="license_key" name="license-key"
-                                                            value="988907ce-9803-11ed-a8fc-0242ac120002">
-                                                        <!-- <label for="license_key" class="wizard-form-text-label">License
-                                                            Key</label> -->
-                                                        <div class="wizard-form-error"></div>
-                                                    </div>
+                                                    </div> -->
                                                     <div class="form-group clearfix">
                                                         <a href="javascript:;"
                                                             class="form-wizard-previous-btn float-left">Previous</a>
@@ -179,6 +174,15 @@
                                                             onclick="document.getElementById('install').submit();">Install</a>
                                                     </div>
                                                 </fieldset>
+                                                <!-- <fieldset class="wizard-fieldset">
+                                                    <h5>License</h5>
+                                                    <div class="form-group">
+                                                        <input type="text" class="form-control wizard-required"
+                                                            id="license_key" name="license-key"
+                                                            value="988907ce-9803-11ed-a8fc-0242ac120002">
+                                                        <div class="wizard-form-error"></div>
+                                                    </div>
+                                                </fieldset> -->
                                             </form>
                                         </div>
                                     </div>
