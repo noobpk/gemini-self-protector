@@ -492,7 +492,7 @@
                 url: "{{url_for('nested_service.gemini_event_feedback')}}",
                 method: 'POST',
                 contentType: 'application/json',
-                data: JSON.stringify({ event_id: eventId, feedback_value: 0 }),
+                data: JSON.stringify({ event_id: eventId, feedback_value: 1 }),
                 success: function (data) {
                     Toastify({
                         text: "Update feedback successful",
@@ -529,7 +529,7 @@
                 url: "{{url_for('nested_service.gemini_event_feedback')}}",
                 method: 'POST',
                 contentType: 'application/json',
-                data: JSON.stringify({ event_id: eventId, feedback_value: 1 }),
+                data: JSON.stringify({ event_id: eventId, feedback_value: 0 }),
                 success: function (data) {
                     Toastify({
                         text: "Update feedback successful",
