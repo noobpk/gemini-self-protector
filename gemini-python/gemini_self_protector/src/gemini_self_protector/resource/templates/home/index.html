@@ -248,7 +248,7 @@
                                         {% if _protect_mode == 'monitor' %}
                                         <h6 class="text-muted mt-4 mb-0">Gemini is monitoring all requests</h6>
                                         <i class="fa fa-binoculars text-c-purple f-50"></i>
-                                        {% elif _protect_mode == 'block' %}
+                                        {% elif _protect_mode == 'protection' %}
                                         <h6 class="text-muted mt-4 mb-0">Gemini is blocking abnormal requests</h6>
                                         <i class="fas fa-ban text-c-purple f-50"></i>
                                         {% else %}
@@ -492,7 +492,7 @@
                 url: "{{url_for('nested_service.gemini_event_feedback')}}",
                 method: 'POST',
                 contentType: 'application/json',
-                data: JSON.stringify({ event_id: eventId, feedback_value: 0 }),
+                data: JSON.stringify({ event_id: eventId, feedback_value: 1 }),
                 success: function (data) {
                     Toastify({
                         text: "Update feedback successful",
@@ -529,7 +529,7 @@
                 url: "{{url_for('nested_service.gemini_event_feedback')}}",
                 method: 'POST',
                 contentType: 'application/json',
-                data: JSON.stringify({ event_id: eventId, feedback_value: 1 }),
+                data: JSON.stringify({ event_id: eventId, feedback_value: 0 }),
                 success: function (data) {
                     Toastify({
                         text: "Update feedback successful",
