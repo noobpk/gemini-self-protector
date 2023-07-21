@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.1.2-a (21/07/2023)
+
+- Fix bug is_valid_license_key method not found
+ 
 ## v0.1.2 (12/07/2023)
 
 - Update for work with new predict server

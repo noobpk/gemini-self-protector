@@ -248,7 +248,7 @@
                                         {% if _protect_mode == 'monitor' %}
                                         <h6 class="text-muted mt-4 mb-0">Gemini is monitoring all requests</h6>
                                         <i class="fa fa-binoculars text-c-purple f-50"></i>
-                                        {% elif _protect_mode == 'block' %}
+                                        {% elif _protect_mode == 'protection' %}
                                         <h6 class="text-muted mt-4 mb-0">Gemini is blocking abnormal requests</h6>
                                         <i class="fas fa-ban text-c-purple f-50"></i>
                                         {% else %}
@@ -358,27 +358,27 @@
         label: 'Malicious Request'
             },
     {
-        value: {{ _gemini_attack_counts['ACL Block'] }},
+        value: { { _gemini_attack_counts['ACL Block'] }},
         label: 'ACL Block'
     },
     {
-        value: {{ _gemini_attack_counts['Malicious Response'] }},
+        value: { { _gemini_attack_counts['Malicious Response'] }},
         label: 'Malicious Response'
     },
     {
-        value: {{ _gemini_attack_counts['Unvalidated Redirects'] }},
+        value: { { _gemini_attack_counts['Unvalidated Redirects'] }},
         label: 'Unvalidated Redirects'
     },
     {
-        value: {{ _gemini_attack_counts['Large Requests'] }},
+        value: { { _gemini_attack_counts['Large Requests'] }},
         label: 'Large Requests'
     },
     {
-        value: {{ _gemini_attack_counts['HTTP Method Tampering'] }},
+        value: { { _gemini_attack_counts['HTTP Method Tampering'] }},
         label: 'HTTP Method Tampering'
     },
     {
-        value: {{ _gemini_attack_counts['DOS'] }},
+        value: { { _gemini_attack_counts['DOS'] }},
         label: 'DOS/DDOS'
     }
         ],

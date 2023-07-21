@@ -237,12 +237,12 @@ class _Validator(object):
         :return: a boolean value.
         """
         try:
-            arr_mode = ['off', 'block', 'monitor']
+            arr_mode = ['off', 'protection', 'monitor']
             if protect_mode in arr_mode:
                 return True
             else:
                 logger.error(
-                    "[x_x] Invalid Protect Mode. Protect mode must be: monitor - block - off")
+                    "[x_x] Invalid Protect Mode. Protect mode must be: monitor - protection - off")
                 return False
         except Exception as e:
             logger.error(
