@@ -6,8 +6,8 @@ Gemini - The Runtime Application Self Protection (RASP) Solution Combined With D
 ![Static Badge](https://img.shields.io/badge/python-3.x-blue?logo=python)
 ![Static Badge](https://img.shields.io/badge/Deep%20Learning-orange)
 ![Static Badge](https://img.shields.io/badge/Convolutional%20Neural%20Network-yellow)
-![Static Badge](https://img.shields.io/badge/Recurrent%20neural%20network-%23ff6666)
-
+![Static Badge](https://img.shields.io/badge/Recurrent%20Neural%20Network-%23ff6666)
+![Static Badge](https://img.shields.io/badge/Sentence%20Transformers-%236e31ff)
 
 
 ## Architecture
