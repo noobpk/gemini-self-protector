@@ -215,7 +215,7 @@ class _Protect(object):
 
             _ticket = _Utils.insident_ticket()
 
-            if gemini_protect_mode in ('monitor', 'block'):
+            if gemini_protect_mode in ('monitor', 'protection'):
                 if _Protect.__handle_original_request__(request, _request_header, _request_body, _ticket):
                     payload = _Utils.decoder(_predict_request)
 
@@ -238,7 +238,7 @@ class _Protect(object):
 
                 return {"Status": status, "Ticket": _ticket}
             else:
-                logger.error("[x_x] Invalid Protect Mode. Protect mode must be: monitor - block - off")
+                logger.error("[x_x] Invalid Protect Mode. Protect mode must be: monitor - protection - off")
                 status = True
                 return {"Status": status}
 
@@ -272,7 +272,7 @@ class _Protect(object):
 
                 _ticket = _Utils.insident_ticket()
 
-                if gemini_protect_mode in ('monitor', 'block'):
+                if gemini_protect_mode in ('monitor', 'protection'):
                     if _Protect.__handle_original_response__(request, _request_header, _request_body, original_response, _response_header, _response_content, _ticket):
                         _Protect.__handle_normal_response__(original_response)
                         status = True
@@ -284,7 +284,7 @@ class _Protect(object):
 
                     return {"Status": status, "Ticket": _ticket}
                 else:
-                    logger.error("[x_x] Invalid Protect Mode. Protect mode must be: monitor - block - off")
+                    logger.error("[x_x] Invalid Protect Mode. Protect mode must be: monitor - protection - off")
                     status = True
                     return {"Status": status}
             else:

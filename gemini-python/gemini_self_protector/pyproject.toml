@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "gemini_self_protector"
-version = "0.1.2-a"
+version = "0.1.2-b"
 description = "Runtime Application Self-Protection"
 authors = ["lethanhphuc"]
 license = "MIT"
