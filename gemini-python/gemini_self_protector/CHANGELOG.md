@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.1.2-b (28/07/2023)
+
+- Fix bug Invalid protect mode 
+
 ## v0.1.2-a (21/07/2023)
 
 - Fix bug is_valid_license_key method not found
