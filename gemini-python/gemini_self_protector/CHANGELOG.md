@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.1.2-c (01/08/2023)
+
+- Fix bug 'NoneType' object is not subscriptable in decoder
+
 ## v0.1.2-b (28/07/2023)
 
 - Fix bug Invalid protect mode 
