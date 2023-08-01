@@ -62,7 +62,7 @@ class _Utils(object):
                     pass
 
             # Use a regular expression to find all url end with .js
-            url_pattern = r'(?:https?://|//).+\.js'
+            url_pattern = r'(?:https?://|//)[^\s/]+\.js'
 
             matches = re.findall(url_pattern, string)
 
