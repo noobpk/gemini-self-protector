@@ -243,7 +243,7 @@ class _Protect(object):
                 return {"Status": status}
 
         except Exception as e:
-            logger.error("[x_x] Something went wrong, please check your error message.\n Message - {}".format(e))
+            logger.error("[x_x] Something went wrong, please check your error message.\n Message - {}".format('_Protect.__protect_flask_response__', e))
 
     def __protect_flask_response__(safe_redirect, original_response, gemini_protect_mode) -> None:
         try:
@@ -292,4 +292,4 @@ class _Protect(object):
                 return {"Status": status}
 
         except Exception as e:
-            logger.error("[x_x] Something went wrong, please check your error message.\n Message - {}".format(e))
+            logger.error("[x_x] Something went wrong, please check your error message.\n Message - {}".format('_Protect.__protect_flask_request__', e))
