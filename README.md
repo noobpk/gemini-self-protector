@@ -145,8 +145,9 @@ $ docker-compose up
 
 👉 Dependency Vulnerability Check
 
-## Theme
-https://appseed.us/product/datta-able/flask/
+## Demo
+
+[Gemini-Self-Protector | Demo | Install - Configurate - Usage](https://youtu.be/sUJsJE29KcE)
 
 ## Screenshot
 
@@ -176,3 +177,7 @@ Interested in contributing? Check out the contributing guidelines. Please note t
 ## License
 
 `gemini_self_protector` was created by lethanhphuc. It is licensed under the terms of the MIT license.
+
+## Theme
+
+https://appseed.us/product/datta-able/flask/
