@@ -9,86 +9,33 @@ Gemini - The Runtime Application Self Protection (RASP) Solution Combined With D
 ![Static Badge](https://img.shields.io/badge/Recurrent%20Neural%20Network-%23ff6666)
 ![Static Badge](https://img.shields.io/badge/Sentence%20Transformers-%236e31ff)
 
+## Introduction
 
-## Architecture
+Gemini-Self-Protector pioneers the fusion of Runtime Application Self Protection (RASP) and transformative Deep Learning. In today's evolving digital landscape, intelligent and adaptive application security is paramount. Enter Gemini-Self-Protector, ushering in a new era of proactive defense that revolutionizes application safeguarding amid ever-changing threats.
+
+By seamlessly integrating RASP into your application's runtime fabric, Gemini-Self-Protector achieves unparalleled protection. It dynamically monitors and secures various aspects of functionality—database interactions, file operations, and network communications. This symbiosis with Deep Learning empowers Gemini-Self-Protector to adapt and evolve defenses in real-time, staying ahead of emerging threats.
+
+## Gemini Architecture
 
 The architecture of gemini-self-protector is composed of seven layers however it is optimized so as not to affect the performance on the application.
 
 ![image](https://user-images.githubusercontent.com/31820707/232506270-b0776d83-34b8-47fb-aa2a-eab3a4cc3be7.png)
 
-## Support
+## Language Support
 
 | Language | Platform/ Framework |
 | -------- | ------------------- |
 | Python   | Flask               |
 
-## Deep Learning
+## Deep Learning Technology
 
 Gemini uses a deep learning model that combines Convolutional Neural Network (CNN) and a family of Recurrent neural network (RNN) techniques to detect and identify vulnerabilities.
 
 For more details: [Web-Vuln-Detection-Predict](https://github.com/noobpk/Web-Vuln-Detection-Predict)
 
-## Gemini Protect Against
+## More About Gemini-Self-Protector
 
-| Attacks                 | Supported          |
-| ----------------------- | ------------------ |
-| Malformed Content Types |                    |
-| HTTP Method Tampering   | :white_check_mark: |
-| Large Requests          | :white_check_mark: |
-| Path Traversal          | :white_check_mark: |
-| Unvalidated Redirects   | :white_check_mark: |
-
-| Injections                 | Supported          |
-| -------------------------- | ------------------ |
-| Command Injection          | :white_check_mark: |
-| Cross-Site Scripting       | :white_check_mark: |
-| Cross-Site Request Forgery |                    |
-| CSS & HTML Injection       |                    |
-| JSON & XML Injection       |                    |
-| SQL Injection              | :white_check_mark: |
-
-| Weaknesses                   | Supported          |
-| ---------------------------- | ------------------ |
-| Insecure Cookies & Transport |                    |
-| Weak Browser Caching         | :white_check_mark: |
-| Vulnerable Dependencies      | :white_check_mark: |
-| Weak Cryptography            |                    |
-| HTTP Response Headers        | :white_check_mark: |
-| API Rate Limit               | :white_check_mark: |
-
-## Gemini Security Response Headers
-
-| HTTP Response Headers | Default configuration | 
-| ------------------------------ | --------------------- |
-| X-Frame-Options                | SAMEORIGIN            |
-| X-XSS-Protection               | 1; mode=block         |
-| X-Content-Type-Options         | nosniff               |
-| Referrer-Policy                | no-referrer-when-downgrade |
-| Content-Type                   | N/A                   |
-| Strict-Transport-Security      | max-age=31536000; includeSubDomains; preload |
-| Expect-CT                      | enforce; max-age=31536000 |
-| Content-Security-Policy        | N/A                   |
-| X-Permitted-Cross-Domain-Policies | none               |
-| Feature-Policy                 | fullscreen 'self'     |
-| Cache-Control                  | no-cache, no-store, must-revalidate |
-| Pragma                         | no-cache              |
-| Expires                        | 0                     |
-| X-UA-Compatible                | IE=Edge,chrome=1      |
-| Access-Control-Allow-Origin    | *                     |
-| Access-Control-Allow-Methods   | *                     |
-| Access-Control-Allow-Headers   | *                     |
-| Access-Control-Allow-Credentials | true                |
-| Cross-Origin-Opener-Policy     | N/A                   |
-| Cross-Origin-Embedder-Policy   | N/A                   |
-| Cross-Origin-Resource-Policy   | N/A                   |
-| Permissions-Policy             | N/A                   |
-| FLoC                           | N/A                   |
-| Server                         | gemini                |
-| X-Powered-By                   | N/A                   |
-| X-AspNet-Version               | N/A                   |
-| X-AspNetMvc-Version            | N/A                   |
-| X-DNS-Prefetch-Control         | N/A                   |
-
+📜 All about Gemini-Self-Protector is in [here](https://github.com/noobpk/gemini-self-protector/wiki)
 
 ## Installation
 
@@ -96,25 +43,24 @@ For more details: [Web-Vuln-Detection-Predict](https://github.com/noobpk/Web-Vul
 $ pip install gemini_self_protector
 ```
 
+## Quick Start
+⚙️ See detailed installation instructions [here](https://github.com/noobpk/gemini-self-protector/wiki/Quick-Start)
+
 ## Protect Mode & Sensitive
 
 Gemini supports 3 modes and recommends sensitivity levels for the application to operate at its best state.
 
-| Mode    | Sensitive |
-| ------- | --------- |
-| off     | N/A       |
-| monitor | 70        |
-| block   | 50        |
+| Mode      | Sensitive |
+| --------- | --------- |
+| off       | N/A       |
+| monitor   | 70        |
+| protector | 50        |
 
 ## Public Predict Server
 
 | Address | Version | License Key |
 | ------- | --------- | --------- |
 | https://web-vuln-detect.my-app.in  | 07-2023  | 988907ce-9803-11ed-a8fc-0242ac120002 |
-
-## License Key
-
-The license key is used for authentication with the API.
 
 ## Deploy Predict Server with Docker
 
