@@ -111,19 +111,20 @@ class _Utils(object):
             predict_server_key_auth = _Config.get_tb_config().predict_server_key_auth
             headers = {"Content-Type": "application/json",
                        "Authorization": predict_server_key_auth}
+            client_ip = _Utils.flask_client_ip()
             predict = requests.post(
-                f'{predict_server}/predict', json={"data": payload}, headers=headers)
+                f'{predict_server}/predict', json={"ip": client_ip, "data": payload}, headers=headers)
             if (predict):
                 response = predict.json()
                 accuracy = response.get('accuracy', 0)
                 return accuracy
             else:
                 logger.warning(
-                    "[!] Cannot connect to predict server. Gemini-self protector cannot predit this request.")
+                    "[!] Cannot connect to predict server. Gemini-self protector cannot predict this request.")
                 return 0
         except requests.exceptions.RequestException as e:
             logger.warning(
-                "[!] Cannot connect to predict server. Gemini-self protector cannot predit this request.")
+                "[!] Cannot connect to predict server. Gemini-self protector cannot predict this request.")
             return 0
         except Exception as e:
             logger.error(
