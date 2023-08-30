@@ -40,7 +40,7 @@ For more details: [Web-Vuln-Detection-Predict](https://github.com/noobpk/Web-Vul
 ## Installation
 
 ```
-$ pip install gemini_self_protector
+pip install gemini_self_protector
 ```
 
 ## Quick Start
@@ -56,28 +56,15 @@ Gemini supports 3 modes and recommends sensitivity levels for the application to
 | monitor   | 70        |
 | protector | 50        |
 
-## Public Predict Server
+## Public Predict Serve
 
-| Address | Version | License Key |
+| Address | Version | Authentication Key |
 | ------- | --------- | --------- |
 | https://web-vuln-detect.my-app.in  | 07-2023  | 988907ce-9803-11ed-a8fc-0242ac120002 |
 
-## Deploy Predict Server with Docker
+## Deployment Module Predict
 
-To deploy predict server using docker, follow these steps -
-
-1. Clone this repository on your local machine or any other system where you have installed Docker. Replace `your-auth-key` with whatever you want. Suggest to use `uuid` or `sha256` for this key.
-
-```
-$ wget -O docker-compose.yml https://raw.githubusercontent.com/noobpk/gemini-self-protector/dev/predict-server/docker-compose.yml
-```
-2. Open terminal in that directory
-
-3. Run following command to run container
-
-```
-$ docker-compose up
-```
+[gemini-predict-serve](https://github.com/noobpk/gemini-predict-serve)
 
 ## GUI Features
 
