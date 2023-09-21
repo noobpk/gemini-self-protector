@@ -196,9 +196,10 @@ class _Utils(object):
         try:
             predict_server = _Config.get_tb_config().predict_server
             if predict_server:
+                client_ip = _Utils.flask_client_ip()
                 headers = {"Content-Type": "application/json"}
                 response = requests.post(
-                    f'{predict_server}/predict', json={"data": "healthcheck"}, headers=headers)
+                    f'{predict_server}/predict', json={"ip": client_ip, "data": "healthcheck"}, headers=headers)
                 if response and response.status_code == 200:
                     return True
                 else:
@@ -215,10 +216,11 @@ class _Validator(object):
         try:
             if _key:
                 predict_server = _Config.get_tb_config().predict_server
+                client_ip = _Utils.flask_client_ip()
                 headers = {"Content-Type": "application/json",
                            "Authorization": _key}
                 response = requests.post(
-                    f'{predict_server}/predict', json={"data": "healthcheck"}, headers=headers)
+                    f'{predict_server}/predict', json={"ip": client_ip, "data": "healthcheck"}, headers=headers)
                 data = response.json()
                 if response.status_code == 200 and 'accuracy' in data:
                     _Config.update_tb_config({
@@ -378,10 +380,11 @@ class _Validator(object):
     def validate_predict_server(_server, _key) -> None:
         try:
             if re.match(r'https?://\S+', _server):
+                client_ip = _Utils.flask_client_ip()
                 headers = {"Content-Type": "application/json",
                            "Authorization": _key}
                 response = requests.post(
-                    f'{_server}/predict', json={"data": "healthcheck"}, headers=headers)
+                    f'{_server}/predict', json={"ip": client_ip, "data": "healthcheck"}, headers=headers)
                 data = response.json()
                 if response.status_code == 200 and 'accuracy' in data:
                     return True
