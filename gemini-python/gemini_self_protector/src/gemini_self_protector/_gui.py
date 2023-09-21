@@ -85,7 +85,7 @@ class _Gemini_GUI(object):
                             confirm_password = request.form['cpwd']
                             notification_channel = request.form['radio-channel']
                             predict_server_key_auth = request.form['key-auth-server-value']
-                            predict_server = request.form['predit-server-value']
+                            predict_server = request.form['predict-server-value']
                             telegram_token = ''
                             telegram_chat_id = ''
                             notification_webhook = ''
@@ -273,6 +273,18 @@ class _Gemini_GUI(object):
                     logger.error("[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format(
                         'nested_service.route.gemini_dashboard', e))
 
+            @nested_service.route('/monitor', methods=['GET'])
+            def gemini_monitor():
+                try:
+                    if not session.get('gemini_logged_in'):
+                        flash('Please login', 'required_login')
+                        return redirect(url_for('nested_service.gemini_login'))
+                    return render_template('gemini-protector-gui/home/monitor.html')
+                
+                except Exception as e:
+                    logger.error("[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format(
+                        'nested_service.route.gemini_monitor', e))
+                        
             @nested_service.route('/configurate', methods=['GET', 'POST'])
             def gemini_configurate():
                 try:
@@ -292,9 +304,10 @@ class _Gemini_GUI(object):
                         protect_response_status = request.form['protect_response_status']
                         acl_status = request.form['acl_status']
                         anti_dos = request.form['anti_dos_status']
+                        predict_header = request.form['predict_header_status']
                         max_request_per_min = request.form['max_request_per_min']
 
-                        if _Gemini.validator_protect_mode(protect_mode) and _Gemini.validator_sensitive_value(sensitive_value) and max_content_length.isdigit() and _Gemini.validator_http_method(http_method) and _Gemini.validator_on_off_status(safe_redirect_status) and _Gemini.validator_trust_domain(trust_domain_list) and _Gemini.validator_on_off_status(protect_response_status) and _Gemini.validator_on_off_status(acl_status) and _Gemini.validator_on_off_status(anti_dos) and max_request_per_min.isdigit():
+                        if _Gemini.validator_protect_mode(protect_mode) and _Gemini.validator_sensitive_value(sensitive_value) and max_content_length.isdigit() and _Gemini.validator_http_method(http_method) and _Gemini.validator_on_off_status(safe_redirect_status) and _Gemini.validator_trust_domain(trust_domain_list) and _Gemini.validator_on_off_status(protect_response_status) and _Gemini.validator_on_off_status(acl_status) and _Gemini.validator_on_off_status(anti_dos) and _Gemini.validator_on_off_status(predict_header) and  max_request_per_min.isdigit():
 
                             _Gemini.update_gemini_config({
                                 "predict_server": predict_server,
@@ -307,6 +320,7 @@ class _Gemini_GUI(object):
                                 "trust_domain": json.dumps(trust_domain_list),
                                 "enable_acl": int(acl_status),
                                 "anti_dos": int(anti_dos),
+                                "is_predict_header": int(predict_header),
                                 "max_requests_per_minute": int(max_request_per_min)
                             })
                             flash('Configuration update successful',
@@ -338,6 +352,7 @@ class _Gemini_GUI(object):
                                                _protect_response=gemini_config.protect_response,
                                                _is_enable_acl=gemini_config.enable_acl,
                                                _is_anti_dos=gemini_config.anti_dos,
+                                               _is_predict_header=gemini_config.is_predict_header,
                                                _max_request_per_min=gemini_config.max_requests_per_minute
                                                )
                 except Exception as e:
@@ -502,6 +517,7 @@ class _Gemini_GUI(object):
                             "res_content": str(record.res_content),
                             "attack_type": record.attack_type,
                             "predict": record.predict,
+                            "hash": record.hash,
                             "latitude": record.latitude,
                             "longitude": record.longitude,
                             "created_at": record.created_at,

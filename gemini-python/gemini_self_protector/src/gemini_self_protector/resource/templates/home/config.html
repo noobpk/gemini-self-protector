@@ -118,6 +118,21 @@
                                                     value="{{_sensitive_value}}" name="sensitive_value">
                                             </div>
                                             <!-- [ Sensitive Value ] stop -->
+                                            <!-- [ Predict Header ] start -->
+                                            <div class="form-group">
+                                                <label>Predict Header</label>
+                                                <div class="custom-control custom-radio custom-control-inline">
+                                                    <input type="radio" id="predict-header-on" name="predict_header_status" value="1" class="custom-control-input"
+                                                        {% if _is_predict_header==1 %}checked{% endif %}>
+                                                    <label class="custom-control-label" for="predict-header-on">On</label>
+                                                </div>
+                                                <div class="custom-control custom-radio custom-control-inline">
+                                                    <input type="radio" id="predict-header-off" name="predict_header_status" value="0" class="custom-control-input"
+                                                        {% if _is_predict_header==0 %}checked{% endif %}>
+                                                    <label class="custom-control-label" for="predict-header-off">Off</label>
+                                                </div>
+                                            </div>
+                                            <!-- [ Predict Header ] stop -->
                                             <!-- [ Content-Lenght ] start -->
                                             <div class="form-group">
                                                 <label>Max Content-Length: 1 * 1024 * 1024 = 1MB</label>

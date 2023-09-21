@@ -211,7 +211,12 @@ class _Protect(object):
                 _method, _full_path, _headers)
             _request_body = _body
 
-            _predict_request = '{}\r{}'.format(_request_header, _request_body)
+            is_predict_header = _Config.get_tb_config().is_predict_header
+            
+            if int(is_predict_header) == 1:
+                _predict_request = '{}\r{}'.format(_request_header, _request_body)
+            else:
+                _predict_request = '{}'.format(_request_body)
 
             _ticket = _Utils.insident_ticket()
 
@@ -243,7 +248,7 @@ class _Protect(object):
                 return {"Status": status}
 
         except Exception as e:
-            logger.error("[x_x] Something went wrong, please check your error message.\n Message - {}".format('_Protect.__protect_flask_response__', e))
+            logger.error("[x_x] Something went wrong, please check your error message.\n Message - {}".format('_Protect.__protect_flask_request__', e))
 
     def __protect_flask_response__(safe_redirect, original_response, gemini_protect_mode) -> None:
         try:
@@ -292,4 +297,4 @@ class _Protect(object):
                 return {"Status": status}
 
         except Exception as e:
-            logger.error("[x_x] Something went wrong, please check your error message.\n Message - {}".format('_Protect.__protect_flask_request__', e))
+            logger.error("[x_x] Something went wrong, please check your error message.\n Message - {}".format('_Protect.__protect_flask_response__', e))

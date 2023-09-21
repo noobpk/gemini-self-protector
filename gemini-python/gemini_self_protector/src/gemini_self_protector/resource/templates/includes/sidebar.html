@@ -23,6 +23,11 @@
                             class="pcoded-mtext">Dashboard</span></a>
                 </li>
 
+                <li data-username="Monitor Page" class="nav-item {% if 'monitor' in segment %} active {% endif %}">
+                    <a href="{{url_for('nested_service.gemini_monitor')}}" class="nav-link "><span class="pcoded-micon"><i
+                                class="feather icon-activity"></i></span><span class="pcoded-mtext">Monitor</span></a>
+                </li>
+                
                 <li data-username="Endpoint Page" class="nav-item {% if 'endpoint' in segment %} active {% endif %}">
                     <a href="{{ url_for('nested_service.gemini_endpoint') }}" class="nav-link">
                         <span class="pcoded-micon"><i class="feather icon-target"></i></span>
