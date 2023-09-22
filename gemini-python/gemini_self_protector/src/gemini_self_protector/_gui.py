@@ -279,7 +279,9 @@ class _Gemini_GUI(object):
                     if not session.get('gemini_logged_in'):
                         flash('Please login', 'required_login')
                         return redirect(url_for('nested_service.gemini_login'))
-                    return render_template('gemini-protector-gui/home/monitor.html')
+
+                    gemini_config = _Gemini.get_gemini_config()
+                    return render_template('gemini-protector-gui/home/monitor.html', _socketio=gemini_config.socketio)
                 
                 except Exception as e:
                     logger.error("[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format(
@@ -306,6 +308,7 @@ class _Gemini_GUI(object):
                         anti_dos = request.form['anti_dos_status']
                         predict_header = request.form['predict_header_status']
                         max_request_per_min = request.form['max_request_per_min']
+                        socketio = request.form['socketio']
 
                         if _Gemini.validator_protect_mode(protect_mode) and _Gemini.validator_sensitive_value(sensitive_value) and max_content_length.isdigit() and _Gemini.validator_http_method(http_method) and _Gemini.validator_on_off_status(safe_redirect_status) and _Gemini.validator_trust_domain(trust_domain_list) and _Gemini.validator_on_off_status(protect_response_status) and _Gemini.validator_on_off_status(acl_status) and _Gemini.validator_on_off_status(anti_dos) and _Gemini.validator_on_off_status(predict_header) and  max_request_per_min.isdigit():
 
@@ -321,7 +324,8 @@ class _Gemini_GUI(object):
                                 "enable_acl": int(acl_status),
                                 "anti_dos": int(anti_dos),
                                 "is_predict_header": int(predict_header),
-                                "max_requests_per_minute": int(max_request_per_min)
+                                "max_requests_per_minute": int(max_request_per_min),
+                                "socketio": socketio
                             })
                             flash('Configuration update successful',
                                   'config_update_success')
@@ -353,7 +357,8 @@ class _Gemini_GUI(object):
                                                _is_enable_acl=gemini_config.enable_acl,
                                                _is_anti_dos=gemini_config.anti_dos,
                                                _is_predict_header=gemini_config.is_predict_header,
-                                               _max_request_per_min=gemini_config.max_requests_per_minute
+                                               _max_request_per_min=gemini_config.max_requests_per_minute,
+                                               _socketio = gemini_config.socketio
                                                )
                 except Exception as e:
                     logger.error("[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format(

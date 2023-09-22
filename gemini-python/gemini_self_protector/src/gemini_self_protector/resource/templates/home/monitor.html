@@ -179,14 +179,39 @@
             element.classList.add("icon-copy");
         }, 1000); // Reset after 1 second (adjust as needed)
     }
-    var socket = io.connect('http://127.0.0.1:5555');
+
+    var socket = io.connect('{{_socketio}}');
 
     socket.on('connect', function () {
-        console.log('Connected to server');
-    });
+            console.log('Connected to server');
+            Toastify({
+                text: "Connected to server",
+                duration: 3000,
+                gravity: "top", // `top` or `bottom`
+                position: "right", // `left`, `center` or `right`
+                stopOnFocus: true, // Prevents dismissing of toast on hover
+                style: {
+                    background: "linear-gradient(to right, #00b09b, #96c93d)",
+                },
+            }).showToast();
+        });
 
     socket.on('message', function (message) {
         updateDataUI(message);
     });
+
+    socket.on('connect_error', function (error) {
+            console.error('Failed to connect to server', error);
+            Toastify({
+                text: "Failed to connect to server",
+                duration: 3000,
+                gravity: "top", // `top` or `bottom`
+                position: "right", // `left`, `center`, or `right`
+                stopOnFocus: true, // Prevents dismissing of toast on hover
+                style: {
+                    background: "linear-gradient(to right, rgb(255, 95, 109), rgb(255, 195, 113))",
+                },
+            }).showToast();
+        });
 </script>
 {% endblock javascripts %}

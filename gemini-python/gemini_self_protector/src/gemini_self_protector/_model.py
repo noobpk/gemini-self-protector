@@ -41,7 +41,7 @@ class tb_Config(Base):
     telegram_chat_id = Column(String)
     telegram_token = Column(String)
     trust_domain = Column(String)
-    websocket_server = Column(String)
+    socketio = Column(String)
     working_directory = Column(String)
     created_at = Column(DateTime, default=func.now())
     updated_at = Column(DateTime, default=func.now(), onupdate=func.now())
