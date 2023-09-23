@@ -75,18 +75,6 @@ Gemini supports 3 modes and recommends sensitivity levels for the application to
 ## Implement prediction module
 💪 You can implement your own prediction module extremely simply and quickly. Details at [gemini-predict-serve](https://github.com/noobpk/gemini-predict-serve)
 
-## GUI Features
-
-👉 Monitor Abnormal Event
-
-👉 Hot Configuration
-
-👉 Access Control List
-
-👉 Log Activity
-
-👉 Dependency Vulnerability Check
-
 ## Demo
 
 [Gemini-Self-Protector | Demo | Install - Configurate - Usage](https://youtu.be/sUJsJE29KcE)
