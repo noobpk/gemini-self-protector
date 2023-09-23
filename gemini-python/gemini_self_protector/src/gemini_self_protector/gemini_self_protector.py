@@ -36,12 +36,17 @@ class GeminiManager(object):
             @wraps(f)
             def __gemini_self_protect(*args, **kwargs):
                 _Gemini.calulate_total_access()
+                is_install = _Gemini.get_gemini_config().isinstall
                 _ip_address = _Gemini.get_flask_client_ip()
                 is_enable_anti_dos = _Gemini.get_gemini_config().anti_dos
                 is_enable_acl = _Gemini.get_gemini_config().enable_acl
                 is_protect_response = _Gemini.get_gemini_config().protect_response
                 mrpm = _Gemini.get_gemini_config().max_requests_per_minute
 
+                if int(is_install) == 0:
+                    response = make_response("Please setup gemini-self-protector.")
+                    return response
+                
                 if int(is_enable_anti_dos):
                     request_key = f"{_ip_address}_{datetime.now().strftime('%Y-%m-%d %H:%M')}"
 

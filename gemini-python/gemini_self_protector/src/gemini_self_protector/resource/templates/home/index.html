@@ -320,6 +320,8 @@
                                                     <dd class="col-sm-9" id="response_value"></dd>
                                                     <dt class="col-sm-3">Response Content</dt>
                                                     <dd class="col-sm-9" id="res_content_value"></dd>
+                                                    <dt class="col-sm-3">Hash</dt>
+                                                    <dd class="col-sm-9" id="hash"></dd>
                                                 </dl>
                                             </div>
                                         </div>
@@ -468,6 +470,8 @@
                     $('#req_body_value').text(data.req_body ? data.req_body : 'N/A');
                     $('#response_value').html(data.response ? data.response.replace(/(?:\r\n|\r|\n)/g, '<br>') : 'N/A');
                     $('#res_content_value').text(data.res_content ? data.res_content : 'N/A');
+                    $('#hash').text(data.hash ? data.hash : 'N/A');
+
                 },
                 error: function (error) {
                     console.error('Error:', error);

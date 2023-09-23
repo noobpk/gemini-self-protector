@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.1.4 (23/09/2023)
+
+- Fix bug 
+- Add monitor page
+
 ## v0.1.2-c (01/08/2023)
 
 - Fix bug 'NoneType' object is not subscriptable in decoder

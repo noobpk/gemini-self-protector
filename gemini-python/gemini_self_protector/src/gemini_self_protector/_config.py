@@ -30,6 +30,7 @@ class _Config(object):
                 global_protect_mode='monitor',
                 max_content_length=52428800,
                 sensitive_value=50,
+                is_predict_header = 0,
                 http_method_allow=json.dumps(
                     ['OPTIONS', 'GET', 'POST', 'PUT', 'DELETE']),
                 cors={'origin': '*', 'methods': '*',

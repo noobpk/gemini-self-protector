@@ -193,7 +193,7 @@ jQuery(document).ready(function () {
                 "Authorization": keyAuthValue
             },
             contentType: "application/json",
-            data: JSON.stringify({ data: "healthcheck" }),
+            data: JSON.stringify({ ip: "0.0.0.0", data: "healthcheck" }),
             success: function (response) {
                 // Handle the success response
                 if (response.accuracy) {

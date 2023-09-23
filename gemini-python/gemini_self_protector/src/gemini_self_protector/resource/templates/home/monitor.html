@@ -1,0 +1,228 @@
+{% extends "gemini-protector-gui/layouts/base.html" %}
+
+{% block title %} Dashboard {% endblock %}
+
+<!-- Specific CSS goes HERE -->
+{% block stylesheets %}{% endblock stylesheets %}
+
+{% block content %}
+
+<!-- [ Main Content ] start -->
+<div class="pcoded-main-container">
+    <div class="pcoded-wrapper">
+
+        <div class="pcoded-content">
+            <div class="pcoded-inner-content">
+                <!-- [ breadcrumb ] start -->
+
+                <!-- [ breadcrumb ] end -->
+                <div class="main-body">
+                    <div class="page-wrapper">
+                        <!-- [ Main Content ] start -->
+                        <div class="row">
+                            <div class="col-xl-12 col-md-6">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h5>Realtime Prediction</h5>
+                                    </div>
+                                    <canvas id="summaryChart" width="400" height="100"></canvas>
+                                </div>
+                            </div>
+                            <!--[ Recent Events ] start-->
+                            <div class="col-xl-12 col-md-6">
+                                <div class="card Recent-Users">
+                                    <div class="card-header">
+                                        <h5>Recent Events</h5>
+                                    </div>
+                                    <div class="card-block table-border-style">
+                                        <div class="table-responsive" style="max-height: 500px; overflow-y: auto;">
+                                            <table class="table table-hover" id="eventTable">
+                                                <thead>
+                                                    <tr>
+                                                        <th>#</th>
+                                                        <th>IP</th>
+                                                        <th>Score</th>
+                                                        <th>Hash</th>
+                                                        <th>Action</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- [ Main Content ] end -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+<!-- [ Main Content ] end -->
+
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}
+<script type="text/javascript">
+    var chart_labels = [];
+    var chart_data = [];
+    var chart_ipAddresses = [];
+
+    var maxDataPoints = 15;
+
+    var ctx = document.getElementById('summaryChart').getContext('2d');
+    var summaryChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: chart_labels,
+            datasets: [{
+                label: 'Score',
+                data: chart_data,
+                borderColor: 'blue',
+                fill: 'start'
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            },
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: function (context) {
+                            var label = context.dataset.label || '';
+                            if (label) {
+                                label += ': ';
+                            }
+                            if (context.parsed.y !== null) {
+                                label += context.parsed.y;
+                            }
+                            if (context.dataset.label === 'Score') {
+                                label += ' (IP: ' + chart_ipAddresses[context.dataIndex] + ')';
+                            }
+                            return label;
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    // Function to add a new row to the table
+    function updateDataUI(data) {
+        value = JSON.parse(data.value);
+        console.log(value);
+
+        if (chart_labels.length > maxDataPoints) {
+            chart_labels.shift();
+            chart_data.shift();
+            chart_ipAddresses.shift();
+        }
+
+        chart_labels.push(value.time);
+        chart_data.push(value.score);
+        chart_ipAddresses.push(value.ipaddress);
+
+        summaryChart.update();
+
+        //Update data for table
+        const scoreClass = value.score > 80 ? "text-c-red" : "text-c-green";
+        const tableBody = document.querySelector("#eventTable tbody");
+        const newRow = document.createElement("tr");
+        newRow.className = "readed";
+
+        newRow.innerHTML = `
+                <td><i class="feather icon-cloud-rain f-30 ${scoreClass}"></i></td>
+                <td>
+                    <h6 class="mb-1">${value.time}</h6>
+                    <p class="m-0">${value.ipaddress}</p>
+                </td>
+                <td>
+                    <h6 class="text-muted"><i class="fas fa-circle ${scoreClass} f-10 m-r-15"></i>${value.score}</h6>
+                </td>
+                <td><h6>${value.hash}</h6></i></td>
+                <td><i class="feather icon-copy f-20 copy-button" onclick="copyToClipboard(this)"></i></td>
+            `;
+        const firstRow = tableBody.firstChild;
+        tableBody.insertBefore(newRow, firstRow);
+    }
+    function copyToClipboard(element) {
+        const row = element.closest("tr");
+        const textToCopy = row.querySelector("td:nth-child(4) h6").textContent;
+
+        const tempInput = document.createElement("input");
+        tempInput.setAttribute("value", textToCopy);
+        document.body.appendChild(tempInput);
+
+        tempInput.select();
+        tempInput.setSelectionRange(0, 99999);
+
+        document.execCommand("copy");
+
+        document.body.removeChild(tempInput);
+
+        // Change the class to "icon-check"
+        element.classList.remove("icon-copy");
+        element.classList.add("icon-check");
+
+        Toastify({
+            text: "Hash copied",
+            duration: 3000,
+            gravity: "top", // `top` or `bottom`
+            position: "right", // `left`, `center` or `right`
+            stopOnFocus: true, // Prevents dismissing of toast on hover
+            style: {
+                background: "linear-gradient(to right, #00b09b, #96c93d)",
+            },
+        }).showToast();
+        
+        // Provide some visual feedback to the user
+        setTimeout(() => {
+            element.classList.remove("icon-check");
+            element.classList.add("icon-copy");
+        }, 1000); // Reset after 1 second (adjust as needed)
+    }
+
+    var socket = io.connect('{{_socketio}}');
+
+    socket.on('connect', function () {
+            console.log('Connected to server');
+            Toastify({
+                text: "Connected to server",
+                duration: 3000,
+                gravity: "top", // `top` or `bottom`
+                position: "right", // `left`, `center` or `right`
+                stopOnFocus: true, // Prevents dismissing of toast on hover
+                style: {
+                    background: "linear-gradient(to right, #00b09b, #96c93d)",
+                },
+            }).showToast();
+        });
+
+    socket.on('message', function (message) {
+        updateDataUI(message);
+    });
+
+    socket.on('connect_error', function (error) {
+            console.error('Failed to connect to server', error);
+            Toastify({
+                text: "Failed to connect to server",
+                duration: 3000,
+                gravity: "top", // `top` or `bottom`
+                position: "right", // `left`, `center`, or `right`
+                stopOnFocus: true, // Prevents dismissing of toast on hover
+                style: {
+                    background: "linear-gradient(to right, rgb(255, 95, 109), rgb(255, 195, 113))",
+                },
+            }).showToast();
+        });
+</script>
+{% endblock javascripts %}
