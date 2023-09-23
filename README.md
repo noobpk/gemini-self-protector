@@ -17,7 +17,7 @@ By seamlessly integrating RASP into your application's runtime fabric, Gemini-Se
 
 ## Gemini Component
 
-![image](https://github.com/noobpk/gemini-self-protector/assets/31820707/d53ffcd3-2a1a-4931-b050-896161adf085)
+![image](https://github.com/noobpk/gemini-self-protector/assets/31820707/e825d5ef-90d9-419c-b1d5-76406b770b04)
 
 ## Gemini Plugin Architecture
 
@@ -87,24 +87,29 @@ Gemini supports 3 modes and recommends sensitivity levels for the application to
 
 ## Screenshot
 
-### Dashboard Screen
+### Dashboard
 
-![image](https://github.com/noobpk/gemini-self-protector/assets/31820707/112e227b-9f43-4189-b1fd-038e7cd324ee)
+<img width="1440" alt="image" src="https://github.com/noobpk/gemini-self-protector/assets/31820707/068048ef-42cf-4032-b064-137d69abccb6">
 
-### Configurate Screen
+### Monitoring
 
-![image](https://github.com/noobpk/gemini-self-protector/assets/31820707/e2b4fc0b-c188-4c52-b21e-afd7e8d52582)
+![image](https://github.com/noobpk/gemini-self-protector/assets/31820707/c4308492-c283-4c8c-a22f-8e503079b30e)
+
+### Configurate
+
+<img width="1440" alt="image" src="https://github.com/noobpk/gemini-self-protector/assets/31820707/d8e4376f-72d1-4a7d-8a96-838b9436b0b1">
 
 ### Access Control List
 
-![image](https://github.com/noobpk/gemini-self-protector/assets/31820707/ca2ae9a7-7956-4b83-866d-8fa5f9c4ce2b)
+<img width="1440" alt="image" src="https://github.com/noobpk/gemini-self-protector/assets/31820707/496033ec-e953-4ca4-9d16-73a402161f8a">
 
 ### Dependency Check
 
 ![image](https://github.com/noobpk/gemini-self-protector/assets/31820707/e5b58af5-fe2a-4f3a-ab03-e25923bd72ee)
 
 ### Endpoint 
-![image](https://github.com/noobpk/gemini-self-protector/assets/31820707/67db7eed-5c12-452d-89ae-80a88b10817a)
+
+<img width="1440" alt="image" src="https://github.com/noobpk/gemini-self-protector/assets/31820707/109717d9-aac2-4c97-8e36-133e2d6365cb">
 
 ## Contributing
 
