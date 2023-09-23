@@ -19,6 +19,12 @@ By seamlessly integrating RASP into your application's runtime fabric, Gemini-Se
 
 ![image](https://github.com/noobpk/gemini-self-protector/assets/31820707/e825d5ef-90d9-419c-b1d5-76406b770b04)
 
+👉 Plugin : [gemini-self-protector](https://github.com/noobpk/gemini-self-protector)
+
+👉 AI : [gemini-predict-serve](https://github.com/noobpk/gemini-predict-serve)
+
+👉 BigData : [gemini-bigdata-serve](https://github.com/noobpk/gemini-bigdata-serve)
+
 ## Gemini Plugin Architecture
 
 The architecture of gemini-self-protector is composed of seven layers however it is optimized so as not to affect the performance on the application.
