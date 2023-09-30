@@ -20,6 +20,7 @@ class tb_Config(Base):
     id = Column(Integer, primary_key=True)
     predict_server_key_auth = Column(String)
     isinstall = Column(Integer)
+    running_mode = Column(String)
     app_path = Column(String)
     database_path = Column(String)
     cors = Column(JSON)

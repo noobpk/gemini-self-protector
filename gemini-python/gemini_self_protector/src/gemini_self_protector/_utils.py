@@ -11,6 +11,7 @@ from flask import request
 from ._config import _Config
 from ._logger import logger
 from datetime import datetime, timezone
+import socket
 
 
 class _Utils(object):
@@ -55,7 +56,8 @@ class _Utils(object):
                         try:
                             decoded_string = base64.b64decode(
                                 encoded_string).decode()
-                            string = string.replace(encoded_string, decoded_string)
+                            string = string.replace(
+                                encoded_string, decoded_string)
                         except:
                             pass
                 except:
@@ -84,8 +86,9 @@ class _Utils(object):
             for pattern in sql_pattern:
                 match = re.search(pattern, string, re.IGNORECASE)
                 if match is not None:
-                # select * from noobpk; - 90e87fc8ba835e0d2bfeec5e3799ecfe
-                    string = string.replace(match[0], ' 90e87fc8ba835e0d2bfeec5e3799ecfe')
+                    # select * from noobpk; - 90e87fc8ba835e0d2bfeec5e3799ecfe
+                    string = string.replace(
+                        match[0], ' 90e87fc8ba835e0d2bfeec5e3799ecfe')
                     break
 
             string = string.encode('utf-7').decode()
@@ -145,6 +148,15 @@ class _Utils(object):
             logger.error(
                 "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Utils.flask_client_ip', e))
 
+    def socket_local_ip() -> None:
+        try:
+            hostname = socket.gethostname()
+            local_ip = socket.gethostbyname(hostname)
+            return local_ip
+        except Exception as e:
+            logger.error(
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Utils.socket_local_ip', e))
+
     def generate_event_id() -> None:
         """
         This function generates a random UUID and returns it
@@ -195,9 +207,17 @@ class _Utils(object):
     def predict_server_health() -> None:
         try:
             predict_server = _Config.get_tb_config().predict_server
+            key_auth = _Config.get_tb_config().predict_server_key_auth
+
             if predict_server:
-                client_ip = _Utils.flask_client_ip()
-                headers = {"Content-Type": "application/json"}
+                running_mode = _Config.get_tb_config().running_mode
+                client_ip = None
+                if running_mode == 'CLI':
+                    client_ip = _Utils.socket_local_ip()
+                else:
+                    client_ip = _Utils.flask_client_ip()
+                headers = {"Content-Type": "application/json",
+                           "Authorization": key_auth}
                 response = requests.post(
                     f'{predict_server}/predict', json={"ip": client_ip, "data": "healthcheck"}, headers=headers)
                 if response and response.status_code == 200:
@@ -208,6 +228,47 @@ class _Utils(object):
         except Exception as e:
             logger.error(
                 "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Validator.predict_server_health', e))
+
+    def diagnostic_predict_server() -> None:
+        try:
+            predict_server = _Config.get_tb_config().predict_server
+            key_auth = _Config.get_tb_config().predict_server_key_auth
+            running_mode = _Config.get_tb_config().running_mode
+            client_ip = None
+            if running_mode == 'CLI':
+                client_ip = _Utils.socket_local_ip()
+            else:
+                client_ip = _Utils.flask_client_ip()
+
+            logger.info("[*] Try PingPong to predict serve")
+            ping_header = {"Authorization": key_auth}
+            ping_response = requests.get(
+                f'{predict_server}/ping', headers=ping_header)
+            if ping_response.status_code == 200:
+                logger.info("[200] 200 OK")
+                logger.info("[*] Try predict")
+                predict_header = {
+                    "Content-Type": "application/json", "Authorization": key_auth}
+                preidct_response = requests.post(
+                    f'{predict_server}/predict', json={"ip": client_ip, "data": "healthcheck"}, headers=predict_header)
+                if preidct_response.status_code == 200:
+                    logger.info("[200] 200 OK")
+                    return 200
+                elif preidct_response.status_code == 401:
+                    logger.warning("[401] UNAUTHORIZED")
+                    return 401
+                elif preidct_response.status_code == 500:
+                    logger.error("[500] INTERNAL SERVER ERROR")
+                    return 500
+            elif ping_response.status_code == 401:
+                logger.warning("[401] UNAUTHORIZED")
+                return 401
+            elif ping_response.status_code == 500:
+                logger.error("[500] INTERNAL SERVER ERROR")
+                return 500
+        except Exception as e:
+            logger.error(
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Validator.diagnostic_predict_server', e))
 
 
 class _Validator(object):
@@ -362,7 +423,6 @@ class _Validator(object):
         try:
             contains_only_empty_strings = all(
                 element == '' for element in trust_domain_list)
-            print(contains_only_empty_strings)
             if contains_only_empty_strings:
                 return True
             else:
@@ -380,7 +440,13 @@ class _Validator(object):
     def validate_predict_server(_server, _key) -> None:
         try:
             if re.match(r'https?://\S+', _server):
-                client_ip = _Utils.flask_client_ip()
+                running_mode = _Config.get_tb_config().running_mode
+                client_ip = None
+                if running_mode == 'CLI':
+                    client_ip = _Utils.socket_local_ip()
+                else:
+                    client_ip = _Utils.flask_client_ip()
+
                 headers = {"Content-Type": "application/json",
                            "Authorization": _key}
                 response = requests.post(

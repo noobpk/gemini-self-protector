@@ -464,4 +464,11 @@ class _Gemini(object):
             return _Protect.__handle_mini_anti_dos__()
         except Exception as e:
             logger.error(
-                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.__load_mini_anti_dos__', e))        
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.__load_mini_anti_dos__', e))
+    
+    def diagnostic_predict_server() -> None:
+        try:
+            return _Utils.diagnostic_predict_server()
+        except Exception as e:
+            logger.error(
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.diagnostic_predict_server', e))

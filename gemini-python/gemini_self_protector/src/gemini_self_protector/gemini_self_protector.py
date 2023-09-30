@@ -91,7 +91,7 @@ class GeminiManager(object):
                 gemini_protect_mode = current_protect_mode
 
                 logger.info("[+] This request is currently being executed with the protective {0} mode.".format(
-                    'monitoring' if gemini_protect_mode == 'monitor' else 'blocking'))
+                    'monitoring' if gemini_protect_mode == 'monitor' else 'protecting'))
 
                 protect_request = _Gemini.__load_protect_flask_request__(gemini_protect_mode)
 
