@@ -1,62 +1,69 @@
 import sys
 from ._logger import logger
 from ._gemini import _Gemini
+from tqdm import tqdm
 
 
 class _Gemini_CLI(object):
     def __init__(self) -> None:
+        for i in tqdm(range(100), colour="green", desc="Gemini Loading"):
+            pass
         logger.info(
             "[+] Running gemini-self protector - CLI Mode")
-        is_install = _Gemini.get_gemini_config().isinstall
+        is_install = _Gemini.get_gemini_config().is_install
         if int(is_install) == 0:
             _Gemini.update_gemini_config({'running_mode': 'CLI'})
             _Gemini_CLI.handler_install_gemini_self_protector()
         else:
-            _Gemini_CLI.handler_predict_server_health_check()
+            is_use_g_wvd_serve = _Gemini.get_gemini_config().is_use_g_wvd_serve
+            if int(is_use_g_wvd_serve) == 1:
+                _Gemini_CLI.handler_g_wvd_serve_health()
+            else:
+                logger.info(
+                    "[+] No connection to G-WVD")
         mode = _Gemini.get_gemini_config().global_protect_mode
         logger.info(
             "[+] Gemini Global Protect Mode: {0}".format(mode))
 
     def handler_install_gemini_self_protector():
         try:
-            isPredictServer = _Gemini.get_gemini_config().predict_server
-            if isPredictServer:
-                logger.info(
-                    "[+] Predict server health check.....")
-                if _Gemini.health_check_predict_server():
-                    logger.info(
-                        "[+] Predict server is online")
-                else:
-                    logger.info(
-                        "[+] Predict server is offline")
-            else:
-                while True:
-                    try:
-                        protect_mode = input(
-                            "[?] Please choose mode (monitor - protection): ")
+            while True:
+                try:
+                    protect_mode = input(
+                        "[?] Choose mode (monitor - protection - off): ")
+                    is_use_g_wvd_serve = input(
+                        "[?] Using G-WVD serve (y/N): ") or 'y'
+                    if is_use_g_wvd_serve == 'y' or is_use_g_wvd_serve == 'Y':
                         sensitive_value = input(
-                            "?] Please input sensitive value (0 - 100): ")
-                        predict_server = input(
-                            "?] Please input predict server (http://predict-server:5000): ")
-                        predict_server_key_auth = input(
-                            "?] Please input authentication key: ")
-                    except Exception as e:
-                        logger.error(
-                            "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini_CLI.handler_install_gemini_self_protector', e))
-                        continue
-                    else:
-                        break
+                            "[?] Input sensitive value (0 - 100): ")
+                        g_wvd_serve = input("[?] Input G-WVD serve: ")
+                        g_serve_key = input("[?] Input G serve key: ")
+                except Exception as e:
+                    logger.error(
+                        "[x_x] Something went wrong at {0}, Check your error message.\n Message - {1}".format('_Gemini_CLI.handler_install_gemini_self_protector', e))
+                    continue
+                else:
+                    break
 
-                if _Gemini.validator_protect_mode(protect_mode) and _Gemini.validator_sensitive_value(sensitive_value) and _Gemini.validator_predict_server(predict_server, predict_server_key_auth):
+            if is_use_g_wvd_serve == 'n' or is_use_g_wvd_serve == 'N':
+                if _Gemini.validator_protect_mode(protect_mode):
                     _Gemini.update_gemini_config({
-                        "isinstall": True,
+                        "is_install": True,
+                        "is_use_g_wvd_serve": False,
+                        "global_protect_mode": protect_mode,
+                    })
+                else:
+                    _Gemini_CLI.handler_install_gemini_self_protector()
+            else:
+                if _Gemini.validator_protect_mode(protect_mode) and _Gemini.validator_sensitive_value(sensitive_value) and _Gemini.validator_g_wvd_serve(g_wvd_serve, g_serve_key):
+                    _Gemini.update_gemini_config({
+                        "is_install": True,
+                        "is_use_g_wvd_serve": True,
                         "global_protect_mode": protect_mode,
                         "sensitive_value": int(sensitive_value),
-                        "predict_server": predict_server,
-                        "predict_server_key_auth": predict_server_key_auth
+                        "g_wvd_serve": g_wvd_serve,
+                        "g_serve_key": g_serve_key
                     })
-                    logger.info(
-                        "[+] Predict server is online")
                 else:
                     _Gemini_CLI.handler_install_gemini_self_protector()
 
@@ -64,40 +71,40 @@ class _Gemini_CLI(object):
             logger.error(
                 "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini_CLI.handler_install_gemini_self_protector', e))
 
-    def handler_predict_server_health_check():
+    def handler_g_wvd_serve_health():
         try:
-            if _Gemini.health_check_predict_server():
+            if _Gemini.g_wvd_serve_health():
                 logger.info(
-                    "[+] Connected to predict serve")
+                    "[+] Connected to G-WVD")
             else:
                 logger.error(
-                    "[x] Cannot connected to predict serve")
+                    "[x] Cannot connected to G-WVD")
                 while True:
                     try:
                         diagnostic = input(
                             "[?] Do you run diagnostic (y/N): ") or "y"
                     except Exception as e:
                         logger.error(
-                            "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini_CLI.handler_predict_server_health_check', e))
+                            "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini_CLI.handler_g_wvd_serve_health', e))
                         continue
                     else:
                         break
                 if diagnostic == 'y' or diagnostic == 'Y':
-                    code = _Gemini.diagnostic_predict_server()
+                    code = _Gemini.g_serve_diagnostic()
                     if code == 200:
                         logger.info(
-                            "[+] Connected to predict serve")
+                            "[+] Connected to G-WVD")
                     elif code == 400:
                         logger.info(
-                            "[!] Please check error log on predict serve")
+                            "[!] Please check error log on G-WVD")
                         sys.exit()
                     elif code == 401:
                         logger.info(
-                            "[!] Please check your authentication key")
+                            "[!] Please check your G-WVD key")
                         sys.exit()
                     elif code == 500:
                         logger.info(
-                            "[!] Please check error log on predict serve")
+                            "[!] Please check error log on G-WVD")
                         sys.exit()
                 else:
                     while True:
@@ -106,7 +113,7 @@ class _Gemini_CLI(object):
                                 "[?] Do you want continue (y/N): ") or "y"
                         except Exception as e:
                             logger.error(
-                                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini_CLI.handler_predict_server_health_check', e))
+                                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini_CLI.handler_g_wvd_serve_health', e))
                             continue
                         else:
                             break
@@ -116,4 +123,4 @@ class _Gemini_CLI(object):
 
         except Exception as e:
             logger.error(
-                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini_CLI.handler_predict_server_health_check', e))
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini_CLI.handler_g_wvd_serve_health', e))

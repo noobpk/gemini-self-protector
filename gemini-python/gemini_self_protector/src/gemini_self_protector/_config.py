@@ -23,7 +23,7 @@ class _Config(object):
                 username='superadmin', password=''
             )
             config = tb_Config(
-                isinstall=0,
+                is_install=0,
                 working_directory=working_directory,
                 database_path=database_file,
                 secret_key=str(os.urandom(24)),

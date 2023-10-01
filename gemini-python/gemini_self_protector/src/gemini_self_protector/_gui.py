@@ -17,7 +17,12 @@ class _Gemini_GUI(object):
         logger.info(
             "[+] Running gemini-self protector - GUI Mode")
 
-        # @flask_app.before_request
+        @flask_app.before_request
+        def log_request_info():
+            print("Request Headers:", request.headers)
+            print('Request Method:', request.method)
+            print('Request Body:', request.get_data())
+
         # def count_request_to_service():
         #     _Gemini.calulate_total_access()
 

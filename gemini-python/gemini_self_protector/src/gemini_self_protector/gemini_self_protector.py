@@ -36,7 +36,7 @@ class GeminiManager(object):
             @wraps(f)
             def __gemini_self_protect(*args, **kwargs):
                 _Gemini.calulate_total_access()
-                is_install = _Gemini.get_gemini_config().isinstall
+                is_install = _Gemini.get_gemini_config().is_install
                 _ip_address = _Gemini.get_flask_client_ip()
                 is_enable_anti_dos = _Gemini.get_gemini_config().anti_dos
                 is_enable_acl = _Gemini.get_gemini_config().enable_acl

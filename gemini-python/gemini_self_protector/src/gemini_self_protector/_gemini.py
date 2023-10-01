@@ -43,9 +43,9 @@ class _Gemini(object):
             logger.error(
                 "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.get_gemini_user', e))
 
-    def update_gemini_user(update_content):
+    def update_gemini_user(_update_content):
         try:
-            _Config.update_tb_user(update_content)
+            _Config.update_tb_user(_update_content)
         except Exception as e:
             logger.error(
                 "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.update_gemini_user', e))
@@ -58,9 +58,9 @@ class _Gemini(object):
             logger.error(
                 "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.get_gemini_summary', e))
 
-    def update_gemini_summary(update_content):
+    def update_gemini_summary(_update_content):
         try:
-            _Config.update_tb_summary(update_content)
+            _Config.update_tb_summary(_update_content)
         except Exception as e:
             logger.error(
                 "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.update_gemini_summary', e))
@@ -83,7 +83,8 @@ class _Gemini(object):
 
     def store_gemini_request_log(ipaddress, url, request, response, attack_type, predict, event_id, latitude, longitude):
         try:
-            _Config.store_tb_request_log(ipaddress, url, request, response, attack_type, predict, event_id, latitude, longitude)
+            _Config.store_tb_request_log(
+                ipaddress, url, request, response, attack_type, predict, event_id, latitude, longitude)
         except Exception as e:
             logger.error(
                 "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.store_gemini_request_log', e))
@@ -103,9 +104,9 @@ class _Gemini(object):
             logger.error(
                 "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.get_gemini_acl', e))
 
-    def store_gemini_acl(ipaddress, isallow, desciption):
+    def store_gemini_acl(_ipaddress, _isallow, _desciption):
         try:
-            _Config.store_tb_acl(ipaddress, isallow, desciption)
+            _Config.store_tb_acl(_ipaddress, _isallow, _desciption)
         except Exception as e:
             logger.error(
                 "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.store_gemini_acl', e))
@@ -155,16 +156,15 @@ class _Gemini(object):
             logger.error(
                 "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.export_gemini_feedback', e))
 
-
-    def validator_key_auth(_key):
+    def validate_g_serve_key(_key):
         try:
-            _gemini_return = _Validator.validate_key_auth(_key)
+            _gemini_return = _Validator.validate_g_serve_key(_key)
             return _gemini_return
         except Exception as e:
             logger.error(
-                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.validator_key_auth', e))
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.validate_g_serve_key', e))
 
-    def validator_protect_mode(protect_mode) -> None:
+    def validator_protect_mode(_protect_mode) -> None:
         """
         The function takes a string as an argument, and checks if the string is in a list of strings. If
         it is, it returns the string. If it isn't, it returns None
@@ -173,13 +173,13 @@ class _Gemini(object):
         :return: The protect mode is being returned.
         """
         try:
-            _gemini_return = _Validator.validate_protect_mode(protect_mode)
+            _gemini_return = _Validator.validate_protect_mode(_protect_mode)
             return _gemini_return
         except Exception as e:
             logger.error(
                 "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.validator_protect_mode', e))
 
-    def validator_http_method(http_method):
+    def validator_http_method(_http_method):
         """
         The function validator_http_method() takes in a string as an argument and returns a boolean
         value
@@ -188,13 +188,13 @@ class _Gemini(object):
         :return: The return value is a dictionary.
         """
         try:
-           _gemini_return = _Validator.validate_http_method(http_method)
+           _gemini_return = _Validator.validate_http_method(_http_method)
            return _gemini_return
         except Exception as e:
             logger.error(
                 "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.validator_http_method', e))
 
-    def validator_sensitive_value(sensitive_value) -> None:
+    def validator_sensitive_value(_sensitive_value) -> None:
         """
         The function validator_sensitive_value() takes in a sensitive value and returns a boolean value
 
@@ -203,49 +203,49 @@ class _Gemini(object):
         """
         try:
             _gemini_return = _Validator.validate_sensitive_value(
-                sensitive_value)
+                _sensitive_value)
             return _gemini_return
         except Exception as e:
             logger.error(
                 "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.validator_sensitive_value', e))
 
-    def validator_app_path(app_path) -> None:
+    def validator_app_path(_app_path) -> None:
         try:
             _gemini_return = _Validator.validate_app_path(
-                app_path)
+                _app_path)
             return _gemini_return
         except Exception as e:
             logger.error(
                 "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.validator_app_path', e))
 
-    def validator_notification_channel(notification_channel) -> None:
+    def validator_notification_channel(_notification_channel) -> None:
         try:
             _gemini_return = _Validator.validate_notification_channel(
-                notification_channel)
+                _notification_channel)
             return _gemini_return
         except Exception as e:
             logger.error(
                 "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.validator_notification_channel', e))
 
-    def validator_dashboard_password(password, confirm_password) -> None:
+    def validator_dashboard_password(_password, _confirm_password) -> None:
         try:
             _gemini_return = _Validator.validate_dashboard_password(
-                password, confirm_password)
+                _password, _confirm_password)
             return _gemini_return
         except Exception as e:
             logger.error(
                 "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.validator_dashboard_password', e))
 
-    def validator_on_off_status(on_off_status) -> None:
+    def validator_on_off_status(_on_off_status) -> None:
         try:
             _gemini_return = _Validator.validate_one_off_status(
-                on_off_status)
+                _on_off_status)
             return _gemini_return
         except Exception as e:
             logger.error(
                 "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.validator_safe_redirect_status', e))
 
-    def validator_trust_domain(trust_domain_list):
+    def validator_trust_domain(_trust_domain_list):
         """
         The function validator_trust_domain() takes a list of trust domains as an argument and returns a
         list of trust domains that are valid
@@ -255,13 +255,13 @@ class _Gemini(object):
         """
         try:
             _gemini_return = _Validator.validate_trust_domain(
-                trust_domain_list)
+                _trust_domain_list)
             return _gemini_return
         except Exception as e:
             logger.error(
                 "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.validator_trust_domain', e))
 
-    def init_gemini_dashboard(flask_template_folder, flask_static_folder):
+    def init_gemini_dashboard(_flask_template_folder, _flask_static_folder):
         """
         This function initializes the Gemini dashboard by initializing the Gemini template and static
         folders.
@@ -275,8 +275,8 @@ class _Gemini(object):
         """
 
         try:
-            _Template.init_gemini_template(flask_template_folder)
-            _Template.init_gemini_static(flask_static_folder)
+            _Template.init_gemini_template(_flask_template_folder)
+            _Template.init_gemini_static(_flask_static_folder)
         except Exception as e:
             logger.error(
                 "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.init_gemini_dashboard', e))
@@ -338,7 +338,7 @@ class _Gemini(object):
             logger.error(
                 "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.generate_insident_ticket', e))
 
-    def __load_protect_flask_request__(gemini_protect_mode) -> None:
+    def __load_protect_flask_request__(_gemini_protect_mode) -> None:
         """
         This function is used to load the flask protect mode
 
@@ -346,12 +346,12 @@ class _Gemini(object):
         :return: The function _Protect.protect_flask(gemini_protect_mode)
         """
         try:
-            return _Protect.__protect_flask_request__(gemini_protect_mode)
+            return _Protect.__protect_flask_request__(_gemini_protect_mode)
         except Exception as e:
             logger.error(
                 "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.__load_protect_flask_request__', e))
 
-    def __load_protect_flask_response__(original_response, gemini_protect_mode) -> None:
+    def __load_protect_flask_response__(_original_response, _gemini_protect_mode) -> None:
         """
         This function is used to protect the flask response
 
@@ -361,12 +361,12 @@ class _Gemini(object):
         """
         try:
             safe_redirect = _Gemini.get_gemini_config().safe_redirect
-            return _Protect.__protect_flask_response__(safe_redirect, original_response, gemini_protect_mode)
+            return _Protect.__protect_flask_response__(safe_redirect, _original_response, _gemini_protect_mode)
         except Exception as e:
             logger.error(
                 "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.__load_protect_flask_response__', e))
 
-    def make_secure_response_header(response) -> None:
+    def make_secure_response_header(_response) -> None:
         """
         It makes the response header secure.
 
@@ -374,14 +374,14 @@ class _Gemini(object):
         :return: the response header.
         """
         try:
-            return _Protect.__secure_response_header__(response)
+            return _Protect.__secure_response_header__(_response)
         except Exception as e:
             logger.error(
                 "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.make_secure_response_header', e))
 
-    def make_secure_cookie(app):
+    def make_secure_cookie(_app):
         try:
-            _Protect.__secure_cookie__(app)
+            _Protect.__secure_cookie__(_app)
         except Exception as e:
             logger.error(
                 "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.make_secure_cookie', e))
@@ -398,7 +398,7 @@ class _Gemini(object):
             logger.error(
                 "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.get_dependency_file', e))
 
-    def __audit_dependency_vulnerability__(file_path):
+    def __audit_dependency_vulnerability__(_file_path):
         """
         This function will take a file path as an argument and will call the
         __dependency_vulnerability__ function from the _Audit class
@@ -406,7 +406,7 @@ class _Gemini(object):
         :param file_path: The path to the file you want to audit
         """
         try:
-            _Audit.__dependency_vulnerability__(file_path)
+            _Audit.__dependency_vulnerability__(_file_path)
         except Exception as e:
             logger.error(
                 "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.__audit_dependency_vulnerability__', e))
@@ -445,19 +445,19 @@ class _Gemini(object):
             logger.error(
                 "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.calulate_total_access', e))
 
-    def health_check_predict_server() -> None:
+    def g_wvd_serve_health() -> None:
         try:
-            return _Utils.predict_server_health()
+            return _Utils.g_wvd_serve_health()
         except Exception as e:
             logger.error(
-                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.check_predict_server', e))
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.g_wvd_serve_health', e))
 
-    def validator_predict_server(_server, _key) -> None:
+    def validator_g_wvd_serve(_serve, _key) -> None:
         try:
-            return _Validator.validate_predict_server(_server, _key)
+            return _Validator.validator_g_wvd_serve(_serve, _key)
         except Exception as e:
             logger.error(
-                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.validator_predict_server', e))
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.validator_g_wvd_serve', e))
 
     def __load_mini_anti_dos__() -> None:
         try:
@@ -465,10 +465,10 @@ class _Gemini(object):
         except Exception as e:
             logger.error(
                 "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.__load_mini_anti_dos__', e))
-    
-    def diagnostic_predict_server() -> None:
+
+    def g_serve_diagnostic() -> None:
         try:
-            return _Utils.diagnostic_predict_server()
+            return _Utils.g_serve_diagnostic()
         except Exception as e:
             logger.error(
-                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.diagnostic_predict_server', e))
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.g_serve_diagnostic', e))

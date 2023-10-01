@@ -34,42 +34,53 @@
                                                     <h5>Protect Mode</h5>
                                                     <div class="form-group">
                                                         <div class="wizard-form-radio">
-                                                            <input name="radio-mode" id="radio1" type="radio"
+                                                            <input name="radio-protect-mode" id="radio-monitor-mode" type="radio"
                                                                 value="monitor" checked>
-                                                            <label for="radio1">Monitor</label>
+                                                            <label for="radio-monitor-mode">Monitor</label>
                                                         </div>
                                                         <div class="wizard-form-radio">
-                                                            <input name="radio-mode" id="radio2" type="radio"
+                                                            <input name="radio-protect-mode" id="radio-protection-mode" type="radio"
                                                                 value="protection">
-                                                            <label for="radio2">Protection</label>
+                                                            <label for="radio-protection-mode">Protection</label>
                                                         </div>
                                                         <div class="wizard-form-radio">
-                                                            <input name="radio-mode" id="radio3" type="radio"
+                                                            <input name="radio-protect-mode" id="radio-off-mode" type="radio"
                                                                 value="off">
-                                                            <label for="radio2">Off</label>
+                                                            <label for="radio-off-mode">Off</label>
+                                                        </div>
+                                                    </div>
+                                                    <h5>Using G-WVD serve</h5>
+                                                    <div class="form-group">
+                                                        <div class="wizard-form-radio">
+                                                            <input name="radio-g-wvd" id="radio-g-wvd-yes" type="radio" value="yes" checked>
+                                                            <label for="radio-g-wvd-yes">Yes</label>
+                                                        </div>
+                                                        <div class="wizard-form-radio">
+                                                            <input name="radio-g-wvd" id="radio-g-wvd-no" type="radio" value="no">
+                                                            <label for="radio-g-wvd-no">No</label>
                                                         </div>
                                                     </div>
                                                     <h5>Sensitive</h5>
                                                     <div class="form-group">
                                                         <input type="number" min="0" max="100"
-                                                            class="form-control wizard-required" id="sensitiveValue"
+                                                            class="form-control wizard-required" id="sensitive-value"
                                                             name="sensitive-value" value="{{_sensitive_value}}"
                                                             required>
                                                         <!-- <label for="fname" class="wizard-form-text-label">Value</label> -->
                                                         <div class="wizard-form-error"></div>
                                                     </div>
-                                                    <h5>Predict Server</h5>
+                                                    <h5>G-WVD serve</h5>
                                                     <div class="form-group">
                                                         <input type="text" class="form-control wizard-required"
-                                                            id="predictServerValue" name="predict-server-value" required>
+                                                            id="g-wvd-serve-value" name="g-wvd-serve-value" required>
                                                         <div class="wizard-form-error"></div>
                                                     </div>
-                                                    <h5>Predict Server Key Auth</h5>
+                                                    <h5>G serve key</h5>
                                                     <div class="form-group">
                                                         <input type="text" class="form-control wizard-required"
-                                                            id="keyAuthServerValue" name="key-auth-server-value"
+                                                            id="g-serve-key" name="g-serve-key"
                                                             required>
-                                                        <a id="predict-server" href="#">Check Connection</a>
+                                                        <a id="g-wvd-check-connection" href="#">Check Connection</a>
                                                         <div id="loading-spinner" style="display: none; float: right;">
                                                             <i class="fa fa-spinner fa-spin"></i>
                                                         </div>
@@ -84,24 +95,23 @@
                                                     <h5>Dashboard Path</h5>
                                                     <div class="form-group">
                                                         <input type="text" class="form-control wizard-required"
-                                                            id="geminiAppPath" name="gemini-app-path"
+                                                            id="dashboard-path" name="dashboard-path"
                                                             value="{{_app_path}}">
-                                                        <!-- <label for="dashboard" class="wizard-form-text-label">Dashboard Path</label> -->
                                                         <div class="wizard-form-error"></div>
                                                     </div>
                                                     <h5>Dashboard Password</h5>
                                                     <div class="form-group">
                                                         <input type="password" class="form-control wizard-required"
-                                                            id="pwd" name="pwd">
-                                                        <label for="pwd" class="wizard-form-text-label">Password</label>
+                                                            id="dashboard-pwd" name="dashboard-pwd">
+                                                        <label for="dashboard-pwd" class="wizard-form-text-label">Password</label>
                                                         <div class="wizard-form-error"></div>
                                                         <span class="wizard-password-eye"><i
                                                                 class="far fa-eye"></i></span>
                                                     </div>
                                                     <div class="form-group">
                                                         <input type="password" class="form-control wizard-required"
-                                                            id="cpwd" name="cpwd">
-                                                        <label for="cpwd" class="wizard-form-text-label">Confirm
+                                                            id="dashboard-cpwd" name="dashboard-cpwd">
+                                                        <label for="dashboard-cpwd" class="wizard-form-text-label">Confirm
                                                             Password</label>
                                                         <div class="wizard-form-error"></div>
                                                     </div>
@@ -117,47 +127,47 @@
                                                     <div class="form-group">
                                                         Channel
                                                         <div class="wizard-form-radio">
-                                                            <input name="radio-channel" id="disable" type="radio"
+                                                            <input name="notification-channel" id="notification-channel-disable" type="radio"
                                                                 value="disable" checked>
-                                                            <label for="telegram">Disable</label>
+                                                            <label for="notification-channel-disable">Disable</label>
                                                         </div>
                                                         <div class="wizard-form-radio">
-                                                            <input name="radio-channel" id="telegram" type="radio"
+                                                            <input name="notification-channel" id="notification-channel-telegram" type="radio"
                                                                 value="telegram">
-                                                            <label for="telegram">Telegram</label>
+                                                            <label for="notification-channel-telegram">Telegram</label>
                                                         </div>
                                                         <div class="wizard-form-radio">
-                                                            <input name="radio-channel" id="slack" type="radio"
+                                                            <input name="notification-channel" id="notification-channel-slack" type="radio"
                                                                 value="slack" disabled>
-                                                            <label for="slack">Slack</label>
+                                                            <label for="notification-channel-slack">Slack</label>
                                                         </div>
                                                         <div class="wizard-form-radio">
-                                                            <input name="radio-channel" id="mattermost" type="radio"
+                                                            <input name="notification-channel" id="notification-channel-mattermost" type="radio"
                                                                 value="mattermost" disabled>
-                                                            <label for="mattermost">Mattermost</label>
+                                                            <label for="notification-channel-mattermost">Mattermost</label>
                                                         </div>
                                                     </div>
                                                     <div class="form-group" id="telegram-form-1">
-                                                        <input type="text" class="form-control" id="telegram_token"
-                                                            name="telegram-token">
-                                                        <label for="telegram_chat_id"
+                                                        <input type="text" class="form-control" id="notification-channel-telegram-token"
+                                                            name="notification-channel-telegram-token">
+                                                        <label for="notification-channel-telegram-token"
                                                             class="wizard-form-text-label">Telegram
                                                             Token*</label>
                                                         <div class="wizard-form-error"></div>
                                                     </div>
                                                     <div class="form-group" id="telegram-form-2">
-                                                        <input type="text" class="form-control" id="telegram_chat_id"
-                                                            name="telegram-chat-id">
-                                                        <label for="telegram_chat_id"
+                                                        <input type="text" class="form-control" id="notification-channel-telegram-chat-id"
+                                                            name="notification-channel-telegram-chat-id">
+                                                        <label for="notification-channel-telegram-chat-id"
                                                             class="wizard-form-text-label">Telegram
                                                             Chat
                                                             ID*</label>
                                                         <div class="wizard-form-error"></div>
                                                     </div>
                                                     <div class="form-group" id="webhook-form">
-                                                        <input type="text" class="form-control" id="channel_webhook"
-                                                            name="channel-webhook">
-                                                        <label for="channel_webhook"
+                                                        <input type="text" class="form-control" id="notification-channel-webhook"
+                                                            name="notification-channel-webhook">
+                                                        <label for="notification-channel-webhook"
                                                             class="wizard-form-text-label">Webhook</label>
                                                         <div class="wizard-form-error"></div>
                                                     </div>
