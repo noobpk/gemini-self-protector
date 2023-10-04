@@ -25,224 +25,294 @@
                                     <div class="card-body">
                                         <form role="form" method="post" action="">
                                             <!-- [ Anti Dos ] start -->
-                                            <div class="form-group">
-                                                <label>mAnti DOS</label>
-                                                <div class="custom-control custom-radio custom-control-inline">
-                                                    <input type="radio" id="anti-dos-on" name="anti_dos_status"
-                                                        value="1" class="custom-control-input" {% if _is_anti_dos==1
-                                                        %}checked{% endif %}>
-                                                    <label class="custom-control-label" for="anti-dos-on">On</label>
+                                            <h5>G-Anti DOS</h5>
+                                            <hr>
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <div class="form-group">
+                                                        <div class="custom-control custom-radio custom-control-inline">
+                                                            <input type="radio" id="radio-anti-dos-on" name="radio-anti-dos-status" value="1" class="custom-control-input" {% if
+                                                                _is_anti_dos==1 %}checked{% endif %}>
+                                                            <label class="custom-control-label" for="radio-anti-dos-on">On</label>
+                                                        </div>
+                                                        <div class="custom-control custom-radio custom-control-inline">
+                                                            <input type="radio" id="radio-anti-dos-off" name="radio-anti-dos-status" value="0" class="custom-control-input" {% if
+                                                                _is_anti_dos==0 %}checked{% endif %}>
+                                                            <label class="custom-control-label" for="radio-anti-dos-off">Off</label>
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label>Max Requests Per Minute (MRPM)</label>
+                                                        <input id="max-request-per-min" type="number" class="form-control" placeholder="10000" value="{{_max_request_per_min}}"
+                                                            name="max-request-per-min">
+                                                    </div>
                                                 </div>
-                                                <div class="custom-control custom-radio custom-control-inline">
-                                                    <input type="radio" id="anti-dos-off" name="anti_dos_status"
-                                                        value="0" class="custom-control-input" {% if _is_anti_dos==0
-                                                        %}checked{% endif %}>
-                                                    <label class="custom-control-label" for="anti-dos-off">Off</label>
+                                                <div class="col-md-6">
+                                                    <p class="text-primary mb-1">Using cache technology</p>
                                                 </div>
-                                            </div>
+                                            </div>                               
                                             <!-- [ Anti Dos ] stop -->
-                                            <!-- [ Anti Dos Max Req Per Min ] start -->
-                                            <div class="form-group">
-                                                <label>Max Requests Per Minute (MRPM)</label>
-                                                <input type="text" class="form-control" placeholder="10000"
-                                                    value="{{_max_request_per_min}}" name="max_request_per_min">
-                                            </div>
-                                            <!-- [ Anti Dos Max Req Per Min ] stop -->
                                             <!-- [ ACL ] start -->
-                                            <div class="form-group">
-                                                <label>Access Control List (ACL)</label>
-                                                <div class="custom-control custom-radio custom-control-inline">
-                                                    <input type="radio" id="acl-on" name="acl_status" value="1"
-                                                        class="custom-control-input" {% if _is_enable_acl==1 %}checked{%
-                                                        endif %}>
-                                                    <label class="custom-control-label" for="acl-on">On</label>
+                                            <h5>Access Control List (ACL)</h5>
+                                            <hr>
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <div class="form-group">
+                                                        <div class="custom-control custom-radio custom-control-inline">
+                                                            <input type="radio" id="radio-radio-acl-on" name="radio-acl-status" value="1" class="custom-control-input" {% if _is_enable_acl==1
+                                                                %}checked{% endif %}>
+                                                            <label class="custom-control-label" for="radio-radio-acl-on">On</label>
+                                                        </div>
+                                                        <div class="custom-control custom-radio custom-control-inline">
+                                                            <input type="radio" id="radio-acl-off" name="radio-acl-status" value="0" class="custom-control-input" {% if
+                                                                _is_enable_acl==0 %}checked{% endif %}>
+                                                            <label class="custom-control-label" for="radio-acl-off">Off</label>
+                                                        </div>
+                                                    </div>
                                                 </div>
-                                                <div class="custom-control custom-radio custom-control-inline">
-                                                    <input type="radio" id="acl-off" name="acl_status" value="0"
-                                                        class="custom-control-input" {% if _is_enable_acl==0 %}checked{%
-                                                        endif %}>
-                                                    <label class="custom-control-label" for="acl-off">Off</label>
+                                                <div class="col-md-6">
                                                 </div>
                                             </div>
                                             <!-- [ ACL ] stop -->
                                             <!-- [ Protect Mode ] start -->
-                                            <div class="form-group">
-                                                <label>Protect Mode</label>
-                                                <div class="custom-control custom-radio custom-control-inline">
-                                                    <input type="radio" id="protect-mode-monitor" name="protect_mode"
-                                                        value="monitor" class="custom-control-input" {% if
-                                                        _protect_mode=='monitor' %}checked{% endif %}>
-                                                    <label class="custom-control-label"
-                                                        for="protect-mode-monitor">Monitor</label>
+                                            <h5>Protect Mode</h5>
+                                            <hr>
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <div class="form-group">
+                                                        <div class="custom-control custom-radio custom-control-inline">
+                                                            <input type="radio" id="protect-mode-monitor" name="radio-protect-mode" value="monitor" class="custom-control-input"
+                                                                {% if _protect_mode=='monitor' %}checked{% endif %}>
+                                                            <label class="custom-control-label" for="protect-mode-monitor">Monitor</label>
+                                                        </div>
+                                                        <div class="custom-control custom-radio custom-control-inline">
+                                                            <input type="radio" id="protect-mode-protection" name="radio-protect-mode" value="protection"
+                                                                class="custom-control-input" {% if _protect_mode=='protection' %}checked{% endif %}>
+                                                            <label class="custom-control-label" for="protect-mode-protection">Protection</label>
+                                                        </div>
+                                                        <div class="custom-control custom-radio custom-control-inline">
+                                                            <input type="radio" id="protect-mode-off" name="radio-protect-mode" value="off" class="custom-control-input" {% if
+                                                                _protect_mode=='off' %}checked{% endif %}>
+                                                            <label class="custom-control-label" for="protect-mode-off">Off</label>
+                                                        </div>
+                                                    </div>
                                                 </div>
-                                                <div class="custom-control custom-radio custom-control-inline">
-                                                    <input type="radio" id="protect-mode-protection" name="protect_mode"
-                                                        value="protection" class="custom-control-input" {% if
-                                                        _protect_mode=='protection' %}checked{% endif %}>
-                                                    <label class="custom-control-label"
-                                                        for="protect-mode-protection">Protection</label>
-                                                </div>
-                                                <div class="custom-control custom-radio custom-control-inline">
-                                                    <input type="radio" id="protect-mode-off" name="protect_mode"
-                                                        value="off" class="custom-control-input" {% if
-                                                        _protect_mode=='off' %}checked{% endif %}>
-                                                    <label class="custom-control-label"
-                                                        for="protect-mode-off">Off</label>
+                                                <div class="col-md-6">
+                                                    <p class="text-primary mb-1">Monitor Mode</p>
+                                                    <ul>
+                                                        <li>Monitor and report</li>
+                                                        <li>Does not block any attacks</li>
+                                                    </ul>
+                                                    <p class="text-success mb-1">Protection Mode</p>
+                                                    <ul>
+                                                        <li>Monitor and report </li>
+                                                        <li>Block any attacks</li>
+                                                    </ul>
+                                                    <p class="text-warning mb-1">Off Mode</p>
+                                                    <ul>
+                                                        <li>Do not take any action</li>
+                                                    </ul>
                                                 </div>
                                             </div>
                                             <!-- [ Protect Mode ] stop -->
-                                            <!-- [ Predict Server ] start -->
-                                            <div class="form-group">
-                                                <label>Predict Server</label>
-                                                <div class="input-group mb-3">
-                                                    <input id="predictServerValue" type="text" class="form-control"
-                                                        placeholder="http://127.0.0.1" value="{{_predict_server}}"
-                                                        name="predict_server">
-                                                    <div class="input-group-append">
-                                                        <button class="btn btn-primary" id="predict-server-check"
-                                                            type="button">Check
-                                                            <div id="loading-spinner"
-                                                                style="display: none; float: right;">
-                                                                <i class="fa fa-spinner fa-spin"></i>
+                                            <!-- [ G-WVD Serve ] start -->
+                                            <h5>G-WVD</h5>
+                                            <hr>
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <div class="form-group form-check">
+                                                        <input type="checkbox" class="form-check-input" id="checkbox-g-wvd" name="checkbox-g-wvd" {% if _is_use_g_wvd_serve==1 %} checked {% endif %}>
+                                                        <label class="form-check-label" for="checkbox-g-wvd">Using G-WVD serve</label>
+                                                    </div>
+                                                    <div id="form-sensitive" class="form-group">
+                                                        <label>Sensitive Value</label>
+                                                        <input type="number" class="form-control" id="sensitive-value" name="sensitive-value" aria-describedby="sensitiveHelp"
+                                                            placeholder="sensitive value" value="{{_sensitive_value}}">
+                                                        <small id="sensitiveHelp" class="form-text text-muted">Range 0-100</small>
+                                                    </div>
+                                                    <div id="form-g-wvd" class="form-group">
+                                                        <label>G-WVD Serve</label>
+                                                        <div class="form-group mb-3">
+                                                            <input type="text" class="form-control" id="g-wvd-serve-value" name="g-wvd-serve-value" aria-describedby="gWVDServeHelp"
+                                                                placeholder="http://" value="{{_g_wvd_serve}}">
+                                                            <small id="gWVDServeHelp" class="form-text text-muted"><a href="https://github.com/noobpk/gemini-predict-serve"
+                                                                    target="_blank">Setup G-WVD</a></small>
+                                                        </div>
+                                                    </div>
+                                                    <div id="form-g-serve-key" class="form-group">
+                                                        <label>G Serve Key</label>
+                                                        <div class="input-group mb-3">
+                                                            <input type="text" class="form-control" id="g-serve-key-value" name="g-serve-key-value" placeholder="G Serve Key"
+                                                                aria-label="G Serve Key" aria-describedby="G Serve Key">
+                                                            <div class="input-group-append">
+                                                                <button class="btn btn-primary" id="predict-server-check" type="button">Check
+                                                                    <div id="loading-spinner" style="display: none; float: right;">
+                                                                        <i class="fa fa-spinner fa-spin"></i>
+                                                                    </div>
+                                                                </button>
                                                             </div>
-                                                        </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <p class="text-primary mb-1">G-WVD Protect Agains</p>
+                                                    <ul>
+                                                        <li>Cross-Site Scripting</li>
+                                                        <li>SQL Injection</li>
+                                                        <li>Path Traversal (LFI)</li>
+                                                        <li>Command Injection</li>
+                                                        <li>Remote File Inclusion (RFI)</li>
+                                                        <li>Json & XML Injection</li>
+                                                        <li>HTML5 Injection</li>
+                                                        <li>Server Side Includes (SSI) Injection</li>
+                                                    </ul>
+                                                    <p class="text-danger mb-1">Deep Learning Model: CNN + GRU</p>
+                                                    <p class="text-success mb-1">Accuracy: 97%</p>
+                                                </div>
+                                            </div>
+                                            <!-- [ Predict Header ] start -->
+                                            <h5>Predict Requesste Header</h5>
+                                            <hr>
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <div class="form-group">
+                                                        <div class="custom-control custom-radio custom-control-inline">
+                                                            <input type="radio" id="predict-header-on" name="predict_header_status" value="1" class="custom-control-input"
+                                                                {% if _is_predict_header==1 %}checked{% endif %}>
+                                                            <label class="custom-control-label" for="predict-header-on">On</label>
+                                                        </div>
+                                                        <div class="custom-control custom-radio custom-control-inline">
+                                                            <input type="radio" id="predict-header-off" name="predict_header_status" value="0" class="custom-control-input"
+                                                                {% if _is_predict_header==0 %}checked{% endif %}>
+                                                            <label class="custom-control-label" for="predict-header-off">Off</label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <p class="text-danger mb-1">The accuracy of G-WVD may decrease</p>
+                                                </div>
+                                            </div>
+                                            <!-- [ Content-Lenght ] start -->
+                                            <h5>Protect Content-Length</h5>
+                                            <hr>
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <div class="form-group">
+                                                        <label>Max Content-Length: 1 * 1024 * 1024 = 1MB</label>
+                                                        <input type="number" class="form-control" placeholder="2" value="{{_max_content_length}}" name="max_content_length">
                                                     </div>
                                                 </div>
                                             </div>
-
-                                            <!-- [ Predict Server ] stop -->
-                                            <!-- [ Sensitive Value ] start -->
-                                            <div class="form-group">
-                                                <label>Sensitive Value</label>
-                                                <input type="text" class="form-control" placeholder="50"
-                                                    value="{{_sensitive_value}}" name="sensitive_value">
-                                            </div>
-                                            <!-- [ Sensitive Value ] stop -->
-                                            <!-- [ Predict Header ] start -->
-                                            <div class="form-group">
-                                                <label>Predict Header</label>
-                                                <div class="custom-control custom-radio custom-control-inline">
-                                                    <input type="radio" id="predict-header-on" name="predict_header_status" value="1" class="custom-control-input"
-                                                        {% if _is_predict_header==1 %}checked{% endif %}>
-                                                    <label class="custom-control-label" for="predict-header-on">On</label>
-                                                </div>
-                                                <div class="custom-control custom-radio custom-control-inline">
-                                                    <input type="radio" id="predict-header-off" name="predict_header_status" value="0" class="custom-control-input"
-                                                        {% if _is_predict_header==0 %}checked{% endif %}>
-                                                    <label class="custom-control-label" for="predict-header-off">Off</label>
-                                                </div>
-                                            </div>
-                                            <!-- [ Predict Header ] stop -->
-                                            <!-- [ Content-Lenght ] start -->
-                                            <div class="form-group">
-                                                <label>Max Content-Length: 1 * 1024 * 1024 = 1MB</label>
-                                                <input type="text" class="form-control" placeholder="2"
-                                                    value="{{_max_content_length}}" name="max_content_length">
-                                            </div>
                                             <!-- [ Content-Lenght ] stop -->
                                             <!-- [ HTTP Allow ] start -->
-                                            <div class="form-group checkbox-group">
-                                                <label>HTTP Method Allow</label>
-                                                <div class="custom-control custom-checkbox">
-                                                    <input type="checkbox" class="custom-control-input" id="httpOption"
-                                                        name="http_method[]" {{ 'checked' if 'OPTIONS' in _http_method
-                                                        else '' }} value="OPTIONS">
-                                                    <label class="custom-control-label" for="httpOption">OPTIONS</label>
-                                                </div>
-                                                <div class="custom-control custom-checkbox">
-                                                    <input type="checkbox" class="custom-control-input" id="httpGet"
-                                                        name="http_method[]" {{ 'checked' if 'GET' in _http_method
-                                                        else '' }} value="GET">
-                                                    <label class="custom-control-label" for="httpGet">GET</label>
-                                                </div>
-                                                <div class="custom-control custom-checkbox">
-                                                    <input type="checkbox" class="custom-control-input" id="httpPost"
-                                                        name="http_method[]" {{ 'checked' if 'POST' in _http_method
-                                                        else '' }} value="POST">
-                                                    <label class="custom-control-label" for="httpPost">POST</label>
-                                                </div>
-                                                <div class="custom-control custom-checkbox">
-                                                    <input type="checkbox" class="custom-control-input" id="httpPut"
-                                                        name="http_method[]" {{ 'checked' if 'PUT' in _http_method
-                                                        else '' }} value="PUT">
-                                                    <label class="custom-control-label" for="httpPut">PUT</label>
-                                                </div>
-                                                <div class="custom-control custom-checkbox">
-                                                    <input type="checkbox" class="custom-control-input" id="httpDelete"
-                                                        name="http_method[]" {{ 'checked' if 'DELETE' in _http_method
-                                                        else '' }} value="DELETE">
-                                                    <label class="custom-control-label" for="httpDelete"
-                                                        name="http_method[]">DELETE</label>
-                                                </div>
-                                                <div class="custom-control custom-checkbox">
-                                                    <input type="checkbox" class="custom-control-input" id="httpTrace"
-                                                        name="http_method[]" {{ 'checked' if 'TRACE' in _http_method
-                                                        else '' }} value="TRACE">
-                                                    <label class="custom-control-label" for="httpTrace">TRACE</label>
-                                                </div>
-                                                <div class="custom-control custom-checkbox">
-                                                    <input type="checkbox" class="custom-control-input" id="httpConnect"
-                                                        name="http_method[]" {{ 'checked' if 'CONNECT' in _http_method
-                                                        else '' }} value="CONNECT">
-                                                    <label class="custom-control-label" for="httpConnect"
-                                                        name="http_method[]">CONNECT</label>
+                                            <h5>Protect HTTP Method</h5>
+                                            <hr>
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <div class="form-group checkbox-group">
+                                                        <div class="custom-control custom-checkbox">
+                                                            <input type="checkbox" class="custom-control-input" id="httpOption" name="http_method[]" {{ 'checked'
+                                                                if 'OPTIONS' in _http_method else '' }} value="OPTIONS">
+                                                            <label class="custom-control-label" for="httpOption">OPTIONS</label>
+                                                        </div>
+                                                        <div class="custom-control custom-checkbox">
+                                                            <input type="checkbox" class="custom-control-input" id="httpGet" name="http_method[]" {{ 'checked' if 'GET' in
+                                                                _http_method else '' }} value="GET">
+                                                            <label class="custom-control-label" for="httpGet">GET</label>
+                                                        </div>
+                                                        <div class="custom-control custom-checkbox">
+                                                            <input type="checkbox" class="custom-control-input" id="httpPost" name="http_method[]" {{ 'checked' if 'POST' in
+                                                                _http_method else '' }} value="POST">
+                                                            <label class="custom-control-label" for="httpPost">POST</label>
+                                                        </div>
+                                                        <div class="custom-control custom-checkbox">
+                                                            <input type="checkbox" class="custom-control-input" id="httpPut" name="http_method[]" {{ 'checked' if 'PUT' in
+                                                                _http_method else '' }} value="PUT">
+                                                            <label class="custom-control-label" for="httpPut">PUT</label>
+                                                        </div>
+                                                        <div class="custom-control custom-checkbox">
+                                                            <input type="checkbox" class="custom-control-input" id="httpDelete" name="http_method[]" {{ 'checked'
+                                                                if 'DELETE' in _http_method else '' }} value="DELETE">
+                                                            <label class="custom-control-label" for="httpDelete" name="http_method[]">DELETE</label>
+                                                        </div>
+                                                        <div class="custom-control custom-checkbox">
+                                                            <input type="checkbox" class="custom-control-input" id="httpTrace" name="http_method[]" {{ 'checked' if 'TRACE'
+                                                                in _http_method else '' }} value="TRACE">
+                                                            <label class="custom-control-label" for="httpTrace">TRACE</label>
+                                                        </div>
+                                                        <div class="custom-control custom-checkbox">
+                                                            <input type="checkbox" class="custom-control-input" id="httpConnect" name="http_method[]" {{ 'checked'
+                                                                if 'CONNECT' in _http_method else '' }} value="CONNECT">
+                                                            <label class="custom-control-label" for="httpConnect" name="http_method[]">CONNECT</label>
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             </div>
                                             <!-- [ HTTP Allow ] stop -->
                                             <!-- [ Protect Response ] start -->
-                                            <div class="form-group">
-                                                <label>Protect Response (Web / API)</label>
-                                                <div class="custom-control custom-radio custom-control-inline">
-                                                    <input type="radio" id="protect-response-status-on"
-                                                        name="protect_response_status" value="1"
-                                                        class="custom-control-input" {% if _protect_response==1
-                                                        %}checked{% endif %}>
-                                                    <label class="custom-control-label"
-                                                        for="protect-response-status-on">On</label>
+                                            <h5>Protect Response (Web / API)</h5>
+                                            <hr>
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <div class="form-group">
+                                                        <div class="custom-control custom-radio custom-control-inline">
+                                                            <input type="radio" id="protect-response-status-on" name="protect_response_status" value="1"
+                                                                class="custom-control-input" {% if _protect_response==1 %}checked{% endif %}>
+                                                            <label class="custom-control-label" for="protect-response-status-on">On</label>
+                                                        </div>
+                                                        <div class="custom-control custom-radio custom-control-inline">
+                                                            <input type="radio" id="protect-response-status-off" name="protect_response_status" value="0"
+                                                                class="custom-control-input" {% if _protect_response==0 %}checked{% endif %}>
+                                                            <label class="custom-control-label" for="protect-response-status-off">Off</label>
+                                                        </div>
+                                                    </div>
                                                 </div>
-                                                <div class="custom-control custom-radio custom-control-inline">
-                                                    <input type="radio" id="protect-response-status-off"
-                                                        name="protect_response_status" value="0"
-                                                        class="custom-control-input" {% if _protect_response==0
-                                                        %}checked{% endif %}>
-                                                    <label class="custom-control-label"
-                                                        for="protect-response-status-off">Off</label>
+                                                <div class="col-md-6">
+                                                    <p class="text-primary mb-1">Add some security headers to the response</p>
+                                                    <p class="text-success mb-1">Support for both API and WebForm</p>
                                                 </div>
                                             </div>
                                             <!-- [ Protect Response ] stop -->
                                             <!-- [ Safe Redirect ] start -->
-                                            <div class="form-group">
-                                                <label>Safe Redirect (Web)</label>
-                                                <div class="custom-control custom-radio custom-control-inline">
-                                                    <input type="radio" id="safe-redirect-status-on"
-                                                        name="safe_redirect_status" value="1"
-                                                        class="custom-control-input" {% if _safe_redirect_status==1
-                                                        %}checked{% endif %}>
-                                                    <label class="custom-control-label"
-                                                        for="safe-redirect-status-on">On</label>
+                                            <h5>Protect Open Redirect (Web)</h5>
+                                            <hr>
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <div class="form-group">
+                                                        <div class="custom-control custom-radio custom-control-inline">
+                                                            <input type="radio" id="safe-redirect-status-on" name="safe_redirect_status" value="1"
+                                                                class="custom-control-input" {% if _safe_redirect_status==1 %}checked{% endif %}>
+                                                            <label class="custom-control-label" for="safe-redirect-status-on">On</label>
+                                                        </div>
+                                                        <div class="custom-control custom-radio custom-control-inline">
+                                                            <input type="radio" id="safe-redirect-status-off" name="safe_redirect_status" value="0"
+                                                                class="custom-control-input" {% if _safe_redirect_status==0 %}checked{% endif %}>
+                                                            <label class="custom-control-label" for="safe-redirect-status-off">Off</label>
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label>Trust Domain</label>
+                                                        <input type="text" class="form-control" placeholder="github.com, gitlab.com" value="{{_trust_domain_list}}"
+                                                            name="trust_domain_list">
+                                                    </div>
                                                 </div>
-                                                <div class="custom-control custom-radio custom-control-inline">
-                                                    <input type="radio" id="safe-redirect-status-off"
-                                                        name="safe_redirect_status" value="0"
-                                                        class="custom-control-input" {% if _safe_redirect_status==0
-                                                        %}checked{% endif %}>
-                                                    <label class="custom-control-label"
-                                                        for="safe-redirect-status-off">Off</label>
+                                                <div class="col-md-6">
+                                                    <p class="text-primary mb-1">Support only for WebForm</p>
+                                                    <p class="text-success mb-1">Allow redirect to trust domain</p>
                                                 </div>
-                                            </div>
-                                            <!-- [ Safe Redirect ] stop -->
-                                            <!-- [ Trust Domain ] start -->
-                                            <div class="form-group">
-                                                <label>Trust Domain</label>
-                                                <input type="text" class="form-control"
-                                                    placeholder="github.com, gitlab.com" value="{{_trust_domain_list}}"
-                                                    name="trust_domain_list">
-                                            </div>
-                                            <!-- [ Trust Domain ] stop -->
+                                            </div>                                            
                                             <!-- [ Socketio ] start -->
-                                            <div class="form-group">
-                                                <label>Socket.io</label>
-                                                <input type="text" class="form-control" placeholder="http://" value="{{_socketio}}" name="socketio">
+                                            <h5>Socket.io</h5>
+                                            <hr>
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <div class="form-group">
+                                                        <input type="text" class="form-control" placeholder="socketio://" value="{{_socketio}}" name="socketio">
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <p class="text-primary mb-1">Using for realtime monitoring </p>
+                                                </div>
                                             </div>
                                             <!-- [ Socketio ] stop -->
                                             <button type="submit" class="btn btn-primary">Submit</button>
@@ -301,17 +371,21 @@
     $(document).ready(function () {
         $("#predict-server-check").click(function (event) {
             $("#loading-spinner").show();
-            var inputValue = $("#predictServerValue").val();
+            var gWVDServe = $("#g-wvd-serve-value").val();
+            var gServeKey = $("#g-serve-key-value").val();
             $.ajax({
-                url: inputValue + '/predict',
+                url: gWVDServe + '/predict',
                 type: "POST",
+                headers: {
+                    "Authorization": gServeKey
+                },
                 contentType: "application/json",
                 data: JSON.stringify({ data: "healthcheck" }),
-                success: function (response) {
-                    if (response.message) {
+                success: function (response, textStatus, jqXHR) {
+                    if (jqXHR.status === 200) {
                         // Handle the success response
                         Toastify({
-                            text: "Connected to this predict server",
+                            text: "Connected to G-WVD serve",
                             duration: 3000,
                             gravity: "top", // `top` or `bottom`
                             position: "right", // `left`, `center` or `right`
@@ -322,7 +396,7 @@
                         }).showToast();
                     } else {
                         Toastify({
-                            text: "Cannot connect to this predict server",
+                            text: "Cannot connect to G-WVD serve",
                             duration: 3000,
                             gravity: "top", // `top` or `bottom`
                             position: "right", // `left`, `center` or `right`
@@ -336,7 +410,7 @@
                 error: function (error) {
                     // Handle the error response
                     Toastify({
-                        text: "Cannot connect to this predict server",
+                        text: "Cannot connect to G-WVD serve",
                         duration: 3000,
                         gravity: "top", // `top` or `bottom`
                         position: "right", // `left`, `center` or `right`

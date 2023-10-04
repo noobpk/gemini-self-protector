@@ -98,7 +98,7 @@ jQuery(document).ready(function () {
                 // Handle the success response
                 if (jqXHR.status === 200) {
                     Toastify({
-                        text: "Connected to this predict server",
+                        text: "Connected to G-WVD serve",
                         duration: 3000,
                         gravity: "top", // `top` or `bottom`
                         position: "right", // `left`, `center` or `right`
@@ -109,7 +109,7 @@ jQuery(document).ready(function () {
                     }).showToast();
                 } else {
                     Toastify({
-                        text: "Cannot connect to this predict server",
+                        text: "Cannot connect to G-WVD serve",
                         duration: 3000,
                         gravity: "top", // `top` or `bottom`
                         position: "right", // `left`, `center` or `right`
@@ -123,7 +123,7 @@ jQuery(document).ready(function () {
             error: function (jqXHR, textStatus, errorThrown) {
                 // Handle the error response
                 Toastify({
-                    text: "Cannot connect to this predict server",
+                    text: "Cannot connect to G-WVD serve",
                     duration: 3000,
                     gravity: "top", // `top` or `bottom`
                     position: "right", // `left`, `center` or `right`
@@ -141,12 +141,12 @@ jQuery(document).ready(function () {
 
     $('#install').submit(function (e) {
         e.preventDefault();
+        $('#submit').prop('disabled', true);
         let submit = false;
         const formData = $(this).serializeArray().reduce(function (obj, item) {
             obj[item.name] = item.value;
             return obj;
         }, {});
-        const url = "{{url_for('nested_service.gemini_install')}}";
 
         const dashboardPwdValue = formData['dashboard-pwd-value'];
         const dashboardCpwdValue = formData['dashboard-cpwd-value'];
@@ -183,22 +183,49 @@ jQuery(document).ready(function () {
         if (submit) {
             $.ajax({
                 type: "POST",
-                url: url,
+                url: installEndpoint,
                 data: JSON.stringify(formData), // Convert the JSON object to a string
                 contentType: "application/json; charset=utf-8",
                 dataType: "json",
-                success: function (response) {
-                    // Handle the success response here
-                    console.log("Success:", response);
+                success: function (response, textStatus, jqXHR) {
+                    if (jqXHR.status === 200) {
+                        Toastify({
+                            text: "Install Gemini Self-Protector Successed",
+                            duration: 3000,
+                            gravity: "top", // `top` or `bottom`
+                            position: "right", // `left`, `center` or `right`
+                            stopOnFocus: true, // Prevents dismissing of toast on hover
+                            style: {
+                                background: "linear-gradient(to right, #00b09b, #96c93d)",
+                            },
+                        }).showToast();
+                        window.location.href = 'login';
+                    } else {
+                        Toastify({
+                            text: "Install Gemini Self-Protector Failed. Please check your log.",
+                            duration: 3000,
+                            gravity: "top", // `top` or `bottom`
+                            position: "right", // `left`, `center` or `right`
+                            stopOnFocus: true, // Prevents dismissing of toast on hover
+                            style: {
+                                background: "linear-gradient(to right, rgb(255, 95, 109), rgb(255, 195, 113))",
+                            },
+                        }).showToast();
+                    }
                 },
                 error: function (jqXHR, textStatus, errorThrown) {
                     // Handle any errors here
                     console.error("Error:", textStatus, errorThrown);
+                    $('#submit').removeAttr('disable', 'disable');
+                },
+                complete: function () {
+                    // Re-enable the button after the request is complete
+                    $('#submit').prop('disabled', false);
                 }
             });
         } else {
             Toastify({
-                text: "Plese check all input",
+                text: "Cannot submit this install form",
                 duration: 3000,
                 gravity: "top", // `top` or `bottom`
                 position: "right", // `left`, `center` or `right`

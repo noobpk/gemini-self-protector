@@ -1,27 +1,44 @@
-from flask import Flask, Blueprint, request, make_response, render_template, session, redirect, url_for, flash, stream_with_context, jsonify, send_file
+from flask import Flask, Blueprint, request, render_template, session, redirect, url_for, flash, jsonify, send_file
 from ._logger import logger
 from ._gemini import _Gemini
 from passlib.hash import argon2
-from datetime import datetime, timezone
+from datetime import datetime
 import ipaddress
 import re
 import os
 import json
 import ast
 from math import floor
+from tqdm import tqdm
+import urllib.parse
+import sys
 
 
 class _Gemini_GUI(object):
 
     def __init__(self, flask_app: Flask) -> None:
+        for i in tqdm(range(100), colour="green", desc="Gemini Loading"):
+            pass
+        last_running_mode = _Gemini.get_gemini_config().running_mode
+        if last_running_mode == 'CLI':
+            _Gemini.update_gemini_config({'is_install': 0})
         logger.info(
             "[+] Running gemini-self protector - GUI Mode")
+        _Gemini.update_gemini_config({'running_mode': 'GUI'})
+        is_install = _Gemini.get_gemini_config().is_install
+        if int(is_install) == 1:
+            is_use_g_wvd_serve = _Gemini.get_gemini_config().is_use_g_wvd_serve
+            if int(is_use_g_wvd_serve) == 1:
+                _Gemini_GUI.handler_g_wvd_serve_health()
+            else:
+                logger.info(
+                    "[+] No connection to G-WVD")
 
-        @flask_app.before_request
-        def log_request_info():
-            print("Request Headers:", request.headers)
-            print('Request Method:', request.method)
-            print('Request Body:', request.get_data())
+        # @flask_app.before_request
+        # def log_request_info():
+        #     print("Request Headers:", request.headers)
+        #     print('Request Method:', request.method)
+        #     print('Request Body:', request.get_data())
 
         # def count_request_to_service():
         #     _Gemini.calulate_total_access()
@@ -63,8 +80,8 @@ class _Gemini_GUI(object):
             @nested_service.route('/', methods=['GET', 'POST'])
             def gemini_init():
                 try:
-                    isInstall = _Gemini.get_gemini_config().isinstall
-                    if int(isInstall):
+                    is_install = _Gemini.get_gemini_config().is_install
+                    if int(is_install):
                         if session.get('gemini_logged_in'):
                             return redirect(url_for('nested_service.gemini_dashboard'))
                         else:
@@ -78,42 +95,56 @@ class _Gemini_GUI(object):
             @nested_service.route('/install', methods=['GET', 'POST'])
             def gemini_install():
                 try:
-                    isInstall = _Gemini.get_gemini_config().isinstall
-                    if int(isInstall):
+                    is_install = _Gemini.get_gemini_config().is_install
+                    if int(is_install):
                         return redirect(url_for('nested_service.gemini_dashboard'))
                     else:
                         if request.method == 'POST':
-                            protect_mode = request.form['radio-mode']
-                            sensitive_value = request.form['sensitive-value']
-                            app_path = request.form['gemini-app-path']
-                            password = request.form['pwd']
-                            confirm_password = request.form['cpwd']
-                            notification_channel = request.form['radio-channel']
-                            predict_server_key_auth = request.form['key-auth-server-value']
-                            predict_server = request.form['predict-server-value']
-                            telegram_token = ''
-                            telegram_chat_id = ''
-                            notification_webhook = ''
-                            if notification_channel == 'disable':
-                                notification_channel = 'disable'
-                            elif notification_channel == 'telegram':
-                                telegram_token = request.form['telegram-token']
-                                telegram_chat_id = request.form['telegram-chat-id']
+                            request_data = request.get_json()
+                            protect_mode = request.json['radio-protect-mode']
+                            if 'checkbox-g-wvd' in request_data:
+                                is_use_gwvd = 1
                             else:
-                                notification_webhook = request.form['channel-webhook']
+                                is_use_gwvd = 0
+                            sensitive_value = request.json['sensitive-value']
+                            app_path = request.json['basic-url']
+                            password = request.json['dashboard-pwd-value']
+                            confirm_password = request.json['dashboard-cpwd-value']
+                            notification_channel = request.json['notification-channel']
+                            g_serve_key = request.json['g-serve-key-value']
+                            g_wvd_serve = request.json['g-wvd-serve-value']
+                            telegram_token = request.json['telegram-token-value']
+                            telegram_chat_id = request.json['telegram-chat-id-value']
+                            mattermost_webhook = request.json['mattermost-webhook-value']
+                            slack_webhook = request.json['slack-webhook-value']
 
-                            if _Gemini.validator_protect_mode(protect_mode) and _Gemini.validator_sensitive_value(sensitive_value) and _Gemini.validator_app_path(app_path) and _Gemini.validator_dashboard_password(password, confirm_password) and _Gemini.validator_notification_channel(notification_channel) and _Gemini.validator_predict_server(predict_server, predict_server_key_auth):
+                            allow_install = False
+                            if is_use_gwvd == 1:
+                                if _Gemini.validator_sensitive_value(sensitive_value) and _Gemini.validator_g_wvd_serve(g_wvd_serve, g_serve_key):
+                                    allow_install = True
+                                else:
+                                    return jsonify({"status": "Install Error"}), 500
+
+                            if _Gemini.validator_protect_mode(protect_mode) and _Gemini.validator_app_path(app_path) and _Gemini.validator_dashboard_password(password, confirm_password) and _Gemini.validator_notification_channel(notification_channel):
+                                allow_install = True
+                            else:
+                                return jsonify({"status": "Install Error"}), 500
+
+                            if allow_install:
                                 _Gemini.update_gemini_config({
-                                    "isinstall": True,
+                                    "is_install": True,
+                                    "running_mode": "GUI",
+                                    "is_use_g_wvd_serve": is_use_gwvd,
                                     "global_protect_mode": protect_mode,
                                     "sensitive_value": int(sensitive_value),
                                     "app_path": app_path,
                                     "notification_channel": notification_channel,
                                     "telegram_token": telegram_token,
                                     "telegram_chat_id": telegram_chat_id,
-                                    "notification_webhook": notification_webhook,
-                                    "predict_server": predict_server,
-                                    "predict_server_key_auth": predict_server_key_auth
+                                    "mattermost_webhook": mattermost_webhook,
+                                    "slack_webhook": slack_webhook,
+                                    "g_wvd_serve": g_wvd_serve,
+                                    "g_serve_key": g_serve_key
                                 })
                                 _Gemini.update_gemini_user({
                                     "password": argon2.hash(password),
@@ -122,7 +153,7 @@ class _Gemini_GUI(object):
                                     "[+] Install gemini-self-protector successful.!")
                                 flash(
                                     'Instal gemini-self-protector successful. Login and explore now', 'login')
-                                return redirect(url_for('nested_service.gemini_login'))
+                                return jsonify({"status": "Install Success"}), 200
                         else:
                             sensitive_value = _Gemini.get_gemini_config().sensitive_value
                             app_path = _Gemini.get_gemini_config().app_path
@@ -135,7 +166,7 @@ class _Gemini_GUI(object):
             @nested_service.route('/update-key', methods=['GET', 'POST'])
             def gemini_update_key():
                 try:
-                    is_install = _Gemini.get_gemini_config().isinstall
+                    is_install = _Gemini.get_gemini_config().is_install
                     if int(is_install) == 0:
                         return redirect(url_for('nested_service.gemini_install'))
 
@@ -145,7 +176,7 @@ class _Gemini_GUI(object):
 
                     if request.method == 'POST':
                         key = request.form['key']
-                        if _Gemini.validator_key_auth(key):
+                        if _Gemini.validate_g_serve_key(key):
                             flash('Predict server key auth update successful',
                                   'key_update_success')
                             return redirect(url_for('nested_service.gemini_dashboard'))
@@ -160,7 +191,7 @@ class _Gemini_GUI(object):
             @nested_service.route('/login', methods=['GET', 'POST'])
             def gemini_login():
                 try:
-                    is_install = _Gemini.get_gemini_config().isinstall
+                    is_install = _Gemini.get_gemini_config().is_install
                     if int(is_install) == 0:
                         flash('Please install!', 'required')
                         return redirect(url_for('nested_service.gemini_install'))
@@ -193,6 +224,10 @@ class _Gemini_GUI(object):
             @nested_service.route('/profile')
             def gemini_profile():
                 try:
+                    is_install = _Gemini.get_gemini_config().is_install
+                    if int(is_install) == 0:
+                        return redirect(url_for('nested_service.gemini_install'))
+
                     if not session.get('gemini_logged_in'):
                         flash('Please login', 'required_login')
                         return redirect(url_for('nested_service.gemini_login'))
@@ -220,6 +255,11 @@ class _Gemini_GUI(object):
             @nested_service.route('/dashboard')
             def gemini_dashboard():
                 try:
+                    is_install = _Gemini.get_gemini_config().is_install
+                    if int(is_install) == 0:
+                        flash('Please install!', 'required')
+                        return redirect(url_for('nested_service.gemini_install'))
+
                     if not session.get('gemini_logged_in'):
                         flash('Please login', 'required_login')
                         return redirect(url_for('nested_service.gemini_login'))
@@ -281,65 +321,114 @@ class _Gemini_GUI(object):
             @nested_service.route('/monitor', methods=['GET'])
             def gemini_monitor():
                 try:
+                    is_install = _Gemini.get_gemini_config().is_install
+                    if int(is_install) == 0:
+                        return redirect(url_for('nested_service.gemini_install'))
+
                     if not session.get('gemini_logged_in'):
                         flash('Please login', 'required_login')
                         return redirect(url_for('nested_service.gemini_login'))
 
                     gemini_config = _Gemini.get_gemini_config()
-                    return render_template('gemini-protector-gui/home/monitor.html', _socketio=gemini_config.socketio)
-                
+                    return render_template('gemini-protector-gui/home/monitor.html', _socketio=gemini_config.socket_io)
+
                 except Exception as e:
                     logger.error("[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format(
                         'nested_service.route.gemini_monitor', e))
-                        
+
             @nested_service.route('/configurate', methods=['GET', 'POST'])
             def gemini_configurate():
                 try:
+                    is_install = _Gemini.get_gemini_config().is_install
+                    if int(is_install) == 0:
+                        return redirect(url_for('nested_service.gemini_install'))
+
                     if not session.get('gemini_logged_in'):
                         flash('Please login', 'required_login')
                         return redirect(url_for('nested_service.gemini_login'))
 
                     if request.method == 'POST':
-                        predict_server = request.form['predict_server']
-                        protect_mode = request.form['protect_mode']
-                        sensitive_value = request.form['sensitive_value']
-                        max_content_length = request.form['max_content_length']
+                        # Get the request data as bytes
+                        request_data_bytes = request.get_data()
+
+                        # Convert bytes to a string (assuming UTF-8 encoding)
+                        request_data_str = request_data_bytes.decode('utf-8')
+
+                        # Split the string into key-value pairs
+                        key_value_pairs = request_data_str.split('&')
+
+                        # Create a dictionary to store the form data
+                        form_data = {}
+
+                        # Parse the key-value pairs
+                        for pair in key_value_pairs:
+                            key, value = pair.split('=')
+                            form_data[key] = value
+
+                        anti_dos = form_data['radio-anti-dos-status']
+                        max_requests_per_minute = form_data['max-request-per-min']
+                        enable_acl = form_data['radio-acl-status']
+
+                        if 'checkbox-g-wvd' in form_data:
+                            is_use_gwvd = 1
+                        else:
+                            is_use_gwvd = 0
+
+                        protect_mode = form_data['radio-protect-mode']
+                        sensitive_value = form_data['sensitive-value']
+                        g_wvd_serve = form_data['g-wvd-serve-value']
+                        decoded_g_wvd_serve = urllib.parse.unquote(g_wvd_serve)
+                        g_serve_key = form_data['g-serve-key-value']
+                        is_predict_header = form_data['predict_header_status']
+                        max_content_length = form_data['max_content_length']
                         http_method = request.form.getlist('http_method[]')
-                        safe_redirect_status = request.form['safe_redirect_status']
+                        protect_response = form_data['protect_response_status']
+                        safe_redirect = form_data['safe_redirect_status']
                         trust_domain_list = [d.strip() for d in request.form.get(
                             'trust_domain_list').split(',')]
-                        protect_response_status = request.form['protect_response_status']
-                        acl_status = request.form['acl_status']
-                        anti_dos = request.form['anti_dos_status']
-                        predict_header = request.form['predict_header_status']
-                        max_request_per_min = request.form['max_request_per_min']
-                        socketio = request.form['socketio']
+                        socket_io = form_data['socketio']
 
-                        if _Gemini.validator_protect_mode(protect_mode) and _Gemini.validator_sensitive_value(sensitive_value) and max_content_length.isdigit() and _Gemini.validator_http_method(http_method) and _Gemini.validator_on_off_status(safe_redirect_status) and _Gemini.validator_trust_domain(trust_domain_list) and _Gemini.validator_on_off_status(protect_response_status) and _Gemini.validator_on_off_status(acl_status) and _Gemini.validator_on_off_status(anti_dos) and _Gemini.validator_on_off_status(predict_header) and  max_request_per_min.isdigit():
+                        allow_update_config = False
 
+                        if _Gemini.validator_protect_mode(protect_mode) and max_content_length.isdigit() and _Gemini.validator_http_method(http_method) and _Gemini.validator_on_off_status(safe_redirect) and _Gemini.validator_trust_domain(trust_domain_list) and _Gemini.validator_on_off_status(protect_response) and _Gemini.validator_on_off_status(enable_acl) and _Gemini.validator_on_off_status(anti_dos) and _Gemini.validator_on_off_status(is_predict_header) and max_requests_per_minute.isdigit():
+                            allow_update_config = True
+                        else:
+                            allow_update_config = False
+
+                        current_is_use_gwvd = _Gemini.get_gemini_config().is_use_g_wvd_serve
+                        if current_is_use_gwvd == 0:
+                            if is_use_gwvd == 1:
+                                if _Gemini.validator_sensitive_value(sensitive_value) and _Gemini.validator_g_wvd_serve(decoded_g_wvd_serve, g_serve_key):
+                                    allow_update_config = True
+                                    _Gemini.update_gemini_config({
+                                        "g_serve_key": g_serve_key,
+                                    })
+                                else:
+                                    allow_update_config = False
+
+                        if allow_update_config:
                             _Gemini.update_gemini_config({
-                                "predict_server": predict_server,
+                                "anti_dos": int(anti_dos),
+                                "max_requests_per_minute": int(max_requests_per_minute),
+                                "enable_acl": int(enable_acl),
+                                "is_use_g_wvd_serve": is_use_gwvd,
                                 "global_protect_mode": protect_mode,
+                                "g_wvd_serve": decoded_g_wvd_serve,
                                 "sensitive_value": int(sensitive_value),
                                 "max_content_length": int(max_content_length) * 1024 * 1024,
                                 "http_method_allow": json.dumps(http_method),
-                                "safe_redirect": int(safe_redirect_status),
-                                "protect_response": int(protect_response_status),
+                                "safe_redirect": int(safe_redirect),
+                                "protect_response": int(protect_response),
                                 "trust_domain": json.dumps(trust_domain_list),
-                                "enable_acl": int(acl_status),
-                                "anti_dos": int(anti_dos),
-                                "is_predict_header": int(predict_header),
-                                "max_requests_per_minute": int(max_request_per_min),
-                                "socketio": socketio
+                                "is_predict_header": int(is_predict_header),
+                                "socket_io": socket_io
                             })
                             flash('Configuration update successful',
                                   'config_update_success')
                         else:
                             flash('Configuration update failed',
                                   'config_update_fail')
-
                         return redirect(url_for('nested_service.gemini_configurate'))
-
                     else:
                         gemini_config = _Gemini.get_gemini_config()
                         trust_domain_list = ast.literal_eval(
@@ -357,13 +446,15 @@ class _Gemini_GUI(object):
                                                _safe_redirect_status=gemini_config.safe_redirect,
                                                _trust_domain_list=", ".join(
                                                    trust_domain_list),
-                                               _predict_server=gemini_config.predict_server,
+                                               _g_wvd_serve=gemini_config.g_wvd_serve,
+                                               #    _g_serve_key = gemini_config.g_serve_key,
                                                _protect_response=gemini_config.protect_response,
                                                _is_enable_acl=gemini_config.enable_acl,
                                                _is_anti_dos=gemini_config.anti_dos,
                                                _is_predict_header=gemini_config.is_predict_header,
                                                _max_request_per_min=gemini_config.max_requests_per_minute,
-                                               _socketio = gemini_config.socketio
+                                               _socketio=gemini_config.socket_io,
+                                               _is_use_g_wvd_serve=gemini_config.is_use_g_wvd_serve
                                                )
                 except Exception as e:
                     logger.error("[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format(
@@ -372,6 +463,10 @@ class _Gemini_GUI(object):
             @nested_service.route('/access-control-list', methods=['GET', 'POST'])
             def gemini_access_control_list():
                 try:
+                    is_install = _Gemini.get_gemini_config().is_install
+                    if int(is_install) == 0:
+                        return redirect(url_for('nested_service.gemini_install'))
+
                     if not session.get('gemini_logged_in'):
                         flash('Please login', 'required_login')
                         return redirect(url_for('nested_service.gemini_login'))
@@ -432,6 +527,10 @@ class _Gemini_GUI(object):
             @nested_service.route('/remove-acl', methods=['POST'])
             def gemini_remove_acl():
                 try:
+                    is_install = _Gemini.get_gemini_config().is_install
+                    if int(is_install) == 0:
+                        return redirect(url_for('nested_service.gemini_install'))
+
                     if not session.get('gemini_logged_in'):
                         flash('Please login', 'required_login')
                         return redirect(url_for('nested_service.gemini_login'))
@@ -504,6 +603,10 @@ class _Gemini_GUI(object):
             @nested_service.route('/event', methods=['POST'])
             def gemini_get_event():
                 try:
+                    is_install = _Gemini.get_gemini_config().is_install
+                    if int(is_install) == 0:
+                        return redirect(url_for('nested_service.gemini_install'))
+
                     if not session.get('gemini_logged_in'):
                         flash('Please login', 'required_login')
                         return redirect(url_for('nested_service.gemini_login'))
@@ -574,6 +677,10 @@ class _Gemini_GUI(object):
             @nested_service.route('/endpoint', methods=['GET'])
             def gemini_endpoint():
                 try:
+                    is_install = _Gemini.get_gemini_config().is_install
+                    if int(is_install) == 0:
+                        return redirect(url_for('nested_service.gemini_install'))
+
                     if not session.get('gemini_logged_in'):
                         return redirect(url_for('nested_service.gemini_login'))
 
@@ -616,6 +723,10 @@ class _Gemini_GUI(object):
             @nested_service.route('/feedback', methods=['GET'])
             def gemini_feedback():
                 try:
+                    is_install = _Gemini.get_gemini_config().is_install
+                    if int(is_install) == 0:
+                        return redirect(url_for('nested_service.gemini_install'))
+
                     if not session.get('gemini_logged_in'):
                         return redirect(url_for('nested_service.gemini_login'))
 
@@ -644,6 +755,10 @@ class _Gemini_GUI(object):
             @nested_service.route('/export-feedback')
             def gemini_export_feedback():
                 try:
+                    is_install = _Gemini.get_gemini_config().is_install
+                    if int(is_install) == 0:
+                        return redirect(url_for('nested_service.gemini_install'))
+
                     if not session.get('gemini_logged_in'):
                         return redirect(url_for('nested_service.gemini_login'))
 
@@ -679,3 +794,57 @@ class _Gemini_GUI(object):
             # Register the blueprint with the main application
             flask_app.register_blueprint(
                 nested_service, url_prefix='/'+gemini_app_path)
+
+    def handler_g_wvd_serve_health():
+        try:
+            if _Gemini.g_wvd_serve_health(_self_context=True):
+                logger.info(
+                    "[+] Connected to G-WVD")
+            else:
+                logger.error(
+                    "[x] Cannot connected to G-WVD")
+                while True:
+                    try:
+                        diagnostic = input(
+                            "[?] Do you run diagnostic (y/N): ") or "y"
+                    except Exception as e:
+                        logger.error(
+                            "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini_GUI.handler_g_wvd_serve_health', e))
+                        continue
+                    else:
+                        break
+                if diagnostic == 'y' or diagnostic == 'Y':
+                    code = _Gemini.g_serve_diagnostic()
+                    if code == 200:
+                        logger.info(
+                            "[+] Connected to G-WVD")
+                    elif code == 400:
+                        logger.info(
+                            "[!] Please check error log on G-WVD")
+                        sys.exit()
+                    elif code == 401:
+                        logger.info(
+                            "[!] Please check your G-WVD key")
+                        sys.exit()
+                    elif code == 500:
+                        logger.info(
+                            "[!] Please check error log on G-WVD")
+                        sys.exit()
+                else:
+                    while True:
+                        try:
+                            answer = input(
+                                "[?] Do you want continue (y/N): ") or "y"
+                        except Exception as e:
+                            logger.error(
+                                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini_GUI.handler_g_wvd_serve_health', e))
+                            continue
+                        else:
+                            break
+
+                    if answer == 'N' or answer == 'n':
+                        sys.exit()
+
+        except Exception as e:
+            logger.error(
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini_GUI.handler_g_wvd_serve_health', e))

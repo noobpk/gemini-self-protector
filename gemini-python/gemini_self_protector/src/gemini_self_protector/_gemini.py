@@ -445,16 +445,16 @@ class _Gemini(object):
             logger.error(
                 "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.calulate_total_access', e))
 
-    def g_wvd_serve_health() -> None:
+    def g_wvd_serve_health(_self_context=None) -> None:
         try:
-            return _Utils.g_wvd_serve_health()
+            return _Utils.g_wvd_serve_health(_self_context)
         except Exception as e:
             logger.error(
                 "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.g_wvd_serve_health', e))
 
-    def validator_g_wvd_serve(_serve, _key) -> None:
+    def validator_g_wvd_serve(_serve, _key, _self_context=None) -> None:
         try:
-            return _Validator.validator_g_wvd_serve(_serve, _key)
+            return _Validator.validator_g_wvd_serve(_serve, _key, _self_context)
         except Exception as e:
             logger.error(
                 "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.validator_g_wvd_serve', e))

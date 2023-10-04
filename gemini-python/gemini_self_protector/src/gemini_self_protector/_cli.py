@@ -3,7 +3,6 @@ from ._logger import logger
 from ._gemini import _Gemini
 from tqdm import tqdm
 
-
 class _Gemini_CLI(object):
     def __init__(self) -> None:
         for i in tqdm(range(100), colour="green", desc="Gemini Loading"):
@@ -11,8 +10,8 @@ class _Gemini_CLI(object):
         logger.info(
             "[+] Running gemini-self protector - CLI Mode")
         is_install = _Gemini.get_gemini_config().is_install
+        _Gemini.update_gemini_config({'running_mode': 'CLI'})
         if int(is_install) == 0:
-            _Gemini.update_gemini_config({'running_mode': 'CLI'})
             _Gemini_CLI.handler_install_gemini_self_protector()
         else:
             is_use_g_wvd_serve = _Gemini.get_gemini_config().is_use_g_wvd_serve
@@ -48,17 +47,17 @@ class _Gemini_CLI(object):
             if is_use_g_wvd_serve == 'n' or is_use_g_wvd_serve == 'N':
                 if _Gemini.validator_protect_mode(protect_mode):
                     _Gemini.update_gemini_config({
-                        "is_install": True,
-                        "is_use_g_wvd_serve": False,
+                        "is_install": 1,
+                        "is_use_g_wvd_serve": 0,
                         "global_protect_mode": protect_mode,
                     })
                 else:
                     _Gemini_CLI.handler_install_gemini_self_protector()
             else:
-                if _Gemini.validator_protect_mode(protect_mode) and _Gemini.validator_sensitive_value(sensitive_value) and _Gemini.validator_g_wvd_serve(g_wvd_serve, g_serve_key):
+                if _Gemini.validator_protect_mode(protect_mode) and _Gemini.validator_sensitive_value(sensitive_value) and _Gemini.validator_g_wvd_serve(g_wvd_serve, g_serve_key, _self_context=True):
                     _Gemini.update_gemini_config({
-                        "is_install": True,
-                        "is_use_g_wvd_serve": True,
+                        "is_install": 1,
+                        "is_use_g_wvd_serve": 1,
                         "global_protect_mode": protect_mode,
                         "sensitive_value": int(sensitive_value),
                         "g_wvd_serve": g_wvd_serve,
@@ -73,7 +72,7 @@ class _Gemini_CLI(object):
 
     def handler_g_wvd_serve_health():
         try:
-            if _Gemini.g_wvd_serve_health():
+            if _Gemini.g_wvd_serve_health(_self_context=True):
                 logger.info(
                     "[+] Connected to G-WVD")
             else:

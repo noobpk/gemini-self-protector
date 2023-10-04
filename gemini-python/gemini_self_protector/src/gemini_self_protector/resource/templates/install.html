@@ -25,25 +25,17 @@
                                             <div class="row">
                                                 <div class="col-md-6">
                                                     <div class="custom-control custom-radio custom-control-inline">
-                                                        <input type="radio" id="radio-monitor-mode"
-                                                            name="radio-protect-mode" class="custom-control-input"
-                                                            value="monitor" checked>
-                                                        <label class="custom-control-label"
-                                                            for="radio-monitor-mode">Monitor</label>
+                                                        <input type="radio" id="radio-monitor-mode" name="radio-protect-mode" class="custom-control-input" value="monitor"
+                                                            checked>
+                                                        <label class="custom-control-label" for="radio-monitor-mode">Monitor</label>
                                                     </div>
                                                     <div class="custom-control custom-radio custom-control-inline">
-                                                        <input type="radio" id="radio-protection-mode"
-                                                            name="radio-protect-mode" class="custom-control-input"
-                                                            value="protection">
-                                                        <label class="custom-control-label"
-                                                            for="radio-protection-mode">Protection</label>
+                                                        <input type="radio" id="radio-protection-mode" name="radio-protect-mode" class="custom-control-input" value="protection">
+                                                        <label class="custom-control-label" for="radio-protection-mode">Protection</label>
                                                     </div>
                                                     <div class="custom-control custom-radio custom-control-inline">
-                                                        <input type="radio" id="radio-off-mode"
-                                                            name="radio-protect-mode" class="custom-control-input"
-                                                            value="off">
-                                                        <label class="custom-control-label"
-                                                            for="radio-off-mode">Off</label>
+                                                        <input type="radio" id="radio-off-mode" name="radio-protect-mode" class="custom-control-input" value="off">
+                                                        <label class="custom-control-label" for="radio-off-mode">Off</label>
                                                     </div>
                                                 </div>
                                                 <div class="col-md-6">
@@ -68,36 +60,25 @@
                                             <div class="row">
                                                 <div class="col-md-6">
                                                     <div class="form-group form-check">
-                                                        <input type="checkbox" class="form-check-input"
-                                                            id="checkbox-g-wvd" name="checkbox-g-wvd" checked>
-                                                        <label class="form-check-label" for="checkbox-g-wvd">Using G-WVD
-                                                            serve</label>
+                                                        <input type="checkbox" class="form-check-input" id="checkbox-g-wvd" name="checkbox-g-wvd" checked>
+                                                        <label class="form-check-label" for="checkbox-g-wvd">Using G-WVD serve</label>
                                                     </div>
                                                     <div id="form-sensitive" class="form-group" style="display: none;">
                                                         <label for="sensitive-value">Sensitive</label>
-                                                        <input type="number" class="form-control" id="sensitive-value"
-                                                            name="sensitive-value" aria-describedby="sensitiveHelp"
+                                                        <input type="number" class="form-control" id="sensitive-value" name="sensitive-value" aria-describedby="sensitiveHelp"
                                                             placeholder="sensitive value" value="{{_sensitive_value}}">
-                                                        <small id="sensitiveHelp" class="form-text text-muted">Range
-                                                            0-100</small>
+                                                        <small id="sensitiveHelp" class="form-text text-muted">Range 0-100</small>
                                                     </div>
                                                     <div id="form-g-wvd" class="form-group" style="display: none;">
                                                         <label for="g-wvd-serve-value">G-WVD serve</label>
-                                                        <input type="text" class="form-control" id="g-wvd-serve-value"
-                                                            name="g-wvd-serve-value" aria-describedby="gWVDServeHelp"
+                                                        <input type="text" class="form-control" id="g-wvd-serve-value" name="g-wvd-serve-value" aria-describedby="gWVDServeHelp"
                                                             placeholder="http://">
-                                                        <small id="gWVDServeHelp" class="form-text text-muted"><a
-                                                                href="https://github.com/noobpk/gemini-predict-serve"
-                                                                target="_blank">Setup G-WVD</a></small>
+                                                        <small id="gWVDServeHelp" class="form-text text-muted"><a href="https://github.com/noobpk/gemini-predict-serve" target="_blank">Setup G-WVD</a></small>
                                                     </div>
-                                                    <div id="form-g-key" class="input-group mb-3"
-                                                        style="display: none;">
-                                                        <input type="text" class="form-control" id="g-serve-key-value"
-                                                            name="g-serve-key-value" placeholder="G Serve Key"
-                                                            aria-label="G Serve Key" aria-describedby="G Serve Key">
+                                                    <div id="form-g-key" class="input-group mb-3" style="display: none;">
+                                                        <input type="text" class="form-control" id="g-serve-key-value" name="g-serve-key-value" placeholder="G Serve Key" aria-label="G Serve Key" aria-describedby="G Serve Key">
                                                         <div class="input-group-append">
-                                                            <button class="btn btn-primary" id="g-wvd-check-connection"
-                                                                type="button">Check connection</button>
+                                                            <button class="btn btn-primary" id="g-wvd-check-connection" type="button">Check connection</button>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -127,37 +108,27 @@
                                                             <div class="input-group-prepend">
                                                                 <span class="input-group-text" id="rootUrl"></span>
                                                             </div>
-                                                            <input type="text" class="form-control" id="basic-url"
-                                                                name="basic-url" aria-describedby="basic-addon3"
-                                                                value="{{_app_path}}">
+                                                            <input type="text" class="form-control" id="basic-url" name="basic-url" aria-describedby="basic-addon3" value="{{_app_path}}">
                                                         </div>
                                                     </div>
                                                     <div class="form-group">
                                                         <label for="dashboard-pwd-value">Password</label>
-                                                        <input type="password" class="form-control"
-                                                            id="dashboard-pwd-value" name="dashboard-pwd-value"
-                                                            aria-describedby="dashboardPasswordHelp"
+                                                        <input type="password" class="form-control" id="dashboard-pwd-value" name="dashboard-pwd-value" aria-describedby="dashboardPasswordHelp"
                                                             placeholder="secret" required>
-                                                        <small id="dashboardPasswordHelp"
-                                                            class="form-text text-muted">Dashboard Password</small>
+                                                        <small id="dashboardPasswordHelp" class="form-text text-muted">Dashboard Password</small>
                                                     </div>
                                                     <div class="form-group">
                                                         <label for="dashboard-cpwd-value">Confirm Password</label>
-                                                        <input type="password" class="form-control"
-                                                            id="dashboard-cpwd-value" name="dashboard-cpwd-value"
-                                                            aria-describedby="dashboardCPasswordHelp"
+                                                        <input type="password" class="form-control" id="dashboard-cpwd-value" name="dashboard-cpwd-value" aria-describedby="dashboardCPasswordHelp"
                                                             placeholder="secret" required>
-                                                        <small id="dashboardCPasswordHelp"
-                                                            class="form-text text-muted">Confirm Dashboard
-                                                            Password</small>
+                                                        <small id="dashboardCPasswordHelp" class="form-text text-muted">Confirm Dashboard Password</small>
                                                     </div>
                                                 </div>
                                                 <div class="col-md-6">
                                                     <p class="text-primary mb-1">Path Policy</p>
                                                     <ul>
                                                         <li>Exactly 40 characters in length.</li>
-                                                        <li>Consisting of digits (0-9) and lowercase hexadecimal
-                                                            characters (a-f).</li>
+                                                        <li>Consisting of digits (0-9) and lowercase hexadecimal characters (a-f).</li>
                                                         <li>Followed by a forward slash /.</li>
                                                         <li>Ending with the word "gemini."</li>
                                                     </ul>
@@ -167,8 +138,7 @@
                                                         <li>It must include at least one uppercase letter (A-Z).</li>
                                                         <li>It must include at least one lowercase letter (a-z).</li>
                                                         <li>It must contain at least one digit (0-9).</i>
-                                                        <li>It must contain at least one special character among
-                                                            @$!%*#?&.</li>
+                                                        <li>It must contain at least one special character among @$!%*#?&.</li>
                                                     </ul>
                                                 </div>
                                             </div>
@@ -177,68 +147,47 @@
                                             <div class="row">
                                                 <div class="col-md-6">
                                                     <div class="custom-control custom-radio custom-control-inline">
-                                                        <input type="radio" id="notification-channel-disable"
-                                                            name="notification-channel" class="custom-control-input"
+                                                        <input type="radio" id="notification-channel-disable" name="notification-channel" class="custom-control-input"
                                                             value="off" checked>
-                                                        <label class="custom-control-label"
-                                                            for="notification-channel-disable">Off</label>
+                                                        <label class="custom-control-label" for="notification-channel-disable">Off</label>
                                                     </div>
                                                     <div class="custom-control custom-radio custom-control-inline">
-                                                        <input type="radio" id="notification-channel-telegram"
-                                                            name="notification-channel" class="custom-control-input"
-                                                            value="telegram">
-                                                        <label class="custom-control-label"
-                                                            for="notification-channel-telegram">Telegram</label>
+                                                        <input type="radio" id="notification-channel-telegram" name="notification-channel" class="custom-control-input" value="telegram">
+                                                        <label class="custom-control-label" for="notification-channel-telegram">Telegram</label>
                                                     </div>
                                                     <div class="custom-control custom-radio custom-control-inline">
-                                                        <input type="radio" id="notification-channel-mattermost"
-                                                            name="notification-channel" class="custom-control-input"
-                                                            value="mattermost">
-                                                        <label class="custom-control-label"
-                                                            for="notification-channel-mattermost">Mattermost</label>
+                                                        <input type="radio" id="notification-channel-mattermost" name="notification-channel" class="custom-control-input" value="mattermost">
+                                                        <label class="custom-control-label" for="notification-channel-mattermost">Mattermost</label>
                                                     </div>
                                                     <div class="custom-control custom-radio custom-control-inline">
-                                                        <input type="radio" id="notification-channel-slack"
-                                                            name="notification-channel" class="custom-control-input"
-                                                            value="slack">
-                                                        <label class="custom-control-label"
-                                                            for="notification-channel-slack">Slack</label>
+                                                        <input type="radio" id="notification-channel-slack" name="notification-channel" class="custom-control-input" value="slack">
+                                                        <label class="custom-control-label" for="notification-channel-slack">Slack</label>
                                                     </div>
                                                 </div>
                                                 <div class="col-md-6">
                                                     <div id="form-telegram-1" class="form-group" style="display: none;">
                                                         <label for="telegram-token-value">Token</label>
-                                                        <input type="text" class="form-control"
-                                                            id="telegram-token-value" name="telegram-token-value"
-                                                            aria-describedby="telegramTokenHelp" placeholder="secret">
-                                                        <small id="telegramTokenHelp"
-                                                            class="form-text text-muted">Telegram Token</small>
+                                                        <input type="text" class="form-control" id="telegram-token-value" name="telegram-token-value" aria-describedby="telegramTokenHelp"
+                                                            placeholder="secret">
+                                                        <small id="telegramTokenHelp" class="form-text text-muted">Telegram Token</small>
                                                     </div>
                                                     <div id="form-telegram-2" class="form-group" style="display: none;">
                                                         <label for="telegram-chat-id-value">Chat ID</label>
-                                                        <input type="text" class="form-control"
-                                                            id="telegram-chat-id-value" name="telegram-chat-id-value"
-                                                            aria-describedby="telegramChatIdHelp" placeholder="secret">
-                                                        <small id="telegramChatIdnHelp"
-                                                            class="form-text text-muted">Telegram Chat ID</small>
+                                                        <input type="text" class="form-control" id="telegram-chat-id-value" name="telegram-chat-id-value" aria-describedby="telegramChatIdHelp"
+                                                            placeholder="secret">
+                                                        <small id="telegramChatIdnHelp" class="form-text text-muted">Telegram Chat ID</small>
                                                     </div>
                                                     <div id="form-mattermost" class="form-group" style="display: none;">
                                                         <label for="mattermost-webhook-value">Webhook</label>
-                                                        <input type="text" class="form-control"
-                                                            id="mattermost-webhook-value"
-                                                            name="mattermost-webhook-value"
-                                                            aria-describedby="mattermostHelp"
+                                                        <input type="text" class="form-control" id="mattermost-webhook-value" name="mattermost-webhook-value" aria-describedby="mattermostHelp"
                                                             placeholder="mattermost://">
-                                                        <small id="mattermostHelp"
-                                                            class="form-text text-muted">Mattermost Webhook</small>
+                                                        <small id="mattermostHelp" class="form-text text-muted">Mattermost Webhook</small>
                                                     </div>
                                                     <div id="form-slack" class="form-group" style="display: none;">
                                                         <label for="slack-webhook-value">Webhook</label>
-                                                        <input type="text" class="form-control" id="slack-webhook-value"
-                                                            name="slack-webhook-value" aria-describedby="slackHelp"
+                                                        <input type="text" class="form-control" id="slack-webhook-value" name="slack-webhook-value" aria-describedby="slackHelp"
                                                             placeholder="slack://">
-                                                        <small id="slackHelp" class="form-text text-muted">Slack
-                                                            Webhook</small>
+                                                        <small id="slackHelp" class="form-text text-muted">Slack Webhook</small>
                                                     </div>
                                                 </div>
                                             </div>
@@ -258,4 +207,7 @@
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 <script src="{{ url_for('static', filename='gemini-protector-static/js/install.js') }}"></script>
+<script>
+    const installEndpoint = "{{url_for('nested_service.gemini_install')}}";
+</script>
 {% endblock content %}

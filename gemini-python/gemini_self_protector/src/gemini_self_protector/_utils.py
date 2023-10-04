@@ -204,15 +204,14 @@ class _Utils(object):
         ''')
         print("")
 
-    def g_wvd_serve_health() -> None:
+    def g_wvd_serve_health(_self_context=None) -> None:
         try:
             g_wvd_serve = _Config.get_tb_config().g_wvd_serve
             g_serve_key = _Config.get_tb_config().g_serve_key
 
             if g_wvd_serve:
-                running_mode = _Config.get_tb_config().running_mode
                 client_ip = None
-                if running_mode == 'CLI':
+                if _self_context:
                     client_ip = _Utils.socket_local_ip()
                 else:
                     client_ip = _Utils.flask_client_ip()
@@ -364,12 +363,12 @@ class _Validator(object):
 
     def validate_notification_channel(_notification_channel) -> None:
         try:
-            arr_noti_channel = ['disable', 'telegram', 'slack', 'mattermost']
+            arr_noti_channel = ['off', 'telegram', 'slack', 'mattermost']
             if _notification_channel in arr_noti_channel:
                 return True
             else:
                 logger.error(
-                    "[x_x] Invalid Notification Channel. Notification channel is Disable - Telegram - Slack - Mattermost")
+                    "[x_x] Invalid Notification Channel. Notification channel is Off - Telegram - Slack - Mattermost")
                 return False
         except Exception as e:
             logger.error(
@@ -437,12 +436,11 @@ class _Validator(object):
             logger.error(
                 "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Validator.validate_trust_domain', e))
 
-    def validator_g_wvd_serve(_serve, _key) -> None:
+    def validator_g_wvd_serve(_serve, _key, _self_context=None) -> None:
         try:
             if re.match(r'https?://\S+', _serve):
-                running_mode = _Config.get_tb_config().running_mode
                 client_ip = None
-                if running_mode == 'CLI':
+                if _self_context:
                     client_ip = _Utils.socket_local_ip()
                 else:
                     client_ip = _Utils.flask_client_ip()
@@ -452,6 +450,7 @@ class _Validator(object):
                 response = requests.post(
                     f'{_serve}/predict', json={"ip": client_ip, "data": "healthcheck"}, headers=headers)
                 data = response.json()
+
                 if response.status_code == 200 and 'accuracy' in data:
                     return True
                 else:
