@@ -66,11 +66,6 @@ Gemini supports 3 modes and recommends sensitivity levels for the application to
 | monitor   | 70        |
 | protector | 50        |
 
-## Public Predict Serve
-
-| Address | Version | Authentication Key |
-| ------- | --------- | --------- |
-| https://web-vuln-detect.my-app.in  | 07-2023  | 988907ce-9803-11ed-a8fc-0242ac120002 |
 
 ## Implement prediction module
 💪 You can implement your own prediction module extremely simply and quickly. Details at [gemini-predict-serve](https://github.com/noobpk/gemini-predict-serve)
