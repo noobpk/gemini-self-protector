@@ -67,8 +67,8 @@ Gemini supports 3 modes and recommends sensitivity levels for the application to
 | protector | 50        |
 
 
-## Implement prediction module
-💪 You can implement your own prediction module extremely simply and quickly. Details at [gemini-predict-serve](https://github.com/noobpk/gemini-predict-serve)
+## Implement G-WVD Serve
+💪 You can implement your own G-WVD serve extremely simply and quickly. Details at [gemini-predict-serve](https://github.com/noobpk/gemini-predict-serve)
 
 ## Demo
 
