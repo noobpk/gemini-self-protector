@@ -15,9 +15,9 @@ Gemini-Self-Protector pioneers the fusion of Runtime Application Self Protection
 
 By seamlessly integrating RASP into your application's runtime fabric, Gemini-Self-Protector achieves unparalleled protection. It dynamically monitors and secures various aspects of functionality—database interactions, file operations, and network communications. This symbiosis with Deep Learning empowers Gemini-Self-Protector to adapt and evolve defenses in real-time, staying ahead of emerging threats.
 
-## Gemini Component
+## Gemini Components
 
-![image](https://github.com/noobpk/gemini-self-protector/assets/31820707/e825d5ef-90d9-419c-b1d5-76406b770b04)
+![image](https://github.com/noobpk/gemini-web-vulnerability-detection/assets/31820707/4f38e403-b5f4-40a8-8823-def4353a813f)
 
 👉 G-SP : [gemini-self-protector](https://github.com/noobpk/gemini-self-protector)
 
