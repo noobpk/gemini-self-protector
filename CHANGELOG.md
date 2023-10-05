@@ -1,5 +1,10 @@
 # Changelog
 
+## 05/10/2023
+- Release v0.1.5 Gemini-self-protector for Flask
+- Update install page
+- Fix bug
+
 ## 23/09/2023
 - Release v0.1.4 Gemini-self-protector for Flask
 - Add monitor page

@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.1.5 (05/10/2023)
+- Fix bug
+- Update install page
+
 ## v0.1.4 (23/09/2023)
 
 - Fix bug 
