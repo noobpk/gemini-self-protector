@@ -36,7 +36,7 @@ class GeminiManager(object):
             @wraps(f)
             def __gemini_self_protect(*args, **kwargs):
                 _Gemini.calulate_total_access()
-                is_install = _Gemini.get_gemini_config().isinstall
+                is_install = _Gemini.get_gemini_config().is_install
                 _ip_address = _Gemini.get_flask_client_ip()
                 is_enable_anti_dos = _Gemini.get_gemini_config().anti_dos
                 is_enable_acl = _Gemini.get_gemini_config().enable_acl
@@ -91,7 +91,7 @@ class GeminiManager(object):
                 gemini_protect_mode = current_protect_mode
 
                 logger.info("[+] This request is currently being executed with the protective {0} mode.".format(
-                    'monitoring' if gemini_protect_mode == 'monitor' else 'blocking'))
+                    'monitoring' if gemini_protect_mode == 'monitor' else 'protecting'))
 
                 protect_request = _Gemini.__load_protect_flask_request__(gemini_protect_mode)
 

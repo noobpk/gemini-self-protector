@@ -15,15 +15,15 @@ Gemini-Self-Protector pioneers the fusion of Runtime Application Self Protection
 
 By seamlessly integrating RASP into your application's runtime fabric, Gemini-Self-Protector achieves unparalleled protection. It dynamically monitors and secures various aspects of functionality—database interactions, file operations, and network communications. This symbiosis with Deep Learning empowers Gemini-Self-Protector to adapt and evolve defenses in real-time, staying ahead of emerging threats.
 
-## Gemini Component
+## Gemini Components
 
-![image](https://github.com/noobpk/gemini-self-protector/assets/31820707/e825d5ef-90d9-419c-b1d5-76406b770b04)
+![image](https://github.com/noobpk/gemini-web-vulnerability-detection/assets/31820707/4f38e403-b5f4-40a8-8823-def4353a813f)
 
-👉 Plugin : [gemini-self-protector](https://github.com/noobpk/gemini-self-protector)
+👉 G-SP : [gemini-self-protector](https://github.com/noobpk/gemini-self-protector)
 
-👉 AI : [gemini-predict-serve](https://github.com/noobpk/gemini-predict-serve)
+👉 G-WVD : [gemini-web-vulnerability-detection](https://github.com/noobpk/gemini-web-vulnerability-detection)
 
-👉 BigData : [gemini-bigdata-serve](https://github.com/noobpk/gemini-bigdata-serve)
+👉 G-BD : [gemini-bigdata](https://github.com/noobpk/gemini-bigdata)
 
 ## Gemini Plugin Architecture
 
@@ -66,14 +66,9 @@ Gemini supports 3 modes and recommends sensitivity levels for the application to
 | monitor   | 70        |
 | protector | 50        |
 
-## Public Predict Serve
 
-| Address | Version | Authentication Key |
-| ------- | --------- | --------- |
-| https://web-vuln-detect.my-app.in  | 07-2023  | 988907ce-9803-11ed-a8fc-0242ac120002 |
-
-## Implement prediction module
-💪 You can implement your own prediction module extremely simply and quickly. Details at [gemini-predict-serve](https://github.com/noobpk/gemini-predict-serve)
+## Implement G-WVD Serve
+💪 You can implement your own G-WVD serve extremely simply and quickly. Details at [gemini-predict-serve (G-WVD)](https://github.com/noobpk/gemini-predict-serve)
 
 ## Demo
 

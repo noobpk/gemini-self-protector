@@ -16,175 +16,184 @@
                             <div class="col-sm-12">
                                 <div class="card">
                                     <div class="card-header">
-                                        <h5>Gemini Install</h5>
+                                        <h5>Gemini Self-Protector Installer</h5>
                                     </div>
-                                    <div class="content">
-                                        <div class="form-wizard">
-                                            <form id="install" method="POST"
-                                                action="{{url_for('nested_service.gemini_install')}}">
-                                                <div class="form-wizard-header">
-                                                    <ul class="list-unstyled form-wizard-steps clearfix">
-                                                        <li class="active"><span>1</span></li>
-                                                        <li><span>2</span></li>
-                                                        <li><span>3</span></li>
-                                                        <!-- <li><span>4</span></li> -->
+                                    <div class="card-body">
+                                        <form id="install">
+                                            <h5>Protect mode</h5>
+                                            <hr>
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <div class="custom-control custom-radio custom-control-inline">
+                                                        <input type="radio" id="radio-monitor-mode" name="radio-protect-mode" class="custom-control-input" value="monitor"
+                                                            checked>
+                                                        <label class="custom-control-label" for="radio-monitor-mode">Monitor</label>
+                                                    </div>
+                                                    <div class="custom-control custom-radio custom-control-inline">
+                                                        <input type="radio" id="radio-protection-mode" name="radio-protect-mode" class="custom-control-input" value="protection">
+                                                        <label class="custom-control-label" for="radio-protection-mode">Protection</label>
+                                                    </div>
+                                                    <div class="custom-control custom-radio custom-control-inline">
+                                                        <input type="radio" id="radio-off-mode" name="radio-protect-mode" class="custom-control-input" value="off">
+                                                        <label class="custom-control-label" for="radio-off-mode">Off</label>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <p class="text-primary mb-1">Monitor Mode</p>
+                                                    <ul>
+                                                        <li>Monitor and report</li>
+                                                        <li>Does not block any attacks</li>
+                                                    </ul>
+                                                    <p class="text-success mb-1">Protection Mode</p>
+                                                    <ul>
+                                                        <li>Monitor and report </li>
+                                                        <li>Block any attacks</li>
+                                                    </ul>
+                                                    <p class="text-warning mb-1">Off Mode</p>
+                                                    <ul>
+                                                        <li>Do not take any action</li>
                                                     </ul>
                                                 </div>
-                                                <fieldset class="wizard-fieldset show">
-                                                    <h5>Protect Mode</h5>
-                                                    <div class="form-group">
-                                                        <div class="wizard-form-radio">
-                                                            <input name="radio-mode" id="radio1" type="radio"
-                                                                value="monitor" checked>
-                                                            <label for="radio1">Monitor</label>
-                                                        </div>
-                                                        <div class="wizard-form-radio">
-                                                            <input name="radio-mode" id="radio2" type="radio"
-                                                                value="protection">
-                                                            <label for="radio2">Protection</label>
-                                                        </div>
-                                                        <div class="wizard-form-radio">
-                                                            <input name="radio-mode" id="radio3" type="radio"
-                                                                value="off">
-                                                            <label for="radio2">Off</label>
-                                                        </div>
+                                            </div>
+                                            <h5 class="mt-5">G-WVD</h5>
+                                            <hr>
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <div class="form-group form-check">
+                                                        <input type="checkbox" class="form-check-input" id="checkbox-g-wvd" name="checkbox-g-wvd" checked>
+                                                        <label class="form-check-label" for="checkbox-g-wvd">Using G-WVD serve</label>
                                                     </div>
-                                                    <h5>Sensitive</h5>
-                                                    <div class="form-group">
-                                                        <input type="number" min="0" max="100"
-                                                            class="form-control wizard-required" id="sensitiveValue"
-                                                            name="sensitive-value" value="{{_sensitive_value}}"
-                                                            required>
-                                                        <!-- <label for="fname" class="wizard-form-text-label">Value</label> -->
-                                                        <div class="wizard-form-error"></div>
+                                                    <div id="form-sensitive" class="form-group" style="display: none;">
+                                                        <label for="sensitive-value">Sensitive</label>
+                                                        <input type="number" class="form-control" id="sensitive-value" name="sensitive-value" aria-describedby="sensitiveHelp"
+                                                            placeholder="sensitive value" value="{{_sensitive_value}}">
+                                                        <small id="sensitiveHelp" class="form-text text-muted">Range 0-100</small>
                                                     </div>
-                                                    <h5>Predict Server</h5>
-                                                    <div class="form-group">
-                                                        <input type="text" class="form-control wizard-required"
-                                                            id="predictServerValue" name="predict-server-value" required>
-                                                        <div class="wizard-form-error"></div>
+                                                    <div id="form-g-wvd" class="form-group" style="display: none;">
+                                                        <label for="g-wvd-serve-value">G-WVD serve</label>
+                                                        <input type="text" class="form-control" id="g-wvd-serve-value" name="g-wvd-serve-value" aria-describedby="gWVDServeHelp"
+                                                            placeholder="http://">
+                                                        <small id="gWVDServeHelp" class="form-text text-muted"><a href="https://github.com/noobpk/gemini-predict-serve" target="_blank">Setup G-WVD</a></small>
                                                     </div>
-                                                    <h5>Predict Server Key Auth</h5>
-                                                    <div class="form-group">
-                                                        <input type="text" class="form-control wizard-required"
-                                                            id="keyAuthServerValue" name="key-auth-server-value"
-                                                            required>
-                                                        <a id="predict-server" href="#">Check Connection</a>
-                                                        <div id="loading-spinner" style="display: none; float: right;">
-                                                            <i class="fa fa-spinner fa-spin"></i>
-                                                        </div>
-                                                        <div class="wizard-form-error"></div>
-                                                    </div>
-                                                    <div class="form-group clearfix">
-                                                        <a href="javascript:;"
-                                                            class="form-wizard-next-btn float-right">Next</a>
-                                                    </div>
-                                                </fieldset>
-                                                <fieldset class="wizard-fieldset">
-                                                    <h5>Dashboard Path</h5>
-                                                    <div class="form-group">
-                                                        <input type="text" class="form-control wizard-required"
-                                                            id="geminiAppPath" name="gemini-app-path"
-                                                            value="{{_app_path}}">
-                                                        <!-- <label for="dashboard" class="wizard-form-text-label">Dashboard Path</label> -->
-                                                        <div class="wizard-form-error"></div>
-                                                    </div>
-                                                    <h5>Dashboard Password</h5>
-                                                    <div class="form-group">
-                                                        <input type="password" class="form-control wizard-required"
-                                                            id="pwd" name="pwd">
-                                                        <label for="pwd" class="wizard-form-text-label">Password</label>
-                                                        <div class="wizard-form-error"></div>
-                                                        <span class="wizard-password-eye"><i
-                                                                class="far fa-eye"></i></span>
-                                                    </div>
-                                                    <div class="form-group">
-                                                        <input type="password" class="form-control wizard-required"
-                                                            id="cpwd" name="cpwd">
-                                                        <label for="cpwd" class="wizard-form-text-label">Confirm
-                                                            Password</label>
-                                                        <div class="wizard-form-error"></div>
-                                                    </div>
-                                                    <div class="form-group clearfix">
-                                                        <a href="javascript:;"
-                                                            class="form-wizard-previous-btn float-left">Previous</a>
-                                                        <a href="javascript:;"
-                                                            class="form-wizard-next-btn float-right">Next</a>
-                                                    </div>
-                                                </fieldset>
-                                                <fieldset class="wizard-fieldset">
-                                                    <h5>Notification</h5>
-                                                    <div class="form-group">
-                                                        Channel
-                                                        <div class="wizard-form-radio">
-                                                            <input name="radio-channel" id="disable" type="radio"
-                                                                value="disable" checked>
-                                                            <label for="telegram">Disable</label>
-                                                        </div>
-                                                        <div class="wizard-form-radio">
-                                                            <input name="radio-channel" id="telegram" type="radio"
-                                                                value="telegram">
-                                                            <label for="telegram">Telegram</label>
-                                                        </div>
-                                                        <div class="wizard-form-radio">
-                                                            <input name="radio-channel" id="slack" type="radio"
-                                                                value="slack" disabled>
-                                                            <label for="slack">Slack</label>
-                                                        </div>
-                                                        <div class="wizard-form-radio">
-                                                            <input name="radio-channel" id="mattermost" type="radio"
-                                                                value="mattermost" disabled>
-                                                            <label for="mattermost">Mattermost</label>
+                                                    <div id="form-g-key" class="input-group mb-3" style="display: none;">
+                                                        <input type="text" class="form-control" id="g-serve-key-value" name="g-serve-key-value" placeholder="G Serve Key" aria-label="G Serve Key" aria-describedby="G Serve Key">
+                                                        <div class="input-group-append">
+                                                            <button class="btn btn-primary" id="g-wvd-check-connection" type="button">Check connection</button>
                                                         </div>
                                                     </div>
-                                                    <div class="form-group" id="telegram-form-1">
-                                                        <input type="text" class="form-control" id="telegram_token"
-                                                            name="telegram-token">
-                                                        <label for="telegram_chat_id"
-                                                            class="wizard-form-text-label">Telegram
-                                                            Token*</label>
-                                                        <div class="wizard-form-error"></div>
-                                                    </div>
-                                                    <div class="form-group" id="telegram-form-2">
-                                                        <input type="text" class="form-control" id="telegram_chat_id"
-                                                            name="telegram-chat-id">
-                                                        <label for="telegram_chat_id"
-                                                            class="wizard-form-text-label">Telegram
-                                                            Chat
-                                                            ID*</label>
-                                                        <div class="wizard-form-error"></div>
-                                                    </div>
-                                                    <div class="form-group" id="webhook-form">
-                                                        <input type="text" class="form-control" id="channel_webhook"
-                                                            name="channel-webhook">
-                                                        <label for="channel_webhook"
-                                                            class="wizard-form-text-label">Webhook</label>
-                                                        <div class="wizard-form-error"></div>
-                                                    </div>
-                                                    <!-- <div class="form-group clearfix">
-                                                        <a href="javascript:;"
-                                                            class="form-wizard-previous-btn float-left">Previous</a>
-                                                        <a href="javascript:;"
-                                                            class="form-wizard-next-btn float-right">Next</a>
-                                                    </div> -->
-                                                    <div class="form-group clearfix">
-                                                        <a href="javascript:;"
-                                                            class="form-wizard-previous-btn float-left">Previous</a>
-                                                        <a href="javascript:;" class="form-wizard-submit float-right"
-                                                            onclick="document.getElementById('install').submit();">Install</a>
-                                                    </div>
-                                                </fieldset>
-                                                <!-- <fieldset class="wizard-fieldset">
-                                                    <h5>License</h5>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <p class="text-primary mb-1">G-WVD Protect Agains</p>
+                                                    <ul>
+                                                        <li>Cross-Site Scripting</li>
+                                                        <li>SQL Injection</li>
+                                                        <li>Path Traversal (LFI)</li>
+                                                        <li>Command Injection</li>
+                                                        <li>Remote File Inclusion (RFI)</li>
+                                                        <li>Json & XML Injection</li>
+                                                        <li>HTML5 Injection</li>
+                                                        <li>Server Side Includes (SSI) Injection</li>
+                                                    </ul>
+                                                    <p class="text-danger mb-1">Deep Learning Model: CNN + GRU</p>
+                                                    <p class="text-success mb-1">Accuracy: 97%</p>
+                                                </div>
+                                            </div>
+                                            <h5 class="mt-5">Dashboard</h5>
+                                            <hr>
+                                            <div class="row">
+                                                <div class="col-md-6">
                                                     <div class="form-group">
-                                                        <input type="text" class="form-control wizard-required"
-                                                            id="license_key" name="license-key"
-                                                            value="988907ce-9803-11ed-a8fc-0242ac120002">
-                                                        <div class="wizard-form-error"></div>
+                                                        <label for="basic-url">Path</label>
+                                                        <div class="input-group mb-3">
+                                                            <div class="input-group-prepend">
+                                                                <span class="input-group-text" id="rootUrl"></span>
+                                                            </div>
+                                                            <input type="text" class="form-control" id="basic-url" name="basic-url" aria-describedby="basic-addon3" value="{{_app_path}}">
+                                                        </div>
                                                     </div>
-                                                </fieldset> -->
-                                            </form>
-                                        </div>
+                                                    <div class="form-group">
+                                                        <label for="dashboard-pwd-value">Password</label>
+                                                        <input type="password" class="form-control" id="dashboard-pwd-value" name="dashboard-pwd-value" aria-describedby="dashboardPasswordHelp"
+                                                            placeholder="secret" required>
+                                                        <small id="dashboardPasswordHelp" class="form-text text-muted">Dashboard Password</small>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label for="dashboard-cpwd-value">Confirm Password</label>
+                                                        <input type="password" class="form-control" id="dashboard-cpwd-value" name="dashboard-cpwd-value" aria-describedby="dashboardCPasswordHelp"
+                                                            placeholder="secret" required>
+                                                        <small id="dashboardCPasswordHelp" class="form-text text-muted">Confirm Dashboard Password</small>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <p class="text-primary mb-1">Path Policy</p>
+                                                    <ul>
+                                                        <li>Exactly 40 characters in length.</li>
+                                                        <li>Consisting of digits (0-9) and lowercase hexadecimal characters (a-f).</li>
+                                                        <li>Followed by a forward slash /.</li>
+                                                        <li>Ending with the word "gemini."</li>
+                                                    </ul>
+                                                    <p class="text-success mb-1">Password Policy</p>
+                                                    <ul>
+                                                        <li>The password must contain at least 8 characters.</li>
+                                                        <li>It must include at least one uppercase letter (A-Z).</li>
+                                                        <li>It must include at least one lowercase letter (a-z).</li>
+                                                        <li>It must contain at least one digit (0-9).</i>
+                                                        <li>It must contain at least one special character among @$!%*#?&.</li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                            <h5 class="mt-5">Notification</h5>
+                                            <hr>
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <div class="custom-control custom-radio custom-control-inline">
+                                                        <input type="radio" id="notification-channel-disable" name="notification-channel" class="custom-control-input"
+                                                            value="off" checked>
+                                                        <label class="custom-control-label" for="notification-channel-disable">Off</label>
+                                                    </div>
+                                                    <div class="custom-control custom-radio custom-control-inline">
+                                                        <input type="radio" id="notification-channel-telegram" name="notification-channel" class="custom-control-input" value="telegram">
+                                                        <label class="custom-control-label" for="notification-channel-telegram">Telegram</label>
+                                                    </div>
+                                                    <div class="custom-control custom-radio custom-control-inline">
+                                                        <input type="radio" id="notification-channel-mattermost" name="notification-channel" class="custom-control-input" value="mattermost">
+                                                        <label class="custom-control-label" for="notification-channel-mattermost">Mattermost</label>
+                                                    </div>
+                                                    <div class="custom-control custom-radio custom-control-inline">
+                                                        <input type="radio" id="notification-channel-slack" name="notification-channel" class="custom-control-input" value="slack">
+                                                        <label class="custom-control-label" for="notification-channel-slack">Slack</label>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div id="form-telegram-1" class="form-group" style="display: none;">
+                                                        <label for="telegram-token-value">Token</label>
+                                                        <input type="text" class="form-control" id="telegram-token-value" name="telegram-token-value" aria-describedby="telegramTokenHelp"
+                                                            placeholder="secret">
+                                                        <small id="telegramTokenHelp" class="form-text text-muted">Telegram Token</small>
+                                                    </div>
+                                                    <div id="form-telegram-2" class="form-group" style="display: none;">
+                                                        <label for="telegram-chat-id-value">Chat ID</label>
+                                                        <input type="text" class="form-control" id="telegram-chat-id-value" name="telegram-chat-id-value" aria-describedby="telegramChatIdHelp"
+                                                            placeholder="secret">
+                                                        <small id="telegramChatIdnHelp" class="form-text text-muted">Telegram Chat ID</small>
+                                                    </div>
+                                                    <div id="form-mattermost" class="form-group" style="display: none;">
+                                                        <label for="mattermost-webhook-value">Webhook</label>
+                                                        <input type="text" class="form-control" id="mattermost-webhook-value" name="mattermost-webhook-value" aria-describedby="mattermostHelp"
+                                                            placeholder="mattermost://">
+                                                        <small id="mattermostHelp" class="form-text text-muted">Mattermost Webhook</small>
+                                                    </div>
+                                                    <div id="form-slack" class="form-group" style="display: none;">
+                                                        <label for="slack-webhook-value">Webhook</label>
+                                                        <input type="text" class="form-control" id="slack-webhook-value" name="slack-webhook-value" aria-describedby="slackHelp"
+                                                            placeholder="slack://">
+                                                        <small id="slackHelp" class="form-text text-muted">Slack Webhook</small>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <hr>
+                                            <button id="submit" type="submit" class="btn btn-primary">Submit</button>
+                                        </form>
                                     </div>
                                 </div>
                             </div>
@@ -198,4 +207,7 @@
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 <script src="{{ url_for('static', filename='gemini-protector-static/js/install.js') }}"></script>
+<script>
+    const installEndpoint = "{{url_for('nested_service.gemini_install')}}";
+</script>
 {% endblock content %}

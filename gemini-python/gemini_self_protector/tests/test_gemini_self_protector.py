@@ -1,1 +1,0 @@
-from gemini_self_protector import gemini_self_protector

@@ -11,16 +11,17 @@ from flask import request
 from ._config import _Config
 from ._logger import logger
 from datetime import datetime, timezone
+import socket
 
 
 class _Utils(object):
 
-    def decoder(string):
+    def decoder(_string):
         try:
             """Decode a string using the specified encoding type."""
 
             # Remove the invalid escape sequences  - # Remove the backslash
-            string = string.replace('\%', '%').replace(
+            string = _string.replace('\%', '%').replace(
                 '\\', '').replace('<br/>', '')
 
             string = string.encode().decode('unicode_escape')
@@ -55,7 +56,8 @@ class _Utils(object):
                         try:
                             decoded_string = base64.b64decode(
                                 encoded_string).decode()
-                            string = string.replace(encoded_string, decoded_string)
+                            string = string.replace(
+                                encoded_string, decoded_string)
                         except:
                             pass
                 except:
@@ -84,8 +86,9 @@ class _Utils(object):
             for pattern in sql_pattern:
                 match = re.search(pattern, string, re.IGNORECASE)
                 if match is not None:
-                # select * from noobpk; - 90e87fc8ba835e0d2bfeec5e3799ecfe
-                    string = string.replace(match[0], ' 90e87fc8ba835e0d2bfeec5e3799ecfe')
+                    # select * from noobpk; - 90e87fc8ba835e0d2bfeec5e3799ecfe
+                    string = string.replace(
+                        match[0], ' 90e87fc8ba835e0d2bfeec5e3799ecfe')
                     break
 
             string = string.encode('utf-7').decode()
@@ -98,7 +101,7 @@ class _Utils(object):
             logger.error(
                 "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Utils.decoder', e))
 
-    def web_vuln_detect_predict(payload) -> None:
+    def g_wvd_serve_predict(_payload) -> None:
         """
         It takes a payload as input and returns the accuracy of the prediction
 
@@ -107,13 +110,13 @@ class _Utils(object):
         :return: The accuracy of the prediction.
         """
         try:
-            predict_server = _Config.get_tb_config().predict_server
-            predict_server_key_auth = _Config.get_tb_config().predict_server_key_auth
+            g_wvd_serve = _Config.get_tb_config().g_wvd_serve
+            g_serve_key = _Config.get_tb_config().g_serve_key
             headers = {"Content-Type": "application/json",
-                       "Authorization": predict_server_key_auth}
+                       "Authorization": g_serve_key}
             client_ip = _Utils.flask_client_ip()
             predict = requests.post(
-                f'{predict_server}/predict', json={"ip": client_ip, "data": payload}, headers=headers)
+                f'{g_wvd_serve}/predict', json={"ip": client_ip, "data": _payload}, headers=headers)
             if (predict):
                 response = predict.json()
                 accuracy = response.get('accuracy', 0)
@@ -128,7 +131,7 @@ class _Utils(object):
             return 0
         except Exception as e:
             logger.error(
-                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Utils.web_vuln_detect_predict', e))
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Utils.g_wvd_serve_predict', e))
 
     def flask_client_ip() -> None:
         """
@@ -144,6 +147,15 @@ class _Utils(object):
         except Exception as e:
             logger.error(
                 "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Utils.flask_client_ip', e))
+
+    def socket_local_ip() -> None:
+        try:
+            hostname = socket.gethostname()
+            local_ip = socket.gethostbyname(hostname)
+            return local_ip
+        except Exception as e:
+            logger.error(
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Utils.socket_local_ip', e))
 
     def generate_event_id() -> None:
         """
@@ -192,14 +204,21 @@ class _Utils(object):
         ''')
         print("")
 
-    def predict_server_health() -> None:
+    def g_wvd_serve_health(_self_context=None) -> None:
         try:
-            predict_server = _Config.get_tb_config().predict_server
-            if predict_server:
-                client_ip = _Utils.flask_client_ip()
-                headers = {"Content-Type": "application/json"}
+            g_wvd_serve = _Config.get_tb_config().g_wvd_serve
+            g_serve_key = _Config.get_tb_config().g_serve_key
+
+            if g_wvd_serve:
+                client_ip = None
+                if _self_context:
+                    client_ip = _Utils.socket_local_ip()
+                else:
+                    client_ip = _Utils.flask_client_ip()
+                headers = {"Content-Type": "application/json",
+                           "Authorization": g_serve_key}
                 response = requests.post(
-                    f'{predict_server}/predict', json={"ip": client_ip, "data": "healthcheck"}, headers=headers)
+                    f'{g_wvd_serve}/predict', json={"ip": client_ip, "data": "healthcheck"}, headers=headers)
                 if response and response.status_code == 200:
                     return True
                 else:
@@ -207,24 +226,65 @@ class _Utils(object):
             return False
         except Exception as e:
             logger.error(
-                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Validator.predict_server_health', e))
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Validator.g_wvd_serve_health', e))
+
+    def g_serve_diagnostic() -> None:
+        try:
+            g_wvd_serve = _Config.get_tb_config().g_wvd_serve
+            g_serve_key = _Config.get_tb_config().g_serve_key
+            running_mode = _Config.get_tb_config().running_mode
+            client_ip = None
+            if running_mode == 'CLI':
+                client_ip = _Utils.socket_local_ip()
+            else:
+                client_ip = _Utils.flask_client_ip()
+
+            logger.info("[*] Try PingPong to predict serve")
+            ping_header = {"Authorization": g_serve_key}
+            ping_response = requests.get(
+                f'{g_wvd_serve}/ping', headers=ping_header)
+            if ping_response.status_code == 200:
+                logger.info("[200] 200 OK")
+                logger.info("[*] Try predict")
+                predict_header = {
+                    "Content-Type": "application/json", "Authorization": g_serve_key}
+                preidct_response = requests.post(
+                    f'{g_wvd_serve}/predict', json={"ip": client_ip, "data": "healthcheck"}, headers=predict_header)
+                if preidct_response.status_code == 200:
+                    logger.info("[200] 200 OK")
+                    return 200
+                elif preidct_response.status_code == 401:
+                    logger.warning("[401] UNAUTHORIZED")
+                    return 401
+                elif preidct_response.status_code == 500:
+                    logger.error("[500] INTERNAL SERVER ERROR")
+                    return 500
+            elif ping_response.status_code == 401:
+                logger.warning("[401] UNAUTHORIZED")
+                return 401
+            elif ping_response.status_code == 500:
+                logger.error("[500] INTERNAL SERVER ERROR")
+                return 500
+        except Exception as e:
+            logger.error(
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Validator.diagnostic_predict_server', e))
 
 
 class _Validator(object):
 
-    def validate_key_auth(_key) -> None:
+    def validate_g_serve_key(_key) -> None:
         try:
             if _key:
-                predict_server = _Config.get_tb_config().predict_server
+                g_wvd_serve = _Config.get_tb_config().g_wvd_serve
                 client_ip = _Utils.flask_client_ip()
                 headers = {"Content-Type": "application/json",
                            "Authorization": _key}
                 response = requests.post(
-                    f'{predict_server}/predict', json={"ip": client_ip, "data": "healthcheck"}, headers=headers)
+                    f'{g_wvd_serve}/predict', json={"ip": client_ip, "data": "healthcheck"}, headers=headers)
                 data = response.json()
                 if response.status_code == 200 and 'accuracy' in data:
                     _Config.update_tb_config({
-                        'predict_server_key_auth': _key,
+                        'g_serve_key': _key,
                     })
                     return True
                 else:
@@ -235,7 +295,7 @@ class _Validator(object):
             logger.error(
                 "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Validator.validate_key_auth', e))
 
-    def validate_protect_mode(protect_mode) -> None:
+    def validate_protect_mode(_protect_mode) -> None:
         """
         It checks if the protect_mode is in the array arr_mode. If it is, it returns True. If it isn't,
         it returns False
@@ -245,7 +305,7 @@ class _Validator(object):
         """
         try:
             arr_mode = ['off', 'protection', 'monitor']
-            if protect_mode in arr_mode:
+            if _protect_mode in arr_mode:
                 return True
             else:
                 logger.error(
@@ -255,7 +315,7 @@ class _Validator(object):
             logger.error(
                 "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Validator.validate_protect_mode', e))
 
-    def validate_sensitive_value(sensitive_value) -> None:
+    def validate_sensitive_value(_sensitive_value) -> None:
         """
         If the value is an integer between 0 and 100, return the integer. Otherwise, return 0
 
@@ -264,7 +324,7 @@ class _Validator(object):
         :return: the value of the sensitive_value variable.
         """
         try:
-            if 0 <= int(sensitive_value) <= 100:
+            if 0 <= int(_sensitive_value) <= 100:
                 return True
             else:
                 logger.error(
@@ -274,10 +334,10 @@ class _Validator(object):
             logger.error(
                 "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Validator.validate_sensitive_value', e))
 
-    def validate_app_path(app_path) -> None:
+    def validate_app_path(_app_path) -> None:
         try:
             regex = r"^[0-9a-f]{40}/gemini$"
-            if re.match(regex, app_path):
+            if re.match(regex, _app_path):
                 return True
             else:
                 logger.error(
@@ -287,11 +347,11 @@ class _Validator(object):
             logger.error(
                 "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Validator.validate_app_path', e))
 
-    def validate_dashboard_password(password, confirm_password) -> None:
+    def validate_dashboard_password(_password, _confirm_password) -> None:
         try:
             regex = r"^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$"
 
-            if re.match(regex, password):
+            if re.match(regex, _password):
                 return True
             else:
                 logger.error(
@@ -301,20 +361,20 @@ class _Validator(object):
             logger.error(
                 "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Validator.validate_dashboard_password', e))
 
-    def validate_notification_channel(notification_channel) -> None:
+    def validate_notification_channel(_notification_channel) -> None:
         try:
-            arr_noti_channel = ['disable', 'telegram', 'slack', 'mattermost']
-            if notification_channel in arr_noti_channel:
+            arr_noti_channel = ['off', 'telegram', 'slack', 'mattermost']
+            if _notification_channel in arr_noti_channel:
                 return True
             else:
                 logger.error(
-                    "[x_x] Invalid Notification Channel. Notification channel is Disable - Telegram - Slack - Mattermost")
+                    "[x_x] Invalid Notification Channel. Notification channel is Off - Telegram - Slack - Mattermost")
                 return False
         except Exception as e:
             logger.error(
                 "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Validator.validate_notification_channel', e))
 
-    def validate_http_method(http_method) -> None:
+    def validate_http_method(_http_method) -> None:
         """
         It checks if the HTTP method is valid
 
@@ -324,7 +384,7 @@ class _Validator(object):
         try:
             arr_http_method = ['OPTIONS', 'GET', 'POST',
                                'PUT', 'DELETE', 'TRACE', 'CONNECT']
-            if all(method in arr_http_method for method in http_method):
+            if all(method in arr_http_method for method in _http_method):
                 return True
             else:
                 logger.error(
@@ -334,10 +394,10 @@ class _Validator(object):
             logger.error(
                 "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Validator.validate_http_method', e))
 
-    def validate_one_off_status(on_off_status) -> None:
+    def validate_one_off_status(_on_off_status) -> None:
         try:
             arr_status = ['1', '0']
-            if on_off_status in arr_status:
+            if _on_off_status in arr_status:
                 return True
             else:
                 logger.error(
@@ -347,7 +407,7 @@ class _Validator(object):
             logger.error(
                 "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Validator.validate_safe_redirect_status', e))
 
-    def validate_trust_domain(trust_domain_list) -> None:
+    def validate_trust_domain(_trust_domain_list) -> None:
         """
         This function validates a list of trust domains by checking if they are empty strings or if they
         match a regular expression for valid domain names.
@@ -361,12 +421,11 @@ class _Validator(object):
         """
         try:
             contains_only_empty_strings = all(
-                element == '' for element in trust_domain_list)
-            print(contains_only_empty_strings)
+                element == '' for element in _trust_domain_list)
             if contains_only_empty_strings:
                 return True
             else:
-                for domain in trust_domain_list:
+                for domain in _trust_domain_list:
                     if not re.match(r'^[a-zA-Z0-9]+([\-\.]{1}[a-zA-Z0-9]+)*\.[a-zA-Z]{2,}$', domain):
                         logger.error(
                             "[x_x] Invalid Domain Name")
@@ -377,18 +436,26 @@ class _Validator(object):
             logger.error(
                 "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Validator.validate_trust_domain', e))
 
-    def validate_predict_server(_server, _key) -> None:
+    def validator_g_wvd_serve(_serve, _key, _self_context=None) -> None:
         try:
-            if re.match(r'https?://\S+', _server):
-                client_ip = _Utils.flask_client_ip()
+            if re.match(r'https?://\S+', _serve):
+                client_ip = None
+                if _self_context:
+                    client_ip = _Utils.socket_local_ip()
+                else:
+                    client_ip = _Utils.flask_client_ip()
+
                 headers = {"Content-Type": "application/json",
                            "Authorization": _key}
                 response = requests.post(
-                    f'{_server}/predict', json={"ip": client_ip, "data": "healthcheck"}, headers=headers)
+                    f'{_serve}/predict', json={"ip": client_ip, "data": "healthcheck"}, headers=headers)
                 data = response.json()
+
                 if response.status_code == 200 and 'accuracy' in data:
                     return True
                 else:
+                    logger.error(
+                        "[x_x] Cannot connected to G-WVD serve. Check your G-WVD serve and G serve key")
                     return False
             else:
                 return False

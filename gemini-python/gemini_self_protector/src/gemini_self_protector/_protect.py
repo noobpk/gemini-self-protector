@@ -10,7 +10,7 @@ import ast
 
 class _Protect(object):
 
-    def __secure_response_header__(response):
+    def __secure_response_header__(_response):
         try:
             server_name = _Config.get_tb_config().server_name
             global_protect_mode = _Config.get_tb_config().global_protect_mode
@@ -22,6 +22,7 @@ class _Protect(object):
             cors_header = cors['headers']
             http_method_list = ast.literal_eval(http_method_allow)
 
+            response = _response
             response.add_etag()
             response.headers['Server'] = server_name
             response.headers['X-Gemini-Self-Protector'] = global_protect_mode
@@ -49,9 +50,9 @@ class _Protect(object):
             logger.error(
                 "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Protect.__secure_response_header__', e))
 
-    def __secure_cookie__(app):
+    def __secure_cookie__(_app):
         try:
-            app.config.update(
+            _app.config.update(
                 SESSION_COOKIE_SECURE=True,
                 SESSION_COOKIE_HTTPONLY=True,
                 SESSION_COOKIE_SAMESITE='Lax',
@@ -59,7 +60,7 @@ class _Protect(object):
         except Exception as e:
             logger.error(
                 "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Protect.__secure_cookie__', e))
-    
+
     def __handle_mini_anti_dos__() -> None:
         try:
             _ticket = _Utils.insident_ticket()
@@ -74,12 +75,12 @@ class _Protect(object):
             elif request.values:
                 data = request.values.to_dict()
                 _body = json.dumps(data)
-            
+
             _request_header = '{} {}\r{}'.format(
                 _method, _full_path, _headers)
             _request_body = _body
-            
-            abnormal_request =  _Config.get_tb_summary().abnormal_request
+
+            abnormal_request = _Config.get_tb_summary().abnormal_request
             _Config.update_tb_summary({'abnormal_request': abnormal_request+1})
 
             ip = _ticket["IP"]
@@ -89,13 +90,14 @@ class _Protect(object):
             resp = None
             res_content = None
             user_agent = _agent
-            attack_type= "DOS"
+            attack_type = "DOS"
             predict = None
-            event_id=str(_ticket["EventID"])
+            event_id = str(_ticket["EventID"])
             latitude = _ticket["Latitude"]
             longitude = _ticket["Longitude"]
 
-            _Config.store_tb_request_log(ipaddress=ip, url=url, request=req, req_body=req_body, response=resp, res_content=res_content, useragent=user_agent, attack_type=attack_type, predict=predict, event_id=event_id, latitude=latitude, longitude=longitude)
+            _Config.store_tb_request_log(ipaddress=ip, url=url, request=req, req_body=req_body, response=resp, res_content=res_content,
+                                         useragent=user_agent, attack_type=attack_type, predict=predict, event_id=event_id, latitude=latitude, longitude=longitude)
             return _ticket
         except Exception as e:
             logger.error(
@@ -114,7 +116,8 @@ class _Protect(object):
             abnormal_request = _Config.get_tb_summary().abnormal_request
             _Config.update_tb_summary(
                 {'abnormal_request': abnormal_request+1})
-            _Config.store_tb_request_log(ipaddress=_ticket["IP"], url=_request.full_path, request=_request_header, req_body=_request_body, response=None, res_content=None, useragent=_request.headers.get('User-Agent'), attack_type=_attack_type, predict=_predict, event_id=str(_ticket["EventID"]), latitude=_ticket["Latitude"], longitude=_ticket["Longitude"])
+            _Config.store_tb_request_log(ipaddress=_ticket["IP"], url=_request.full_path, request=_request_header, req_body=_request_body, response=None, res_content=None, useragent=_request.headers.get(
+                'User-Agent'), attack_type=_attack_type, predict=_predict, event_id=str(_ticket["EventID"]), latitude=_ticket["Latitude"], longitude=_ticket["Longitude"])
             logger.warning("[+] Gemini Alert: Abnormal detection - IP: {}. Event ID: {}".format(
                 _ticket["IP"], _ticket["EventID"]))
         except Exception as e:
@@ -193,14 +196,14 @@ class _Protect(object):
             logger.error(
                 "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Protect.__handle_original_response__', e))
 
-    def __protect_flask_request__(gemini_protect_mode) -> None:
+    def __protect_flask_request__(_gemini_protect_mode) -> None:
         try:
             sensitive_value = _Config.get_tb_config().sensitive_value
             _method = request.method
             _full_path = request.full_path
             _headers = str(request.headers)
             _body = None
-            
+
             if request.data:
                 _body = request.data.decode('utf-8')
             elif request.values:
@@ -212,52 +215,60 @@ class _Protect(object):
             _request_body = _body
 
             is_predict_header = _Config.get_tb_config().is_predict_header
-            
+
             if int(is_predict_header) == 1:
-                _predict_request = '{}\r{}'.format(_request_header, _request_body)
+                _predict_request = '{}\r{}'.format(
+                    _request_header, _request_body)
             else:
                 _predict_request = '{}'.format(_request_body)
 
             _ticket = _Utils.insident_ticket()
 
-            if gemini_protect_mode in ('monitor', 'protection'):
+            if _gemini_protect_mode in ('monitor', 'protection'):
                 if _Protect.__handle_original_request__(request, _request_header, _request_body, _ticket):
+
                     payload = _Utils.decoder(_predict_request)
 
-                    predict = _Utils.web_vuln_detect_predict(payload)
+                    is_use_g_wvd_serve = _Config.get_tb_config().is_use_g_wvd_serve
+                    prediction = 0
+                    if int(is_use_g_wvd_serve) == 1:
+                        prediction = _Utils.g_wvd_serve_predict(payload)
 
-                    if predict < sensitive_value:
+                    if prediction < sensitive_value:
                         status = True
                         _Protect.__handle_normal_request__(request)
                     else:
-                        _Protect.__handle_abnormal_request__(request, _request_header, _request_body, predict, "Malicious Request", _ticket)
-                        if gemini_protect_mode == 'monitor':
+                        _Protect.__handle_abnormal_request__(
+                            request, _request_header, _request_body, prediction, "Malicious Request", _ticket)
+                        if _gemini_protect_mode == 'monitor':
                             status = True
                         else:
                             status = False
                 else:
-                    if gemini_protect_mode == 'monitor':
+                    if _gemini_protect_mode == 'monitor':
                         status = True
                     else:
                         status = False
 
                 return {"Status": status, "Ticket": _ticket}
             else:
-                logger.error("[x_x] Invalid Protect Mode. Protect mode must be: monitor - protection - off")
+                logger.error(
+                    "[x_x] Invalid Protect Mode. Protect mode must be: monitor - protection - off")
                 status = True
                 return {"Status": status}
 
         except Exception as e:
-            logger.error("[x_x] Something went wrong, please check your error message.\n Message - {}".format('_Protect.__protect_flask_request__', e))
+            logger.error("[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format(
+                '_Protect.__protect_flask_request__', e))
 
-    def __protect_flask_response__(safe_redirect, original_response, gemini_protect_mode) -> None:
+    def __protect_flask_response__(_safe_redirect, _original_response, _gemini_protect_mode) -> None:
         try:
-            if int(safe_redirect):
+            if int(_safe_redirect):
                 _method = request.method
                 _full_path = request.full_path
                 _headers = str(request.headers)
                 _body = None
-                
+
                 if request.data:
                     _body = request.data.decode('utf-8')
                 elif request.values:
@@ -268,28 +279,29 @@ class _Protect(object):
                     _method, _full_path, _headers)
                 _request_body = _body
 
-                _res_status = original_response.status
-                _res_headers = original_response.headers
-                _res_content = original_response.data
+                _res_status = _original_response.status
+                _res_headers = _original_response.headers
+                _res_content = _original_response.data
 
                 _response_header = '{}\r{}'.format(_res_status, _res_headers)
                 _response_content = _res_content
 
                 _ticket = _Utils.insident_ticket()
 
-                if gemini_protect_mode in ('monitor', 'protection'):
-                    if _Protect.__handle_original_response__(request, _request_header, _request_body, original_response, _response_header, _response_content, _ticket):
-                        _Protect.__handle_normal_response__(original_response)
+                if _gemini_protect_mode in ('monitor', 'protection'):
+                    if _Protect.__handle_original_response__(request, _request_header, _request_body, _original_response, _response_header, _response_content, _ticket):
+                        _Protect.__handle_normal_response__(_original_response)
                         status = True
                     else:
-                        if gemini_protect_mode == 'monitor':
+                        if _gemini_protect_mode == 'monitor':
                             status = True
                         else:
                             status = False
 
                     return {"Status": status, "Ticket": _ticket}
                 else:
-                    logger.error("[x_x] Invalid Protect Mode. Protect mode must be: monitor - protection - off")
+                    logger.error(
+                        "[x_x] Invalid Protect Mode. Protect mode must be: monitor - protection - off")
                     status = True
                     return {"Status": status}
             else:
@@ -297,4 +309,5 @@ class _Protect(object):
                 return {"Status": status}
 
         except Exception as e:
-            logger.error("[x_x] Something went wrong, please check your error message.\n Message - {}".format('_Protect.__protect_flask_response__', e))
+            logger.error("[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format(
+                '_Protect.__protect_flask_response__', e))

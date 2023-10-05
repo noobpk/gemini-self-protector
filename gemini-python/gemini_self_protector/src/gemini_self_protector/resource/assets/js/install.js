@@ -1,6 +1,6 @@
 jQuery(document).ready(function () {
     Toastify({
-        text: "Welcome to Gemini-Self Protector Installer",
+        text: "Welcome to Gemin Self-Protector Installer",
         duration: 3000,
         gravity: "top", // `top` or `bottom`
         position: "right", // `left`, `center` or `right`
@@ -9,196 +9,96 @@ jQuery(document).ready(function () {
             background: "linear-gradient(to right, #00b09b, #96c93d)",
         },
     }).showToast();
-    // click on next button
-    jQuery('.form-wizard-next-btn').click(function () {
-        var parentFieldset = jQuery(this).parents('.wizard-fieldset');
-        var currentActiveStep = jQuery(this).parents('.form-wizard').find('.form-wizard-steps .active');
-        var next = jQuery(this);
-        var nextWizardStep = true;
 
-        var sensitiveValue = jQuery('#sensitiveValue').val();
-        if (sensitiveValue === "" || isNaN(parseInt(sensitiveValue)) || parseInt(sensitiveValue) < 0 || parseInt(sensitiveValue) > 100) {
-            parentFieldset.find('.wizard-form-error').slideDown();
-            nextWizardStep = false;
+    var passwordPattern = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/;
+    const rootUrl = location.protocol + '//' + location.host + '/';
+    const rootUrlElement = document.getElementById("rootUrl");
+    rootUrlElement.innerHTML = rootUrl;
+
+    // Initially
+    $('#form-sensitive').show();
+    $('#form-g-wvd').show();
+    $('#form-g-key').show();
+    $('#g-wvd-serve-value').attr('required', 'required');
+    $('#g-serve-key-value').attr('required', 'required');
+    // Listen for using G-WVD serve
+    $('#checkbox-g-wvd').change(function () {
+        if ($(this).is(':checked')) {
+            $('#form-sensitive').show();
+            $('#form-g-wvd').show();
+            $('#form-g-key').show();
+            $('#g-wvd-serve-value').attr('required', 'required');
+            $('#g-serve-key-value').attr('required', 'required');
         } else {
-            parentFieldset.find('.wizard-form-error').slideUp();
+            $('#form-sensitive').hide();
+            $('#form-g-wvd').hide();
+            $('#form-g-key').hide();
+            $('#g-wvd-serve-value').removeAttr('required');
+            $('#g-serve-key-value').removeAttr('required');
         }
+    });
 
-        var radioValue = jQuery('input[name="radio-mode"]:checked').val();
-        if (radioValue === undefined) {
-            parentFieldset.find('.wizard-form-error').slideDown();
-            nextWizardStep = false;
+    // Listen for notification channel
+    $('input[name="notification-channel"]').change(function () {
+        const selectedValue = $(this).val();
+
+        if (selectedValue === "telegram") {
+            $('#form-telegram-1').show();
+            $('#form-telegram-2').show();
+            $('#form-mattermost').hide();
+            $('#form-slack').hide();
+            $('#telegram-token-value').attr('required', 'required');
+            $('#telegram-chat-id-value').attr('required', 'required');
+            $('#mattermost-webhook-value').removeAttr('required');
+            $('#slack-webhook-value').removeAttr('required');
+        } else if (selectedValue === "mattermost") {
+            $('#form-telegram-1').hide();
+            $('#form-telegram-2').hide();
+            $('#form-mattermost').show();
+            $('#form-slack').hide();
+            $('#telegram-token-value').removeAttr('required');
+            $('#telegram-chat-id-value').removeAttr('required');
+            $('#mattermost-webhook-value').attr('required', 'required');
+            $('#slack-webhook-value').removeAttr('required');
+        } else if (selectedValue === "slack") {
+            $('#form-telegram-1').hide();
+            $('#form-telegram-2').hide();
+            $('#form-mattermost').hide();
+            $('#form-slack').show();
+            $('#telegram-token-value').removeAttr('required');
+            $('#telegram-chat-id-value').removeAttr('required');
+            $('#mattermost-webhook-value').removeAttr('required');
+            $('#slack-webhook-value').attr('required', 'required');
         } else {
-            parentFieldset.find('.wizard-form-error').slideUp();
-        }
-
-        var geminiAppPath = jQuery('#geminiAppPath').val();
-        var regex = /^[0-9a-f]{40}\/gemini$/;
-
-        if (regex.test(geminiAppPath)) {
-            parentFieldset.find('.wizard-form-error').slideUp();
-        } else {
-            parentFieldset.find('.wizard-form-error').slideDown();
-            nextWizardStep = false;
-        }
-
-        var password = jQuery('#pwd').val();
-        var confirmPassword = jQuery('#cpwd').val();;
-        var passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/;
-
-        if (password != "") {
-            if (password === confirmPassword) {
-                if (passwordRegex.test(password)) {
-                    parentFieldset.find('.wizard-form-error').slideUp();
-                } else {
-                    parentFieldset.find('.wizard-form-error').slideDown();
-                    nextWizardStep = false;
-                }
-            } else {
-                parentFieldset.find('.wizard-form-error').slideDown();
-                nextWizardStep = false;
-            }
-        }
-
-        // Listen for radio button change event
-        $('input[name="radio-channel"]').change(function () {
-            var selectedValue = $(this).val();
-
-            // Check if the "telegram" option is selected
-            if (selectedValue === "telegram") {
-                $('#telegram-form-1').show(); // Show the form inputs
-                $('#telegram-form-2').show();
-            } else {
-                $('#telegram-form-1').hide(); // Hide the form inputs
-                $('#telegram-form-2').hide();
-            }
-        });
-
-        var channelValue = jQuery('input[name="radio-channel"]:checked').val();
-        console.log(channelValue);
-        if (channelValue === "telegram") {
-            var telegramToken = jQuery('#telegram_token').val();
-            var telegramChatId = jQuery('#telegram_chat_id').val();
-
-            if (telegramToken == "" || telegramChatId == "") {
-                jQuery(this).siblings(".wizard-form-error").slideDown();
-                nextWizardStep = false;
-            } else {
-                jQuery(this).siblings(".wizard-form-error").slideUp();
-            }
-        }
-
-        parentFieldset.find('.wizard-required').each(function () {
-            var thisValue = jQuery(this).val();
-
-            if (thisValue == "") {
-                jQuery(this).siblings(".wizard-form-error").slideDown();
-                nextWizardStep = false;
-            }
-            else {
-                jQuery(this).siblings(".wizard-form-error").slideUp();
-            }
-        });
-        if (nextWizardStep) {
-            next.parents('.wizard-fieldset').removeClass("show", "400");
-            currentActiveStep.removeClass('active').addClass('activated').next().addClass('active', "400");
-            next.parents('.wizard-fieldset').next('.wizard-fieldset').addClass("show", "400");
-            jQuery(document).find('.wizard-fieldset').each(function () {
-                if (jQuery(this).hasClass('show')) {
-                    var formAtrr = jQuery(this).attr('data-tab-content');
-                    jQuery(document).find('.form-wizard-steps .form-wizard-step-item').each(function () {
-                        if (jQuery(this).attr('data-attr') == formAtrr) {
-                            jQuery(this).addClass('active');
-                            var innerWidth = jQuery(this).innerWidth();
-                            var position = jQuery(this).position();
-                            jQuery(document).find('.form-wizard-step-move').css({ "left": position.left, "width": innerWidth });
-                        } else {
-                            jQuery(this).removeClass('active');
-                        }
-                    });
-                }
-            });
-        }
-    });
-    //click on previous button
-    jQuery('.form-wizard-previous-btn').click(function () {
-        var counter = parseInt(jQuery(".wizard-counter").text());;
-        var prev = jQuery(this);
-        var currentActiveStep = jQuery(this).parents('.form-wizard').find('.form-wizard-steps .active');
-        prev.parents('.wizard-fieldset').removeClass("show", "400");
-        prev.parents('.wizard-fieldset').prev('.wizard-fieldset').addClass("show", "400");
-        currentActiveStep.removeClass('active').prev().removeClass('activated').addClass('active', "400");
-        jQuery(document).find('.wizard-fieldset').each(function () {
-            if (jQuery(this).hasClass('show')) {
-                var formAtrr = jQuery(this).attr('data-tab-content');
-                jQuery(document).find('.form-wizard-steps .form-wizard-step-item').each(function () {
-                    if (jQuery(this).attr('data-attr') == formAtrr) {
-                        jQuery(this).addClass('active');
-                        var innerWidth = jQuery(this).innerWidth();
-                        var position = jQuery(this).position();
-                        jQuery(document).find('.form-wizard-step-move').css({ "left": position.left, "width": innerWidth });
-                    } else {
-                        jQuery(this).removeClass('active');
-                    }
-                });
-            }
-        });
-    });
-    //click on form submit button
-    jQuery(document).on("click", ".form-wizard .form-wizard-submit", function () {
-        var parentFieldset = jQuery(this).parents('.wizard-fieldset');
-        var currentActiveStep = jQuery(this).parents('.form-wizard').find('.form-wizard-steps .active');
-        parentFieldset.find('.wizard-required').each(function () {
-            var thisValue = jQuery(this).val();
-            if (thisValue == "") {
-                jQuery(this).siblings(".wizard-form-error").slideDown();
-            }
-            else {
-                console.log("Oki")
-                jQuery(this).siblings(".wizard-form-error").slideUp();
-            }
-        });
-    });
-    // focus on input field check empty or not
-    jQuery(".form-control").on('focus', function () {
-        var tmpThis = jQuery(this).val();
-        if (tmpThis == '') {
-            jQuery(this).parent().addClass("focus-input");
-        }
-        else if (tmpThis != '') {
-            jQuery(this).parent().addClass("focus-input");
-        }
-    }).on('blur', function () {
-        var tmpThis = jQuery(this).val();
-        if (tmpThis == '') {
-            jQuery(this).parent().removeClass("focus-input");
-            jQuery(this).siblings('.wizard-form-error').slideDown("3000");
-        }
-        else if (tmpThis != '') {
-            jQuery(this).parent().addClass("focus-input");
-            jQuery(this).siblings('.wizard-form-error').slideUp("3000");
+            $('#form-telegram-1').hide();
+            $('#form-telegram-2').hide();
+            $('#form-mattermost').hide();
+            $('#form-slack').hide();
+            $('#telegram-token-value').removeAttr('required');
+            $('#telegram-chat-id-value').removeAttr('required');
+            $('#mattermost-webhook-value').removeAttr('required');
+            $('#slack-webhook-value').removeAttr('required');
         }
     });
 
-    $("#predict-server").click(function (event) {
-        $("#loading-spinner").show();
+    // Listen btn check connection click
+    $("#g-wvd-check-connection").click(function (event) {
         // Get the input value
-        var serverValue = $("#predictServerValue").val();
-        var keyAuthValue = $("#keyAuthServerValue").val();
+        var gWVDServeValue = $("#g-wvd-serve-value").val();
+        var gServeKeyValue = $("#g-serve-key-value").val();
         // Make the POST request
         $.ajax({
-            url: serverValue + '/predict',
-            type: "POST",
+            url: gWVDServeValue + '/ping',
+            type: "GET",
             headers: {
-                "Authorization": keyAuthValue
+                "Authorization": gServeKeyValue
             },
             contentType: "application/json",
-            data: JSON.stringify({ ip: "0.0.0.0", data: "healthcheck" }),
-            success: function (response) {
+            success: function (response, textStatus, jqXHR) {
                 // Handle the success response
-                if (response.accuracy) {
+                if (jqXHR.status === 200) {
                     Toastify({
-                        text: "Connected to this predict server",
+                        text: "Connected to G-WVD serve",
                         duration: 3000,
                         gravity: "top", // `top` or `bottom`
                         position: "right", // `left`, `center` or `right`
@@ -209,7 +109,7 @@ jQuery(document).ready(function () {
                     }).showToast();
                 } else {
                     Toastify({
-                        text: "Cannot connect to this predict server",
+                        text: "Cannot connect to G-WVD serve",
                         duration: 3000,
                         gravity: "top", // `top` or `bottom`
                         position: "right", // `left`, `center` or `right`
@@ -220,10 +120,10 @@ jQuery(document).ready(function () {
                     }).showToast();
                 }
             },
-            error: function (error) {
+            error: function (jqXHR, textStatus, errorThrown) {
                 // Handle the error response
                 Toastify({
-                    text: "Cannot connect to this predict server",
+                    text: "Cannot connect to G-WVD serve",
                     duration: 3000,
                     gravity: "top", // `top` or `bottom`
                     position: "right", // `left`, `center` or `right`
@@ -234,9 +134,106 @@ jQuery(document).ready(function () {
                 }).showToast();
             },
             complete: function () {
-                // Hide the loading spinner when the request is complete
-                $("#loading-spinner").hide();
+                //
             }
         });
+    });
+
+    $('#install').submit(function (e) {
+        e.preventDefault();
+        $('#submit').prop('disabled', true);
+        let submit = false;
+        const formData = $(this).serializeArray().reduce(function (obj, item) {
+            obj[item.name] = item.value;
+            return obj;
+        }, {});
+
+        const dashboardPwdValue = formData['dashboard-pwd-value'];
+        const dashboardCpwdValue = formData['dashboard-cpwd-value'];
+
+        if (dashboardPwdValue === dashboardCpwdValue) {
+            if (passwordPattern.test(dashboardPwdValue)) {
+                submit = true;
+            } else {
+                Toastify({
+                    text: "Password dose not match policy",
+                    duration: 3000,
+                    gravity: "top", // `top` or `bottom`
+                    position: "right", // `left`, `center` or `right`
+                    stopOnFocus: true, // Prevents dismissing of toast on hover
+                    style: {
+                        background: "linear-gradient(to right, rgb(255, 95, 109), rgb(255, 195, 113))",
+                    },
+                }).showToast();
+            }
+        } else {
+            submit = false;
+            Toastify({
+                text: "Password and Confirm Password dose not same",
+                duration: 3000,
+                gravity: "top", // `top` or `bottom`
+                position: "right", // `left`, `center` or `right`
+                stopOnFocus: true, // Prevents dismissing of toast on hover
+                style: {
+                    background: "linear-gradient(to right, rgb(255, 95, 109), rgb(255, 195, 113))",
+                },
+            }).showToast();
+        }
+
+        if (submit) {
+            $.ajax({
+                type: "POST",
+                url: installEndpoint,
+                data: JSON.stringify(formData), // Convert the JSON object to a string
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (response, textStatus, jqXHR) {
+                    if (jqXHR.status === 200) {
+                        Toastify({
+                            text: "Install Gemini Self-Protector Successed",
+                            duration: 3000,
+                            gravity: "top", // `top` or `bottom`
+                            position: "right", // `left`, `center` or `right`
+                            stopOnFocus: true, // Prevents dismissing of toast on hover
+                            style: {
+                                background: "linear-gradient(to right, #00b09b, #96c93d)",
+                            },
+                        }).showToast();
+                        window.location.href = 'login';
+                    } else {
+                        Toastify({
+                            text: "Install Gemini Self-Protector Failed. Please check your log.",
+                            duration: 3000,
+                            gravity: "top", // `top` or `bottom`
+                            position: "right", // `left`, `center` or `right`
+                            stopOnFocus: true, // Prevents dismissing of toast on hover
+                            style: {
+                                background: "linear-gradient(to right, rgb(255, 95, 109), rgb(255, 195, 113))",
+                            },
+                        }).showToast();
+                    }
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    // Handle any errors here
+                    console.error("Error:", textStatus, errorThrown);
+                    $('#submit').removeAttr('disable', 'disable');
+                },
+                complete: function () {
+                    // Re-enable the button after the request is complete
+                    $('#submit').prop('disabled', false);
+                }
+            });
+        } else {
+            Toastify({
+                text: "Cannot submit this install form",
+                duration: 3000,
+                gravity: "top", // `top` or `bottom`
+                position: "right", // `left`, `center` or `right`
+                stopOnFocus: true, // Prevents dismissing of toast on hover
+                style: {
+                    background: "linear-gradient(to right, rgb(255, 95, 109), rgb(255, 195, 113))",
+                },
+            }).showToast();
+        }
     });
 });
