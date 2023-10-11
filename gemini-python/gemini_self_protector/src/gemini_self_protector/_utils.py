@@ -63,33 +63,52 @@ class _Utils(object):
                 except:
                     pass
 
-            # Use a regular expression to find all url end with .js
-            url_pattern = r'(?:https?://|//)[^\s/]+\.js'
-
-            matches = re.findall(url_pattern, string)
-
-            if matches:
-                for match in matches:
-                    # alert('noobpk') - 5dc6f09bb9f90381814ff9fcbfe0a685
-                    string = string.replace(
-                        match, ' 5dc6f09bb9f90381814ff9fcbfe0a685')
+            # Use this pattern for detect cross-site scripting
+            xss_patterns = [
+                r'(?:https?://|//)[^\s/]+\.js'
+                r"/((\%3C)|<)((\%2F)|\/)*[a-z0-9\%]+((\%3E)|>)/ix",
+                r"/((\%3C)|<)((\%69)|i|(\%49))((\%6D)|m|(\%4D))((\%67)|g|(\%47))[^\n]+((\%3E)|>)/I",
+                r"/((\%3C)|<)[^\n]+((\%3E)|>)/I"
+            ]
+            
+            for pattern in xss_patterns:
+                matches = re.findall(pattern, string, re.IGNORECASE | re.VERBOSE)
+                if matches:
+                    for match in matches:
+                        string = string.replace(match[0], '5dc6f09bb9f90381814ff9fcbfe0a685')
+                        break
 
             # Lowercase string
             string = string.lower()
 
-            # Use a regular expression to find all query
-            sql_pattern = [
-                r'(select.+)|(select.+(?:from|where|and).+)|(exec.+)'
-                r".*--$"
+            # Use this pattern for detect sql injection
+            sql_patterns = [
+                r"(?:select\s+.+\s+from\s+.+)",
+                r"(?:insert\s+.+\s+into\s+.+)",
+                r"(?:update\s+.+\s+set\s+.+)",
+                r"(?:delete\s+.+\s+from\s+.+)",
+                r"(?:drop\s+.+)",
+                r"(?:truncate\s+.+)",
+                r"(?:alter\s+.+)",
+                r"(?:exec\s+.+)",
+                r"(\s*(all|any|not|and|between|in|like|or|some|contains|containsall|containskey)\s+.+[\=\>\<=\!\~]+.+)",
+                r"(?:let\s+.+[\=]\s+.*)",
+                r"(?:begin\s*.+\s*end)",
+                r"(?:\s*[\/\*]+\s*.+\s*[\*\/]+)",
+                r"(?:\s*(\-\-)\s*.+\s+)",
+                r"(?:\s*(contains|containsall|containskey)\s+.+)",
+                r"\w*((\%27)|('))((\%6F)|o|(\%4F))((\%72)|r|(\%52))",
+                r"exec(\s|\+)+(s|x)p\w+"
             ]
 
-            for pattern in sql_pattern:
-                match = re.search(pattern, string, re.IGNORECASE)
-                if match is not None:
-                    # select * from noobpk; - 90e87fc8ba835e0d2bfeec5e3799ecfe
-                    string = string.replace(
-                        match[0], ' 90e87fc8ba835e0d2bfeec5e3799ecfe')
-                    break
+            for pattern in sql_patterns:
+                matches = re.findall(pattern, string, re.IGNORECASE | re.VERBOSE)
+                if matches:
+                    for match in matches:
+                        # select * from noobpk; - 90e87fc8ba835e0d2bfeec5e3799ecfe
+                        string = string.replace(
+                            match[0], ' 90e87fc8ba835e0d2bfeec5e3799ecfe')
+                        break
 
             string = string.encode('utf-7').decode()
 
