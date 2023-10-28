@@ -13,7 +13,6 @@ from ._logger import logger
 from datetime import datetime, timezone
 import socket
 
-
 class _Utils(object):
 
     def decoder(_string):
@@ -56,59 +55,38 @@ class _Utils(object):
                         try:
                             decoded_string = base64.b64decode(
                                 encoded_string).decode()
-                            string = string.replace(
-                                encoded_string, decoded_string)
+                            string = string.replace(encoded_string, decoded_string)
                         except:
                             pass
                 except:
                     pass
 
-            # Use this pattern for detect cross-site scripting
-            xss_patterns = [
-                r'(?:https?://|//)[^\s/]+\.js'
-                r"/((\%3C)|<)((\%2F)|\/)*[a-z0-9\%]+((\%3E)|>)/ix",
-                r"/((\%3C)|<)((\%69)|i|(\%49))((\%6D)|m|(\%4D))((\%67)|g|(\%47))[^\n]+((\%3E)|>)/I",
-                r"/((\%3C)|<)[^\n]+((\%3E)|>)/I"
-            ]
-            
-            for pattern in xss_patterns:
-                matches = re.findall(pattern, string, re.IGNORECASE | re.VERBOSE)
-                if matches:
-                    for match in matches:
-                        string = string.replace(match[0], '5dc6f09bb9f90381814ff9fcbfe0a685')
-                        break
+            # Use a regular expression to find all url end with .js
+            url_pattern = r'(?:https?://|//)[^\s/]+\.js'
+
+            matches = re.findall(url_pattern, string)
+
+            if matches:
+                for match in matches:
+                    # alert('noobpk') - 5dc6f09bb9f90381814ff9fcbfe0a685
+                    string = string.replace(
+                        match, ' 5dc6f09bb9f90381814ff9fcbfe0a685')
 
             # Lowercase string
             string = string.lower()
 
-            # Use this pattern for detect sql injection
-            sql_patterns = [
-                r"(?:select\s+.+\s+from\s+.+)",
-                r"(?:insert\s+.+\s+into\s+.+)",
-                r"(?:update\s+.+\s+set\s+.+)",
-                r"(?:delete\s+.+\s+from\s+.+)",
-                r"(?:drop\s+.+)",
-                r"(?:truncate\s+.+)",
-                r"(?:alter\s+.+)",
-                r"(?:exec\s+.+)",
-                r"(\s*(all|any|not|and|between|in|like|or|some|contains|containsall|containskey)\s+.+[\=\>\<=\!\~]+.+)",
-                r"(?:let\s+.+[\=]\s+.*)",
-                r"(?:begin\s*.+\s*end)",
-                r"(?:\s*[\/\*]+\s*.+\s*[\*\/]+)",
-                r"(?:\s*(\-\-)\s*.+\s+)",
-                r"(?:\s*(contains|containsall|containskey)\s+.+)",
-                r"\w*((\%27)|('))((\%6F)|o|(\%4F))((\%72)|r|(\%52))",
-                r"exec(\s|\+)+(s|x)p\w+"
+            # Use a regular expression to find all query
+            sql_pattern = [
+                r'(select.+)|(select.+(?:from|where|and).+)|(exec.+)'
+                r".*--$"
             ]
 
-            for pattern in sql_patterns:
-                matches = re.findall(pattern, string, re.IGNORECASE | re.VERBOSE)
-                if matches:
-                    for match in matches:
-                        # select * from noobpk; - 90e87fc8ba835e0d2bfeec5e3799ecfe
-                        string = string.replace(
-                            match[0], ' 90e87fc8ba835e0d2bfeec5e3799ecfe')
-                        break
+            for pattern in sql_pattern:
+                match = re.search(pattern, string, re.IGNORECASE)
+                if match is not None:
+                # select * from noobpk; - 90e87fc8ba835e0d2bfeec5e3799ecfe
+                    string = string.replace(match[0], ' 90e87fc8ba835e0d2bfeec5e3799ecfe')
+                    break
 
             string = string.encode('utf-7').decode()
 
@@ -134,12 +112,14 @@ class _Utils(object):
             headers = {"Content-Type": "application/json",
                        "Authorization": g_serve_key}
             client_ip = _Utils.flask_client_ip()
-            predict = requests.post(
+            response = requests.post(
                 f'{g_wvd_serve}/predict', json={"ip": client_ip, "data": _payload}, headers=headers)
-            if (predict):
-                response = predict.json()
-                accuracy = response.get('accuracy', 0)
-                return accuracy
+            data = response.json()
+
+            if response.status_code == 200 and 'threat_metrix' in data:
+                score = data['threat_metrix']['score']
+                hash = data['threat_metrix']['hash']
+                return {"Score": score, "Hash": hash}
             else:
                 logger.warning(
                     "[!] Cannot connect to predict server. Gemini-self protector cannot predict this request.")
@@ -175,7 +155,7 @@ class _Utils(object):
         except Exception as e:
             logger.error(
                 "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Utils.socket_local_ip', e))
-
+                
     def generate_event_id() -> None:
         """
         This function generates a random UUID and returns it
@@ -234,11 +214,12 @@ class _Utils(object):
                     client_ip = _Utils.socket_local_ip()
                 else:
                     client_ip = _Utils.flask_client_ip()
-                headers = {"Content-Type": "application/json",
-                           "Authorization": g_serve_key}
+                headers = {"Content-Type": "application/json", "Authorization": g_serve_key}
                 response = requests.post(
                     f'{g_wvd_serve}/predict', json={"ip": client_ip, "data": "healthcheck"}, headers=headers)
-                if response and response.status_code == 200:
+                data = response.json()
+                
+                if response and response.status_code == 200 and 'threat_metrix' in data:
                     return True
                 else:
                     return False
@@ -260,13 +241,11 @@ class _Utils(object):
 
             logger.info("[*] Try PingPong to predict serve")
             ping_header = {"Authorization": g_serve_key}
-            ping_response = requests.get(
-                f'{g_wvd_serve}/ping', headers=ping_header)
+            ping_response = requests.get(f'{g_wvd_serve}/ping', headers=ping_header)
             if ping_response.status_code == 200:
                 logger.info("[200] 200 OK")
                 logger.info("[*] Try predict")
-                predict_header = {
-                    "Content-Type": "application/json", "Authorization": g_serve_key}
+                predict_header = {"Content-Type": "application/json", "Authorization": g_serve_key}
                 preidct_response = requests.post(
                     f'{g_wvd_serve}/predict', json={"ip": client_ip, "data": "healthcheck"}, headers=predict_header)
                 if preidct_response.status_code == 200:
@@ -287,8 +266,7 @@ class _Utils(object):
         except Exception as e:
             logger.error(
                 "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Validator.diagnostic_predict_server', e))
-
-
+ 
 class _Validator(object):
 
     def validate_g_serve_key(_key) -> None:
@@ -301,7 +279,7 @@ class _Validator(object):
                 response = requests.post(
                     f'{g_wvd_serve}/predict', json={"ip": client_ip, "data": "healthcheck"}, headers=headers)
                 data = response.json()
-                if response.status_code == 200 and 'accuracy' in data:
+                if response.status_code == 200 and 'threat_metrix' in data:
                     _Config.update_tb_config({
                         'g_serve_key': _key,
                     })
@@ -470,7 +448,7 @@ class _Validator(object):
                     f'{_serve}/predict', json={"ip": client_ip, "data": "healthcheck"}, headers=headers)
                 data = response.json()
 
-                if response.status_code == 200 and 'accuracy' in data:
+                if response.status_code == 200 and 'threat_metrix' in data:
                     return True
                 else:
                     logger.error(

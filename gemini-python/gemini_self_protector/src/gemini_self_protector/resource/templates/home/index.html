@@ -135,7 +135,7 @@
                                                     <tr>
                                                         <th class="text-right"></th>
                                                         <th>EventID</th>
-                                                        <th>Predit</th>
+                                                        <th>Score</th>
                                                         <th>Time</th>
                                                         <th>Review</th>
                                                     </tr>
@@ -153,12 +153,12 @@
                                                             <p class="m-0">{{ row.attack_type }}</p>
                                                         </td>
                                                         <td>
-                                                            {%if row.predict %}
-                                                            <h6 id="tb_predict_value" class="text-muted">{{ row.predict
+                                                            {%if row.score %}
+                                                            <h6 id="tb_score_value" class="text-muted">{{ row.score
                                                                 | gemini_round_number
                                                                 }}</h6>
                                                             {%else%}
-                                                            <h6 id="tb_predict_value" class="text-muted">{{ row.predict
+                                                            <h6 id="tb_score_value" class="text-muted">{{ row.score
                                                                 }}</h6>
                                                             {%endif%}
                                                         </td>
@@ -174,7 +174,7 @@
                                                                 style="padding: 4px 10px; border-radius: 10px;"><i
                                                                     class="fa fa-crosshairs"
                                                                     style="margin-right: 0px;"></i></button>
-                                                            {%if row.predict %}
+                                                            {%if row.score %}
                                                             <button type="button" id="feedbackGoodBtn{{ row.event_id }}"
                                                                 class="btn btn-success feedbackGoodBtn"
                                                                 style="padding: 4px 10px; border-radius: 10px;" {%if
@@ -285,7 +285,7 @@
                                                     <div class="col">
                                                         <h3 class="f-w-300" id="event_id_value">eventid</h3>
                                                         <div class="col-auto">
-                                                            <label id="predict_value"
+                                                            <label id="score_value"
                                                                 class="label border theme-bg2 text-white f-14 f-w-400 float-right"></label>
                                                         </div>
                                                         <span class="d-block text-uppercase"
@@ -314,7 +314,7 @@
                                                     <dd class="col-sm-9" id="user_agent_value"></dd>
                                                     <dt class="col-sm-3">Reques Header</dt>
                                                     <dd class="col-sm-9" id="request_value"></dd>
-                                                    <dt class="col-sm-3">Request Body</dt>
+                                                    <dt class="col-sm-3">Request Arg/Body</dt>
                                                     <dd class="col-sm-9" id="req_body_value"></dd>
                                                     <dt class="col-sm-3">Response Header</dt>
                                                     <dd class="col-sm-9" id="response_value"></dd>
@@ -444,11 +444,11 @@
             var eventId = modalId.replace('showModalBtn', '');
             $("#" + eventId).closest("tr").removeClass().addClass("readed");
             var attackType = $(this).closest('tr').find('.m-0').text();
-            var predictValue = $(this).closest('tr').find('#tb_predict_value').text();
+            var scoreValue = $(this).closest('tr').find('#tb_score_value').text();
 
             $('#event_id_value').text(eventId);
             $('#attack_type_value').text(attackType);
-            $('#predict_value').text(predictValue);
+            $('#score_value').text(scoreValue);
 
             $('.datta-example-modal').addClass('datta-example-modal-opened');
             $('body').addClass('datta-example-modal-opened');

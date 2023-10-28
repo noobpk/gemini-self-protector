@@ -75,7 +75,7 @@ class tb_RequestLog(Base):
     res_content = Column(String)
     useragent = Column(String)
     attack_type = Column(String)
-    predict = Column(Float)
+    score = Column(Float)
     hash = Column(String)
     event_id = Column(String)
     latitude = Column(Float)

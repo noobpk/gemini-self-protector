@@ -33,7 +33,9 @@ class _Gemini_GUI(object):
             else:
                 logger.info(
                     "[+] No connection to G-WVD")
-
+        else:
+            logger.info(
+                    "Welcome to the Gemini self-protector. Visit the link below to install.")
         # @flask_app.before_request
         # def log_request_info():
         #     print("Request Headers:", request.headers)
@@ -615,7 +617,7 @@ class _Gemini_GUI(object):
 
                     record = _Gemini.get_gemini_detail_request_log(event_id)
                     if record:
-                        if record.predict is None:
+                        if record.score is None:
                             _Gemini.update_gemini_request_log(record.event_id)
                         return jsonify({
                             "status": True,
@@ -629,7 +631,7 @@ class _Gemini_GUI(object):
                             "response": record.response,
                             "res_content": str(record.res_content),
                             "attack_type": record.attack_type,
-                            "predict": record.predict,
+                            "score": record.score,
                             "hash": record.hash,
                             "latitude": record.latitude,
                             "longitude": record.longitude,

@@ -146,7 +146,7 @@ class _Config(object):
             logger.error(
                 "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Config.get_tb_request_log', e))
 
-    def store_tb_request_log(ipaddress, url, request, req_body, response, res_content, useragent, attack_type, predict, event_id, latitude, longitude):
+    def store_tb_request_log(ipaddress, url, request, req_body, response, res_content, useragent, attack_type, score, hash, event_id, latitude, longitude):
         try:
             session = _Config.get_session()
             new_record = tb_RequestLog(
@@ -158,7 +158,8 @@ class _Config(object):
                 res_content=res_content,
                 useragent=useragent,
                 attack_type=attack_type,
-                predict=predict,
+                score=score,
+                hash=hash,
                 event_id=event_id,
                 latitude=latitude,
                 longitude=longitude,

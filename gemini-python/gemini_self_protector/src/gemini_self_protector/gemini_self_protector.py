@@ -44,7 +44,7 @@ class GeminiManager(object):
                 mrpm = _Gemini.get_gemini_config().max_requests_per_minute
 
                 if int(is_install) == 0:
-                    response = make_response("Please setup gemini-self-protector.")
+                    response = make_response("<h5>Please setup gemini-self-protector.</h5>")
                     return response
                 
                 if int(is_enable_anti_dos):
@@ -55,7 +55,7 @@ class GeminiManager(object):
                         cache[request_key] = 1
                     elif request_count >= mrpm:
                         anti_dos = _Gemini.__load_mini_anti_dos__()
-                        response = make_response("Your IP Address was blocked by Gemini \n The Runtime Application Self-Protection Solution \n\n Time: {} \n Your IP : {} \n\n Event ID: {}".format(
+                        response = make_response("<h5>This request was blocked by Gemini</h5><h5>The Runtime Application Self-Protection Solution</h5><h5>Time: {} </h5><h5>Your IP : {} </h5><h5>Event ID: {} </h5>".format(
                             anti_dos["Time"], anti_dos["IP"], anti_dos["EventID"]), 200)
                         if not int(is_protect_response):
                             return response
@@ -72,7 +72,7 @@ class GeminiManager(object):
                     _Gemini.update_gemini_summary(
                         {'abnormal_request': abnormal_request+1})
                     _Gemini.store_gemini_request_log(ipaddress=_ticket["IP"], request=None, attack_type="ACL Block", predict=None, event_id=str(_ticket["EventID"]))
-                    response = make_response("Your IP Address was blocked by Gemini \n The Runtime Application Self-Protection Solution \n\n Time: {} \n Your IP : {} \n\n Event ID: {}".format(
+                    response = make_response("<h5>This request was blocked by Gemini</h5><h5>The Runtime Application Self-Protection Solution</h5><h5>Time: {} </h5><h5>Your IP : {} </h5><h5>Event ID: {} </h5>".format(
                         _ticket["Time"], _ticket["IP"], _ticket["EventID"]), 200)
                         
                     if not int(is_protect_response):
@@ -109,14 +109,14 @@ class GeminiManager(object):
                         current_time = protect_response["Ticket"]["Time"]
                         ip_address = protect_response["Ticket"]["IP"]
                         incedent_id = protect_response["Ticket"]["EventID"]
-                        response = make_response("This request was blocked by Gemini \n The Runtime Application Self-Protection Solution \n\n Time: {} \n Your IP : {} \n\n Event ID: {}".format(
+                        response = make_response("<h5>This request was blocked by Gemini</h5><h5>The Runtime Application Self-Protection Solution</h5><h5>Time: {} </h5><h5>Your IP : {} </h5><h5>Event ID: {} </h5>".format(
                             current_time, ip_address, incedent_id), 200)
                         response = _Gemini.make_secure_response_header(response)
                 else:
                     current_time = protect_request["Ticket"]["Time"]
                     ip_address = protect_request["Ticket"]["IP"]
                     incedent_id = protect_request["Ticket"]["EventID"]
-                    response = make_response("This request was blocked by Gemini \n The Runtime Application Self-Protection Solution \n\n Time: {} \n Your IP : {} \n\n Event ID: {}".format(
+                    response = make_response("<h5>This request was blocked by Gemini</h5><h5>The Runtime Application Self-Protection Solution</h5><h5>Time: {} </h5><h5>Your IP : {} </h5><h5>Event ID: {} </h5>".format(
                         current_time, ip_address, incedent_id), 200)
                     
                     if not int(is_protect_response):
