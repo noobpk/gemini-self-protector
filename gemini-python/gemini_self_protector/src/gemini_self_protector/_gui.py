@@ -289,7 +289,9 @@ class _Gemini_GUI(object):
                         'Unvalidated Redirects': 0,
                         'Large Requests': 0,
                         'HTTP Method Tampering': 0,
-                        'DOS': 0
+                        'DOS': 0,
+                        'Cross-Site Scripting': 0,
+                        'SQL Injection': 0
                     }
 
                     for log in request_log:

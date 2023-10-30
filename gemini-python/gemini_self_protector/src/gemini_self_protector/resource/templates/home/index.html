@@ -382,6 +382,14 @@
     {
         value: `{{ _gemini_attack_counts['DOS'] }}`,
         label: 'DOS/DDOS'
+    },
+    {
+        value: `{{ _gemini_attack_counts['Cross-Site Scripting'] }}`,
+        label: 'Cross-Site Scripting'
+    },
+    {
+        value: `{{ _gemini_attack_counts['SQL Injection'] }}`,
+        label: 'SQL Injection'
     }
         ],
     colors: [
@@ -392,6 +400,8 @@
         '#A389D4',
         '#fff26e',
         '#a67b5b',
+        '#8c4db7',
+        '#0a7e8c'
     ],
         resize: true,
             formatter: function (x) {
