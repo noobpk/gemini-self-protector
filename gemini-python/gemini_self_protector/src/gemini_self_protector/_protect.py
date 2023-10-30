@@ -224,20 +224,28 @@ class _Protect(object):
             if _gemini_protect_mode in ('monitor', 'protection'):
                 if _Protect.__handle_original_request__(request, request_header, request_body, init_ticket):
 
-                    payload = _Utils.decoder(_predict_request)
-
                     is_use_g_wvd_serve = _Config.get_tb_config().is_use_g_wvd_serve
                     
                     if int(is_use_g_wvd_serve) == 1:
-                        metrix = _Utils.g_wvd_serve_predict(payload)
+                        metrix = _Utils.g_wvd_serve_predict(_predict_request)
                     else:
-                        metrix = _Utils.g_rule_based_detection(_predict_request)
+                        metrix = _Utils.g_decoder_and_rule_based_detection(_predict_request)
 
                     if metrix['Score'] < sensitive_value:
                         status = True
                         _Protect.__handle_normal_request__(request)
                     else:
-                        _Protect.__handle_abnormal_request__(_request=request, _request_header=request_header, _request_body=request_body, _score=metrix['Score'], _hash=metrix['Hash'], _attack_type="Malicious Request", _ticket=init_ticket)
+                        attackt_type = None
+                        if metrix['UNKNOWN']:
+                            attackt_type = 'Malicious Request'
+                        elif metrix['XSS']:
+                            attackt_type = 'Cross-Site Scripting'
+                        elif metrix['SQLI']:
+                            attackt_type = 'SQL Injection'
+                        else:
+                            attackt_type = 'Malicious Request'
+
+                        _Protect.__handle_abnormal_request__(_request=request, _request_header=request_header, _request_body=request_body, _score=metrix['Score'], _hash=metrix['Hash'], _attack_type=attackt_type, _ticket=init_ticket)
                         if _gemini_protect_mode == 'monitor':
                             status = True
                         else:
