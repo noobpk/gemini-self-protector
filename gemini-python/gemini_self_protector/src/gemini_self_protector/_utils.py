@@ -138,7 +138,11 @@ class _Utils(object):
             if response.status_code == 200 and 'threat_metrix' in data:
                 score = data['threat_metrix']['score']
                 hash = data['threat_metrix']['hash']
-                return {"Score": score, "Hash": hash}
+                rbd_xss = data['threat_metrix']['rbd_xss']
+                rbd_sqli = data['threat_metrix']['rbd_sqli']
+                rbd_unknown = data['threat_metrix']['rbd_unknown']
+
+                return {"Score": score, "Hash": hash, "XSS": rbd_xss, "SQLI": rbd_sqli, "UNKNOWN": rbd_unknown}
             else:
                 logger.warning(
                     "[!] Cannot connect to predict server. Gemini-self protector cannot predict this request.")
@@ -290,7 +294,7 @@ class _Utils(object):
         try:
             rule_based_xss_found = False
             rule_based_sqli_found = False
-            metrix = {"Score": None, "Hash": None, "XSS": None, "SQLI": None}
+            metrix = {"Score": None, "Hash": None, "XSS": None, "SQLI": None, "UNKNOWN": None}
 
             """Decode a string using the specified encoding type."""
 
@@ -388,8 +392,10 @@ class _Utils(object):
             # Calculate metrix
             if rule_based_xss_found or rule_based_sqli_found:
                 metrix["Score"] = 99
+                metrix["UNKNOWN"] = False
             else:
                 metrix["Score"] = 0
+                metrix["UNKNOWN"] = True
 
             metrix["Hash"] = sha256(string).hexdigest()
             metrix["XSS"] = rule_based_xss_found
