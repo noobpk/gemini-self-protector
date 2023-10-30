@@ -6,12 +6,12 @@ import urllib.parse
 import requests
 import uuid
 import binascii
-import jwt
 from flask import request
 from ._config import _Config
 from ._logger import logger
 from datetime import datetime, timezone
 import socket
+from hashlib import sha256
 
 class _Utils(object):
 
@@ -20,8 +20,7 @@ class _Utils(object):
             """Decode a string using the specified encoding type."""
 
             # Remove the invalid escape sequences  - # Remove the backslash
-            string = _string.replace('\%', '%').replace(
-                '\\', '').replace('<br/>', '')
+            string = _string.replace('\%', '%').replace('\\', '').replace('<br/>', '')
 
             string = string.encode().decode('unicode_escape')
 
@@ -53,40 +52,60 @@ class _Utils(object):
                     if match:
                         encoded_string = match.group(2)
                         try:
-                            decoded_string = base64.b64decode(
-                                encoded_string).decode()
+                            decoded_string = base64.b64decode(encoded_string).decode()
                             string = string.replace(encoded_string, decoded_string)
                         except:
                             pass
                 except:
                     pass
 
-            # Use a regular expression to find all url end with .js
-            url_pattern = r'(?:https?://|//)[^\s/]+\.js'
-
-            matches = re.findall(url_pattern, string)
-
-            if matches:
-                for match in matches:
-                    # alert('noobpk') - 5dc6f09bb9f90381814ff9fcbfe0a685
-                    string = string.replace(
-                        match, ' 5dc6f09bb9f90381814ff9fcbfe0a685')
-
+            # Use this pattern for detect cross-site scripting
+            xss_patterns = [
+                r'(?:https?://|//)[^\s/]+\.js'
+                r"((\%3C)|<)((\%2F)|\/)*[a-z0-9\%]+((\%3E)|>)",
+                r"((\%3C)|<)((\%69)|i|(\%49))((\%6D)|m|(\%4D))((\%67)|g|(\%47))[^\n]+((\%3E)|>)",
+                r"((\%3C)|<)[^\n]+((\%3E)|>)"
+            ]
+            
+            for pattern in xss_patterns:
+                matches = re.findall(pattern, string, re.IGNORECASE | re.VERBOSE)
+                if matches:
+                    for match in matches:
+                        string = string.replace(match[0], '5dc6f09bb9f90381814ff9fcbfe0a685')
+                        break
+            
             # Lowercase string
             string = string.lower()
 
-            # Use a regular expression to find all query
-            sql_pattern = [
-                r'(select.+)|(select.+(?:from|where|and).+)|(exec.+)'
-                r".*--$"
+            # Use this pattern for detect sql injection
+            sql_patterns = [
+                r"(?:select\s+.+\s+from\s+.+)",
+                r"(?:insert\s+.+\s+into\s+.+)",
+                r"(?:update\s+.+\s+set\s+.+)",
+                r"(?:delete\s+.+\s+from\s+.+)",
+                r"(?:drop\s+.+)",
+                r"(?:truncate\s+.+)",
+                r"(?:alter\s+.+)",
+                r"(?:exec\s+.+)",
+                r"(\s*(all|any|not|and|between|in|like|or|some|contains|containsall|containskey)\s+.+[\=\>\<=\!\~]+.+)",
+                r"(?:let\s+.+[\=]\s+.*)",
+                r"(?:begin\s*.+\s*end)",
+                r"(?:\s*[\/\*]+\s*.+\s*[\*\/]+)",
+                r"(?:\s*(\-\-)\s*.+\s+)",
+                r"(?:\s*(contains|containsall|containskey)\s+.+)",
+                r"\w*((\%27)|('))((\%6F)|o|(\%4F))((\%72)|r|(\%52))",
+                r"exec(\s|\+)+(s|x)p\w+"
             ]
 
-            for pattern in sql_pattern:
-                match = re.search(pattern, string, re.IGNORECASE)
-                if match is not None:
-                # select * from noobpk; - 90e87fc8ba835e0d2bfeec5e3799ecfe
-                    string = string.replace(match[0], ' 90e87fc8ba835e0d2bfeec5e3799ecfe')
-                    break
+
+            for pattern in sql_patterns:
+                matches = re.findall(pattern, string, re.IGNORECASE | re.VERBOSE)
+                if matches:
+                    for match in matches:
+                        # select * from noobpk; - 90e87fc8ba835e0d2bfeec5e3799ecfe
+                        string = string.replace(
+                            match[0], ' 90e87fc8ba835e0d2bfeec5e3799ecfe')
+                        break
 
             string = string.encode('utf-7').decode()
 
@@ -266,7 +285,119 @@ class _Utils(object):
         except Exception as e:
             logger.error(
                 "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Validator.diagnostic_predict_server', e))
- 
+    
+    def g_rule_based_detection(_string):
+        try:
+            rule_based_xss_found = False
+            rule_based_sqli_found = False
+            metrix = {"Score": None, "Hash": None, "XSS": None, "SQLI": None}
+
+            """Decode a string using the specified encoding type."""
+
+            # Remove the invalid escape sequences  - # Remove the backslash
+            string = _string.replace('\%', '%').replace('\\', '').replace('<br/>', '')
+
+            string = string.encode().decode('unicode_escape')
+
+            string = urllib.parse.unquote(string)
+
+            string = html.unescape(string)
+
+            # Use a regular expression to find all base64-encoded segments in the string
+            base64_pattern = r'( |,|;)base64,([A-Za-z0-9+/]*={0,2})'
+
+            # Iterate over the matches and decode the base64-encoded data
+            match = re.search(base64_pattern, string)
+            if match:
+                encoded_string = match.group(2)
+
+                # Try first base64-decode
+                try:
+                    decoded_string = base64.b64decode(encoded_string).decode()
+                    string = string.replace(encoded_string, decoded_string)
+                except:
+                    pass
+
+                # Try second base64-decode
+                try:
+                    string = string.replace('\%', '%').replace(
+                        '\\', '').replace('<br/>', '').replace(' ', '')
+                    match = re.search(base64_pattern, string)
+
+                    if match:
+                        encoded_string = match.group(2)
+                        try:
+                            decoded_string = base64.b64decode(encoded_string).decode()
+                            string = string.replace(encoded_string, decoded_string)
+                        except:
+                            pass
+                except:
+                    pass
+
+            # Use this pattern for detect cross-site scripting
+            xss_patterns = [
+                r'(?:https?://|//)[^\s/]+\.js'
+                r"((\%3C)|<)((\%2F)|\/)*[a-z0-9\%]+((\%3E)|>)",
+                r"((\%3C)|<)((\%69)|i|(\%49))((\%6D)|m|(\%4D))((\%67)|g|(\%47))[^\n]+((\%3E)|>)",
+                r"((\%3C)|<)[^\n]+((\%3E)|>)"
+            ]
+            
+            for pattern in xss_patterns:
+                matches = re.findall(pattern, string, re.IGNORECASE | re.VERBOSE)
+                if matches:
+                    for match in matches:
+                        string = string.replace(match[0], '5dc6f09bb9f90381814ff9fcbfe0a685')
+                        rule_based_xss_found = True
+                        break
+            
+            # Lowercase string
+            string = string.lower()
+
+            # Use this pattern for detect sql injection
+            sql_patterns = [
+                r"(?:select\s+.+\s+from\s+.+)",
+                r"(?:insert\s+.+\s+into\s+.+)",
+                r"(?:update\s+.+\s+set\s+.+)",
+                r"(?:delete\s+.+\s+from\s+.+)",
+                r"(?:drop\s+.+)",
+                r"(?:truncate\s+.+)",
+                r"(?:alter\s+.+)",
+                r"(?:exec\s+.+)",
+                r"(\s*(all|any|not|and|between|in|like|or|some|contains|containsall|containskey)\s+.+[\=\>\<=\!\~]+.+)",
+                r"(?:let\s+.+[\=]\s+.*)",
+                r"(?:begin\s*.+\s*end)",
+                r"(?:\s*[\/\*]+\s*.+\s*[\*\/]+)",
+                r"(?:\s*(\-\-)\s*.+\s+)",
+                r"(?:\s*(contains|containsall|containskey)\s+.+)",
+                r"\w*((\%27)|('))((\%6F)|o|(\%4F))((\%72)|r|(\%52))",
+                r"exec(\s|\+)+(s|x)p\w+"
+            ]
+
+
+            for pattern in sql_patterns:
+                matches = re.findall(pattern, string, re.IGNORECASE | re.VERBOSE)
+                if matches:
+                    for match in matches:
+                        # select * from noobpk; - 90e87fc8ba835e0d2bfeec5e3799ecfe
+                        string = string.replace(
+                            match[0], ' 90e87fc8ba835e0d2bfeec5e3799ecfe')
+                        rule_based_sqli_found = True
+                        break
+            
+            string = string.encode('utf-8')
+            # Calculate metrix
+            if rule_based_xss_found or rule_based_sqli_found:
+                metrix["Score"] = 99
+            else:
+                metrix["Score"] = 0
+
+            metrix["Hash"] = sha256(string).hexdigest()
+            metrix["XSS"] = rule_based_xss_found
+            metrix["SQLI"] = rule_based_sqli_found
+            return metrix
+        except Exception as e:
+            logger.error(
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Utils.g_rule_base_detection', e))
 class _Validator(object):
 
     def validate_g_serve_key(_key) -> None:
