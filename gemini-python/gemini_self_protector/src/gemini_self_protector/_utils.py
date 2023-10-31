@@ -12,6 +12,7 @@ from ._logger import logger
 from datetime import datetime, timezone
 import socket
 from hashlib import sha256
+from requests.exceptions import ConnectionError
 
 class _Utils(object):
 
@@ -40,15 +41,18 @@ class _Utils(object):
                 rbd_sqli = data['threat_metrix']['rbd_sqli']
                 rbd_unknown = data['threat_metrix']['rbd_unknown']
 
-                return {"Score": score, "Hash": hash, "XSS": rbd_xss, "SQLI": rbd_sqli, "UNKNOWN": rbd_unknown}
+                return {"Status_code": 200, "Score": score, "Hash": hash, "XSS": rbd_xss, "SQLI": rbd_sqli, "UNKNOWN": rbd_unknown}
             else:
                 logger.warning(
                     "[!] Cannot connect to predict server. Gemini-self protector cannot predict this request.")
-                return 0
+                return {"Status_code": 000, "Score": 0, "Hash": None, "XSS": None, "SQLI": None, "UNKNOWN": None}
+        except ConnectionError:
+            logger.error("[x_x] Connection refused - Cannot connect to G-WVD")
+            return {"Status_code": 000, "Score": 0, "Hash": None, "XSS": None, "SQLI": None, "UNKNOWN": None}
         except requests.exceptions.RequestException as e:
             logger.warning(
                 "[!] Cannot connect to predict server. Gemini-self protector cannot predict this request.")
-            return 0
+            return {"Status_code": 000, "Score": 0, "Hash": None, "XSS": None, "SQLI": None, "UNKNOWN": None}
         except Exception as e:
             logger.error(
                 "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Utils.g_wvd_serve_predict', e))
@@ -145,6 +149,8 @@ class _Utils(object):
                 else:
                     return False
             return False
+        except ConnectionError:
+            logger.error("[x_x] Connection refused - Cannot connect to G-WVD")
         except Exception as e:
             logger.error(
                 "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Validator.g_wvd_serve_health', e))
@@ -153,12 +159,7 @@ class _Utils(object):
         try:
             g_wvd_serve = _Config.get_tb_config().g_wvd_serve
             g_serve_key = _Config.get_tb_config().g_serve_key
-            running_mode = _Config.get_tb_config().running_mode
-            client_ip = None
-            if running_mode == 'CLI':
-                client_ip = _Utils.socket_local_ip()
-            else:
-                client_ip = _Utils.flask_client_ip()
+            client_ip = _Utils.socket_local_ip()
 
             logger.info("[*] Try PingPong to predict serve")
             ping_header = {"Authorization": g_serve_key}
@@ -184,6 +185,8 @@ class _Utils(object):
             elif ping_response.status_code == 500:
                 logger.error("[500] INTERNAL SERVER ERROR")
                 return 500
+        except ConnectionError:
+            logger.error("[x_x] Connection refused - Cannot connect to G-WVD")
         except Exception as e:
             logger.error(
                 "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Validator.diagnostic_predict_server', e))
@@ -324,6 +327,8 @@ class _Validator(object):
                     return False
             else:
                 return False
+        except ConnectionError:
+            logger.error("[x_x] Connection refused - Cannot connect to G-WVD")
         except Exception as e:
             logger.error(
                 "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Validator.validate_key_auth', e))
@@ -492,6 +497,8 @@ class _Validator(object):
                     return False
             else:
                 return False
+        except ConnectionError:
+            logger.error("[x_x] Connection refused - Cannot connect to G-WVD")
         except Exception as e:
             logger.error(
                 "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Validator.validate_predict_server', e))

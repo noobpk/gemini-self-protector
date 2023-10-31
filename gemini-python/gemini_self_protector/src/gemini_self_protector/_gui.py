@@ -13,7 +13,6 @@ from tqdm import tqdm
 import urllib.parse
 import sys
 
-
 class _Gemini_GUI(object):
 
     def __init__(self, flask_app: Flask) -> None:
@@ -806,7 +805,7 @@ class _Gemini_GUI(object):
                     "[+] Connected to G-WVD")
             else:
                 logger.error(
-                    "[x] Cannot connected to G-WVD")
+                    "[x_x] Cannot connect to G-WVD")
                 while True:
                     try:
                         diagnostic = input(
@@ -819,6 +818,7 @@ class _Gemini_GUI(object):
                         break
                 if diagnostic == 'y' or diagnostic == 'Y':
                     code = _Gemini.g_serve_diagnostic()
+                    print("CODE", code)
                     if code == 200:
                         logger.info(
                             "[+] Connected to G-WVD")
@@ -834,6 +834,18 @@ class _Gemini_GUI(object):
                         logger.info(
                             "[!] Please check error log on G-WVD")
                         sys.exit()
+                    else:
+                        while True:
+                            try:
+                                answer = input("[?] Do you want continue without G-WVD (y/N): ") or "y"
+                            except Exception as e:
+                                logger.error(
+                                    "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini_GUI.handler_g_wvd_serve_health', e))  
+                                continue 
+                            else:
+                                break
+                        if answer == 'N' or answer == 'n':
+                            sys.exit()
                 else:
                     while True:
                         try:
@@ -845,10 +857,8 @@ class _Gemini_GUI(object):
                             continue
                         else:
                             break
-
                     if answer == 'N' or answer == 'n':
                         sys.exit()
-
         except Exception as e:
             logger.error(
                 "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini_GUI.handler_g_wvd_serve_health', e))

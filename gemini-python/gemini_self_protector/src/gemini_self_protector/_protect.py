@@ -228,6 +228,11 @@ class _Protect(object):
                     
                     if int(is_use_g_wvd_serve) == 1:
                         metrix = _Utils.g_wvd_serve_predict(_predict_request)
+                        if metrix['Status_code'] == 200:
+                            pass
+                        else:
+                            logger.info("[+] Try using Rule-Based")
+                            metrix = _Utils.g_decoder_and_rule_based_detection(_predict_request)
                     else:
                         metrix = _Utils.g_decoder_and_rule_based_detection(_predict_request)
 
