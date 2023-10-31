@@ -57,6 +57,8 @@ class GeminiManager(object):
                         anti_dos = _Gemini.__load_mini_anti_dos__()
                         response = make_response("<h5>This request was blocked by Gemini</h5><h5>The Runtime Application Self-Protection Solution</h5><h5>Time: {} </h5><h5>Your IP : {} </h5><h5>Event ID: {} </h5>".format(
                             anti_dos["Time"], anti_dos["IP"], anti_dos["EventID"]), 200)
+                        logger.warning("[+] Gemini Alert: DDOS detection - IP: {}. Event ID: {}".format(
+                            anti_dos["IP"], anti_dos["EventID"]))
                         if not int(is_protect_response):
                             return response
                     
@@ -74,7 +76,8 @@ class GeminiManager(object):
                     _Gemini.store_gemini_request_log(ipaddress=_ticket["IP"], request=None, attack_type="ACL Block", predict=None, event_id=str(_ticket["EventID"]))
                     response = make_response("<h5>This request was blocked by Gemini</h5><h5>The Runtime Application Self-Protection Solution</h5><h5>Time: {} </h5><h5>Your IP : {} </h5><h5>Event ID: {} </h5>".format(
                         _ticket["Time"], _ticket["IP"], _ticket["EventID"]), 200)
-                        
+                    logger.warning("[+] Gemini Alert: ACL Block - IP: {}. Event ID: {}".format(
+                            _ticket["IP"], _ticket["EventID"]))    
                     if not int(is_protect_response):
                         return response
                     

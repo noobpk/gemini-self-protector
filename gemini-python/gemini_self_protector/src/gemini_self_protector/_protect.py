@@ -91,12 +91,13 @@ class _Protect(object):
             res_content = None
             user_agent = _agent
             attack_type= "DOS"
-            predict = None
+            score = None
+            hash = None
             event_id=str(_ticket["EventID"])
             latitude = _ticket["Latitude"]
             longitude = _ticket["Longitude"]
 
-            _Config.store_tb_request_log(ipaddress=ip, url=url, request=req, req_body=req_body, response=resp, res_content=res_content, useragent=user_agent, attack_type=attack_type, predict=predict, event_id=event_id, latitude=latitude, longitude=longitude)
+            _Config.store_tb_request_log(ipaddress=ip, url=url, request=req, req_body=req_body, response=resp, res_content=res_content, useragent=user_agent, attack_type=attack_type, score=score, hash=hash, event_id=event_id, latitude=latitude, longitude=longitude)
             return _ticket
         except Exception as e:
             logger.error(
