@@ -1,5 +1,15 @@
-from sqlalchemy import Column, Integer, String, Float, DateTime, JSON, Boolean, func
-from sqlalchemy.orm import declarative_base
+from sqlalchemy import (
+    Column,
+    Integer,
+    String,
+    Float,
+    DateTime,
+    JSON,
+    Boolean,
+    func,
+    ForeignKey,
+)
+from sqlalchemy.orm import declarative_base, relationship
 
 Base = declarative_base()
 
@@ -7,7 +17,7 @@ Base = declarative_base()
 
 
 class tb_User(Base):
-    __tablename__ = 'users'
+    __tablename__ = "users"
 
     id = Column(Integer, primary_key=True)
     username = Column(String)
@@ -15,7 +25,7 @@ class tb_User(Base):
 
 
 class tb_Config(Base):
-    __tablename__ = 'configs'
+    __tablename__ = "configs"
 
     id = Column(Integer, primary_key=True)
     is_use_g_wvd_serve = Column(Integer)
@@ -50,7 +60,7 @@ class tb_Config(Base):
 
 
 class tb_Summary(Base):
-    __tablename__ = 'summaries'
+    __tablename__ = "summaries"
 
     id = Column(Integer, primary_key=True)
     abnormal_request = Column(Integer)
@@ -62,8 +72,25 @@ class tb_Summary(Base):
     updated_at = Column(DateTime, default=func.now(), onupdate=func.now())
 
 
+class tb_BehaviorLog(Base):
+    __tablename__ = "behaviorlogs"
+
+    id = Column(Integer, primary_key=True)
+    ipaddress = Column(String)
+    end_user_session = Column(String)
+    endpoint = Column(String)
+    method = Column(String)
+    status_code = Column(String)
+    request_time = Column(Float)
+    response_time = Column(Float)
+    size = Column(Integer)
+    performance = Column(String)
+    created_at = Column(DateTime, default=func.now())
+    updated_at = Column(DateTime, default=func.now(), onupdate=func.now())
+
+
 class tb_RequestLog(Base):
-    __tablename__ = 'requestlogs'
+    __tablename__ = "requestlogs"
 
     id = Column(Integer, primary_key=True)
     time = Column(DateTime, default=func.now())
@@ -85,9 +112,13 @@ class tb_RequestLog(Base):
     created_at = Column(DateTime, default=func.now())
     updated_at = Column(DateTime, default=func.now(), onupdate=func.now())
 
+    # Define a foreign key relationship to tb_BehaviorLog
+    behavior_log_id = Column(Integer, ForeignKey("behaviorlogs.id"))
+    behavior_log = relationship("tb_BehaviorLog")
+
 
 class tb_AccessControlList(Base):
-    __tablename__ = 'acls'
+    __tablename__ = "acls"
 
     id = Column(Integer, primary_key=True)
     ipaddress = Column(String, unique=True)
@@ -98,7 +129,7 @@ class tb_AccessControlList(Base):
 
 
 class tb_Dependency(Base):
-    __tablename__ = 'dependencies'
+    __tablename__ = "dependencies"
 
     id = Column(Integer, primary_key=True)
     package = Column(String)
@@ -110,7 +141,7 @@ class tb_Dependency(Base):
 
 
 class tb_Feedback(Base):
-    __tablename__ = 'feedbacks'
+    __tablename__ = "feedbacks"
 
     id = Column(Integer, primary_key=True)
     sentence = Column(String)

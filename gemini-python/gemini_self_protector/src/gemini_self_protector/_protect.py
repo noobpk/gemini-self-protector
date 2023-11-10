@@ -131,7 +131,9 @@ class _Protect(object):
             req_length = 0
             if 'Content-Length' in _request.headers:
                 req_length = _request.headers["Content-Length"]
-
+            else:
+                req_length = _request.content_length
+                
             if _request.method and _request.method in http_method_allow:
                 if int(req_length) < max_content_length:
                     return True
