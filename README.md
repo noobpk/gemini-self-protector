@@ -41,7 +41,7 @@ The architecture of gemini-self-protector is composed of seven layers however it
 
 Gemini uses a deep learning model that combines Convolutional Neural Network (CNN) and a family of Recurrent neural network (RNN) techniques to detect and identify vulnerabilities.
 
-For more details: [gemini-web-vulnerability-detection](https://github.com/noobpk/gemini-web-vulnerability-detection)
+For more details: [G-WVD-DL](https://github.com/noobpk/gemini-web-vulnerability-detection/blob/main/DEEPLEARNING.md)
 
 ## More About Gemini-Self-Protector
 
@@ -68,7 +68,7 @@ Gemini supports 3 modes and recommends sensitivity levels for the application to
 
 
 ## Implement G-WVD Serve
-💪 You can implement your own G-WVD serve extremely simply and quickly. Details at [gemini-predict-serve (G-WVD)](https://github.com/noobpk/gemini-predict-serve)
+💪 You can implement your own G-WVD serve extremely simply and quickly. Details at [gemini-web-vulnerability-detection (G-WVD)](https://github.com/noobpk/gemini-web-vulnerability-detection)
 
 ## Demo
 
