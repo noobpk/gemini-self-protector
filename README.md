@@ -41,7 +41,7 @@ The architecture of gemini-self-protector is composed of seven layers however it
 
 Gemini uses a deep learning model that combines Convolutional Neural Network (CNN) and a family of Recurrent neural network (RNN) techniques to detect and identify vulnerabilities.
 
-For more details: [Gemini-Web-Vuln-Detection](https://github.com/noobpk/Gemini-Web-Vuln-Detection)
+For more details: [gemini-web-vulnerability-detection](https://github.com/noobpk/gemini-web-vulnerability-detection)
 
 ## More About Gemini-Self-Protector
 
