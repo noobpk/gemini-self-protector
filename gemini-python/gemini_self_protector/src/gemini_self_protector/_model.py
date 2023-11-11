@@ -77,7 +77,7 @@ class tb_BehaviorLog(Base):
 
     id = Column(Integer, primary_key=True)
     ipaddress = Column(String)
-    end_user_session = Column(String)
+    g_session = Column(String)
     endpoint = Column(String)
     method = Column(String)
     status_code = Column(String)

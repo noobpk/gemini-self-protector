@@ -486,7 +486,7 @@ class _Gemini_GUI(object):
                             ip = ipaddress.ip_address(ip_address)
                             if ip:
                                 _Gemini.store_gemini_acl(
-                                    ipaddress=ip_address, isallow=access_type, desciption=description)
+                                    _ipaddress=ip_address, _isallow=access_type, _desciption=description)
                                 flash('ACL add successful', 'acl_success')
                             else:
                                 flash('ACL add failed', 'acl_fail')

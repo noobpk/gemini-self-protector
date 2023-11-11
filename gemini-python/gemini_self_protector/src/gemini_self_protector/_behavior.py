@@ -14,10 +14,10 @@ class _Behavior(object):
 
     def end_user(action) -> None:
         end_user_ip = _Utils.flask_client_ip()
-        end_user_session = session.get("gemini_session")
+        g_session = session.get("gemini_session")
         method = request.method
         size = request.content_length
         id_behavior = _Gemini.store_gemini_behavior_log(
-            end_user_ip, end_user_session, action, method, None, None, None, size, None
+            end_user_ip, g_session, action, method, None, None, None, size, None
         )
         return id_behavior

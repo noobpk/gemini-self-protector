@@ -192,7 +192,7 @@ class _Config(object):
 
     def store_tb_behavior_log(
         ipaddress,
-        end_user_session,
+        g_session,
         endpoint,
         method,
         status_code,
@@ -205,7 +205,7 @@ class _Config(object):
             session = _Config.get_session()
             new_record = tb_BehaviorLog(
                 ipaddress=ipaddress,
-                end_user_session=end_user_session,
+                g_session=g_session,
                 endpoint=endpoint,
                 method=method,
                 status_code=status_code,
@@ -226,11 +226,29 @@ class _Config(object):
                 )
             )
 
+    def update_record_behavior_log(_behavior_id, _status_code):
+        try:
+            session = _Config.get_session()
+            behavior_log_record = (
+                session.query(tb_BehaviorLog).filter_by(id=_behavior_id).first()
+            )
+            if behavior_log_record:
+                behavior_log_record.status_code = _status_code
+                session.commit()
+                session.close()
+        except Exception as e:
+            logger.error(
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format(
+                    "_Config.update_record_request_log", e
+                )
+            )
+
     def get_tb_request_log() -> None:
         try:
             session = _Config.get_session()
             analysis = _Config.get_model_instance_all(session, tb_RequestLog)
-            return analysis
+            filtered_analysis = [item for item in analysis if item.event_id is not None]
+            return filtered_analysis
         except Exception as e:
             logger.error(
                 "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format(
@@ -240,6 +258,7 @@ class _Config(object):
 
     def store_tb_request_log(
         ipaddress,
+        behavior_log_id,
         url,
         request,
         req_body,
@@ -257,6 +276,7 @@ class _Config(object):
             session = _Config.get_session()
             new_record = tb_RequestLog(
                 ipaddress=ipaddress,
+                behavior_log_id=behavior_log_id,
                 url=url,
                 request=request,
                 req_body=req_body,

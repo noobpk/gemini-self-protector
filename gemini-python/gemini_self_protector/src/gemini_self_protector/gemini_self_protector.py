@@ -132,17 +132,19 @@ class GeminiManager(object):
                 )
 
                 protect_request = _Gemini.__load_protect_flask_request__(
-                    gemini_protect_mode
+                    gemini_protect_mode, id_behavior
                 )
 
                 if protect_request["Status"]:
                     response = make_response(f(*args, **kwargs))
 
+                    _Gemini.update_gemini_behavior_log(id_behavior, response.status_code)
+                    
                     if not int(is_protect_response):
                         return response
 
                     protect_response = _Gemini.__load_protect_flask_response__(
-                        response, gemini_protect_mode
+                        response, gemini_protect_mode, id_behavior
                     )
 
                     if protect_response["Status"] and int(is_protect_response):

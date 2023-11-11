@@ -127,6 +127,16 @@ class _Gemini(object):
                 )
             )
 
+    def update_gemini_behavior_log(_behavior_id, _status_code):
+        try:
+            _Config.update_record_behavior_log(_behavior_id, _status_code)
+        except Exception as e:
+            logger.error(
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format(
+                    "_Gemini.update_gemini_behavior_log", e
+                )
+            )
+
     def get_gemini_request_log() -> None:
         try:
             _gemini_return = _Config.get_tb_request_log()
@@ -496,15 +506,26 @@ class _Gemini(object):
                 )
             )
 
-    def __load_protect_flask_request__(_gemini_protect_mode) -> None:
+    def __load_protect_flask_request__(
+        _gemini_protect_mode, _gemini_behavior_id
+    ) -> None:
         """
-        This function is used to load the flask protect mode
+        The function __load_protect_flask_request__ loads and protects a Flask request using the
+        _Protect class.
 
-        :param gemini_protect_mode: This is the mode that you want to use to protect your flask app
-        :return: The function _Protect.protect_flask(gemini_protect_mode)
+        :param _gemini_protect_mode: The parameter "_gemini_protect_mode" is used to specify the
+        protection mode for the Flask request. It determines the level of protection applied to the
+        request
+        :param _gemini_behavior_id: The `_gemini_behavior_id` parameter is an identifier for a specific
+        behavior in the Gemini system. It is used to determine the behavior that should be applied to
+        the Flask request
+        :return: the result of calling the `_Protect.__protect_flask_request__` method with the
+        `_gemini_protect_mode` and `_gemini_behavior_id` arguments.
         """
         try:
-            return _Protect.__protect_flask_request__(_gemini_protect_mode)
+            return _Protect.__protect_flask_request__(
+                _gemini_protect_mode, _gemini_behavior_id
+            )
         except Exception as e:
             logger.error(
                 "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format(
@@ -513,19 +534,31 @@ class _Gemini(object):
             )
 
     def __load_protect_flask_response__(
-        _original_response, _gemini_protect_mode
+        _original_response, _gemini_protect_mode, _gemini_behavior_id
     ) -> None:
         """
-        This function is used to protect the flask response
+        The function __load_protect_flask_response__ is responsible for loading and protecting a Flask
+        response using the Gemini library.
 
-        :param original_response: The original response from the Flask app
-        :param gemini_protect_mode: This is the mode that you want to use to protect your application
-        :return: the result of the function call to __protect_flask_response__.
+        :param _original_response: The `_original_response` parameter is the original response object
+        that is returned by the Flask application. It contains the response data, headers, and status
+        code
+        :param _gemini_protect_mode: The parameter `_gemini_protect_mode` is used to specify the protect
+        mode for the Gemini protection feature. It determines how the response should be protected. The
+        value of this parameter can be one of the following:
+        :param _gemini_behavior_id: The `_gemini_behavior_id` parameter is an identifier for the
+        behavior being executed in the Gemini system. It is used to track and manage the behavior's
+        execution and results
+        :return: the result of calling the `_Protect.__protect_flask_response__()` function with the
+        provided arguments.
         """
         try:
             safe_redirect = _Gemini.get_gemini_config().safe_redirect
             return _Protect.__protect_flask_response__(
-                safe_redirect, _original_response, _gemini_protect_mode
+                safe_redirect,
+                _original_response,
+                _gemini_protect_mode,
+                _gemini_behavior_id,
             )
         except Exception as e:
             logger.error(
