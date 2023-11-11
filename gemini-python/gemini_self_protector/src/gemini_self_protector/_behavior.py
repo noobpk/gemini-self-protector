@@ -9,15 +9,15 @@ class _Behavior(object):
         if "gemini_session" not in session:
             client_ip = _Utils.flask_client_ip()
             session["gemini_session"] = hash(client_ip + request.user_agent.string)
-        id_behavior = _Behavior.end_user(request.endpoint)
-        return id_behavior
+        behavior_id = _Behavior.end_user(request.endpoint)
+        return behavior_id
 
     def end_user(action) -> None:
         end_user_ip = _Utils.flask_client_ip()
         g_session = session.get("gemini_session")
         method = request.method
         size = request.content_length
-        id_behavior = _Gemini.store_gemini_behavior_log(
+        behavior_id = _Gemini.store_gemini_behavior_log(
             end_user_ip, g_session, action, method, None, None, None, size, None
         )
-        return id_behavior
+        return behavior_id

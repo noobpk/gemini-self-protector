@@ -116,7 +116,7 @@ class GeminiManager(object):
                     return response
 
                 # Analysis Behavior
-                id_behavior = _Behavior.init_behavior()
+                behavior_id = _Behavior.init_behavior()
 
                 current_protect_mode = (
                     protect_mode if protect_mode is not None else global_protect_mode
@@ -132,19 +132,19 @@ class GeminiManager(object):
                 )
 
                 protect_request = _Gemini.__load_protect_flask_request__(
-                    gemini_protect_mode, id_behavior
+                    gemini_protect_mode, behavior_id
                 )
 
                 if protect_request["Status"]:
                     response = make_response(f(*args, **kwargs))
 
-                    _Gemini.update_gemini_behavior_log(id_behavior, response.status_code)
-                    
+                    _Gemini.update_gemini_behavior_log(behavior_id, response.status_code)
+
                     if not int(is_protect_response):
                         return response
 
                     protect_response = _Gemini.__load_protect_flask_response__(
-                        response, gemini_protect_mode, id_behavior
+                        response, gemini_protect_mode, behavior_id
                     )
 
                     if protect_response["Status"] and int(is_protect_response):
