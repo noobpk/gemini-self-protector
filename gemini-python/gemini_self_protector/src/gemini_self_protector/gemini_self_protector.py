@@ -8,6 +8,7 @@ from flask import Flask, make_response
 from ._logger import logger
 from datetime import datetime, timezone
 from cachetools import TTLCache
+import time
 
 cache = TTLCache(maxsize=1000, ttl=60)  # Max size of 1000 and TTL of 60 seconds
 
@@ -35,6 +36,8 @@ class GeminiManager(object):
         def _gemini_self_protect(f):
             @wraps(f)
             def __gemini_self_protect(*args, **kwargs):
+                start_time = time.time()
+
                 _Gemini.calulate_total_access()
                 is_install = _Gemini.get_gemini_config().is_install
                 _ip_address = _Gemini.get_flask_client_ip()
@@ -43,18 +46,25 @@ class GeminiManager(object):
                 is_protect_response = _Gemini.get_gemini_config().protect_response
                 mrpm = _Gemini.get_gemini_config().max_requests_per_minute
 
+                # This code block checks if the `is_install` variable is equal to 0. If it is, it
+                # means that the Gemini self-protector is not installed or set up properly. In this
+                # case, it creates a response with a message asking the user to set up the Gemini
+                # self-protector and returns the response.
                 if int(is_install) == 0:
                     response = make_response(
                         "<h5>Please setup gemini-self-protector.</h5>"
                     )
                     return response
 
+                # This code block is responsible for implementing anti-DDoS (Distributed Denial of
+                # Service) protection in the GeminiManager class.
                 if int(is_enable_anti_dos):
                     request_key = (
                         f"{_ip_address}_{datetime.now().strftime('%Y-%m-%d %H:%M')}"
                     )
 
                     request_count = cache.get(request_key)
+
                     if request_count is None:
                         cache[request_key] = 1
                     elif request_count >= mrpm:
@@ -79,6 +89,8 @@ class GeminiManager(object):
                     else:
                         cache[request_key] += 1
 
+                # This code block is responsible for implementing Access Control List (ACL) blocking
+                # in the GeminiManager class.
                 if int(is_enable_acl) and _Gemini.check_gemini_acl(_ip_address):
                     _ticket = _Gemini.generate_insident_ticket()
                     abnormal_request = _Gemini.get_gemini_summary().abnormal_request
@@ -111,11 +123,21 @@ class GeminiManager(object):
 
                 global_protect_mode = _Gemini.get_gemini_config().global_protect_mode
 
+                # This code block checks if the `global_protect_mode` variable is set to "off". If it
+                # is, it means that the Gemini self-protector is turned off and should not apply any
+                # protection measures. In this case, it directly calls the original function `f(*args,
+                # **kwargs)` and returns the response without any modifications or additional
+                # protection.
                 if global_protect_mode == "off":
                     response = make_response(f(*args, **kwargs))
                     return response
 
-                # Analysis Behavior
+                # The line `behavior_id = _Behavior.init_behavior()` is initializing a new behavior in
+                # the Gemini self-protector. The `_Behavior` class is responsible for managing and
+                # tracking the behavior of requests in the Gemini self-protector. The
+                # `init_behavior()` method creates a new behavior entry in the Gemini database and
+                # returns the behavior ID. This behavior ID is then used to track and update the
+                # behavior of the current request.
                 behavior_id = _Behavior.init_behavior()
 
                 current_protect_mode = (
@@ -131,16 +153,31 @@ class GeminiManager(object):
                     )
                 )
 
+                # The line `protect_request =
+                # _Gemini.__load_protect_flask_request__(gemini_protect_mode, behavior_id)` is calling
+                # the `__load_protect_flask_request__` method from the `_Gemini` class. This method is
+                # responsible for loading and processing the request data for protection in the Gemini
+                # self-protector. It takes two arguments: `gemini_protect_mode` and `behavior_id`.
                 protect_request = _Gemini.__load_protect_flask_request__(
                     gemini_protect_mode, behavior_id
                 )
 
+                # The above code is a snippet of Python code. It appears to be a part of a larger
+                # codebase that includes a framework called Gemini, which is a Runtime Application
+                # Self-Protection (RASP) solution.
                 if protect_request["Status"]:
                     response = make_response(f(*args, **kwargs))
 
-                    _Gemini.update_gemini_behavior_log(behavior_id, response.status_code)
-
                     if not int(is_protect_response):
+                        end_time = time.time()
+                        elapsed_time = end_time - start_time
+                        _Gemini.update_gemini_behavior_log(
+                            behavior_id,
+                            response.status_code,
+                            start_time,
+                            end_time,
+                            elapsed_time,
+                        )
                         return response
 
                     protect_response = _Gemini.__load_protect_flask_response__(
@@ -172,10 +209,28 @@ class GeminiManager(object):
                     )
 
                     if not int(is_protect_response):
+                        end_time = time.time()
+                        elapsed_time = end_time - start_time
+                        _Gemini.update_gemini_behavior_log(
+                            behavior_id,
+                            response.status_code,
+                            start_time,
+                            end_time,
+                            elapsed_time,
+                        )
                         return response
 
                     response = _Gemini.make_secure_response_header(response)
 
+                end_time = time.time()
+                elapsed_time = end_time - start_time
+                _Gemini.update_gemini_behavior_log(
+                    behavior_id,
+                    response.status_code,
+                    start_time,
+                    end_time,
+                    elapsed_time,
+                )
                 return response
 
             return __gemini_self_protect

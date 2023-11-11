@@ -131,7 +131,7 @@ class _Protect(object):
             normal_request = _Config.get_tb_summary().normal_request
             _Config.update_tb_summary({"normal_request": normal_request + 1})
             _Config.store_tb_request_log(
-                ipaddress=None,
+                ipaddress=_request.remote_addr,
                 behavior_log_id=_behavior_id,
                 url=_request.full_path,
                 request=_request_header,
@@ -240,20 +240,26 @@ class _Protect(object):
             )
 
     def __handle_normal_response__(
-        _behavior_id, _response, _response_header, _response_content
+        _behavior_id,
+        _request,
+        _request_header,
+        _request_body,
+        _response,
+        _response_header,
+        _response_content,
     ) -> None:
         try:
             normal_response = _Config.get_tb_summary().normal_response
             _Config.update_tb_summary({"normal_response": normal_response + 1})
             _Config.store_tb_request_log(
-                ipaddress=None,
+                ipaddress=_request.remote_addr,
                 behavior_log_id=_behavior_id,
-                url=None,
-                request=None,
-                req_body=None,
+                url=_request.full_path,
+                request=_request_header,
+                req_body=_request_body,
                 response=_response_header,
                 res_content=_response_content,
-                useragent=None,
+                useragent=_request.headers.get("User-Agent"),
                 attack_type=None,
                 score=None,
                 hash=None,
@@ -510,6 +516,9 @@ class _Protect(object):
                     ):
                         _Protect.__handle_normal_response__(
                             _gemini_behavior_id,
+                            request,
+                            _request_header,
+                            _request_body,
                             _original_response,
                             _response_header,
                             _response_content,

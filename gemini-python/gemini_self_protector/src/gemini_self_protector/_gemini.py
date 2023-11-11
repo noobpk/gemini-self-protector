@@ -97,29 +97,31 @@ class _Gemini(object):
             )
 
     def store_gemini_behavior_log(
-        ipaddress,
-        end_user_session,
-        endpoint,
-        useragent,
-        method,
-        status_code,
-        request_time,
-        response_time,
-        size,
-        performance,
+        _ipaddress,
+        _end_user_session,
+        _endpoint,
+        _useragent,
+        _method,
+        _status_code,
+        _start_time,
+        _end_time,
+        _elapsed_time,
+        _size,
+        _performance,
     ) -> None:
         try:
             _gemini_return = _Config.store_tb_behavior_log(
-                ipaddress,
-                end_user_session,
-                endpoint,
-                useragent,
-                method,
-                status_code,
-                request_time,
-                response_time,
-                size,
-                performance,
+                _ipaddress,
+                _end_user_session,
+                _endpoint,
+                _useragent,
+                _method,
+                _status_code,
+                _start_time,
+                _end_time,
+                _elapsed_time,
+                _size,
+                _performance,
             )
             return _gemini_return
         except Exception as e:
@@ -129,9 +131,17 @@ class _Gemini(object):
                 )
             )
 
-    def update_gemini_behavior_log(_behavior_id, _status_code):
+    def update_gemini_behavior_log(
+        _behavior_id,
+        _status_code=None,
+        _start_time=None,
+        _end_time=None,
+        _elapsed_time=None,
+    ):
         try:
-            _Config.update_record_behavior_log(_behavior_id, _status_code)
+            _Config.update_record_behavior_log(
+                _behavior_id, _status_code, _start_time, _end_time, _elapsed_time
+            )
         except Exception as e:
             logger.error(
                 "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format(

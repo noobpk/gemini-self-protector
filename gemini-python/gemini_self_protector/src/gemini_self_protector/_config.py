@@ -191,30 +191,32 @@ class _Config(object):
             )
 
     def store_tb_behavior_log(
-        ipaddress,
-        g_session,
-        endpoint,
-        useragent,
-        method,
-        status_code,
-        request_time,
-        response_time,
-        size,
-        performance,
+        _ipaddress,
+        _end_user_session,
+        _endpoint,
+        _useragent,
+        _method,
+        _status_code,
+        _start_time,
+        _end_time,
+        _elapsed_time,
+        _size,
+        _performance,
     ) -> None:
         try:
             session = _Config.get_session()
             new_record = tb_BehaviorLog(
-                ipaddress=ipaddress,
-                g_session=g_session,
-                endpoint=endpoint,
-                useragent=useragent,
-                method=method,
-                status_code=status_code,
-                request_time=request_time,
-                response_time=response_time,
-                size=size,
-                performance=performance,
+                ipaddress=_ipaddress,
+                g_session=_end_user_session,
+                endpoint=_endpoint,
+                useragent=_useragent,
+                method=_method,
+                status_code=_status_code,
+                start_time=_start_time,
+                end_time=_end_time,
+                elapsed_time=_elapsed_time,
+                size=_size,
+                performance=_performance,
             )
             session.add(new_record)
             session.commit()
@@ -228,7 +230,13 @@ class _Config(object):
                 )
             )
 
-    def update_record_behavior_log(_behavior_id, _status_code):
+    def update_record_behavior_log(
+        _behavior_id,
+        _status_code=None,
+        _start_time=None,
+        _end_time=None,
+        _elapsed_time=None,
+    ):
         try:
             session = _Config.get_session()
             behavior_log_record = (
@@ -236,6 +244,9 @@ class _Config(object):
             )
             if behavior_log_record:
                 behavior_log_record.status_code = _status_code
+                behavior_log_record.start_time = _start_time
+                behavior_log_record.end_time = _end_time
+                behavior_log_record.elapsed_time = _elapsed_time
                 session.commit()
                 session.close()
         except Exception as e:

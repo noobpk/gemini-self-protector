@@ -19,6 +19,16 @@ class _Behavior(object):
         size = request.content_length
         useragent = request.user_agent.string
         behavior_id = _Gemini.store_gemini_behavior_log(
-            end_user_ip, g_session, action, useragent, method, None, None, None, size, None
+            _ipaddress = end_user_ip,
+            _end_user_session = g_session,
+            _endpoint = action,
+            _useragent = useragent,
+            _method = method,
+            _status_code = None,
+            _start_time = None,
+            _end_time = None,
+            _elapsed_time = None,
+            _size = size,
+            _performance = None,
         )
         return behavior_id
