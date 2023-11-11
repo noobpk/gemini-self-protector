@@ -17,7 +17,8 @@ class _Behavior(object):
         g_session = session.get("gemini_session")
         method = request.method
         size = request.content_length
+        useragent = request.user_agent.string
         behavior_id = _Gemini.store_gemini_behavior_log(
-            end_user_ip, g_session, action, method, None, None, None, size, None
+            end_user_ip, g_session, action, useragent, method, None, None, None, size, None
         )
         return behavior_id

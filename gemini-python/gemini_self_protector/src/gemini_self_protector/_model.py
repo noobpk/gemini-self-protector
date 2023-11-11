@@ -79,6 +79,7 @@ class tb_BehaviorLog(Base):
     ipaddress = Column(String)
     g_session = Column(String)
     endpoint = Column(String)
+    useragent = Column(String)
     method = Column(String)
     status_code = Column(String)
     request_time = Column(Float)

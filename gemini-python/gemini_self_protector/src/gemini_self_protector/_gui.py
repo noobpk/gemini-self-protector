@@ -298,6 +298,8 @@ class _Gemini_GUI(object):
                         if attack_type in attack_counts:
                             attack_counts[attack_type] += 1
 
+                    any_attack_count_gt_zero = any(value > 0 for value in attack_counts.values())
+                    
                     return render_template('gemini-protector-gui/home/index.html',
                                            _username=gemini_user.username,
                                            _protect_mode=gemini_config.global_protect_mode,
@@ -315,7 +317,8 @@ class _Gemini_GUI(object):
                                            # _gemini_predict_server_status=predict_server_status,
                                            # _gemini_predict_server=gemini_config.predict_server,
                                            _gemini_notification_channel=gemini_config.notification_channel,
-                                           _gemini_attack_counts=attack_counts
+                                           _gemini_attack_counts=attack_counts,
+                                           _any_attack_count_gt_zero=any_attack_count_gt_zero
                                            )
                 except Exception as e:
                     logger.error("[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format(

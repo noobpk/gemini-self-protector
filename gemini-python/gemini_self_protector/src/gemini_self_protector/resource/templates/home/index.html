@@ -262,7 +262,7 @@
                                         <h5>Abnormal Chart</h5>
                                     </div>
                                     <div class="card-block">
-                                        {%if _gemini_attack_counts['Malicious Request'] %}
+                                        {%if _any_attack_count_gt_zero %}
                                         <div id="morris-donut-chart" style="height:300px"></div>
                                         {%else%}
                                         <img class="img-square"
