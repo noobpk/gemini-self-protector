@@ -1,5 +1,12 @@
 # Changelog
 
+## 12/11/2023
+
+- Release v0.1.6 Gemini-self-protector for Flask
+- Add feature end-user beharvior
+- Refactor source code
+- Fix bug
+
 ## 05/10/2023
 - Release v0.1.5 Gemini-self-protector for Flask
 - Update install page
