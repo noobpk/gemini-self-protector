@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.1.5 (12/11/2023)
+
+- Fix bug
+- Refactor source code
+- Add feature end-user beharvior
+
 ## v0.1.5 (05/10/2023)
 - Fix bug
 - Update install page

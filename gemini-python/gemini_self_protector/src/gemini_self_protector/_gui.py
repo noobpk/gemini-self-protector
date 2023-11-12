@@ -13,7 +13,6 @@ from tqdm import tqdm
 import urllib.parse
 import sys
 
-
 class _Gemini_GUI(object):
 
     def __init__(self, flask_app: Flask) -> None:
@@ -33,7 +32,9 @@ class _Gemini_GUI(object):
             else:
                 logger.info(
                     "[+] No connection to G-WVD")
-
+        else:
+            logger.info(
+                    "Welcome to the Gemini self-protector. Visit the link below to install.")
         # @flask_app.before_request
         # def log_request_info():
         #     print("Request Headers:", request.headers)
@@ -268,6 +269,7 @@ class _Gemini_GUI(object):
                     gemini_config = _Gemini.get_gemini_config()
                     gemini_user = _Gemini.get_gemini_user()
                     request_log = _Gemini.get_gemini_request_log()
+                    beharvior_log = _Gemini.get_gemini_behavior_log()
                     # predict_server_status = _Gemini.health_check_predict_server()
 
                     sorted_request_log_data = sorted(
@@ -287,7 +289,9 @@ class _Gemini_GUI(object):
                         'Unvalidated Redirects': 0,
                         'Large Requests': 0,
                         'HTTP Method Tampering': 0,
-                        'DOS': 0
+                        'DOS': 0,
+                        'Cross-Site Scripting': 0,
+                        'SQL Injection': 0
                     }
 
                     for log in request_log:
@@ -295,6 +299,8 @@ class _Gemini_GUI(object):
                         if attack_type in attack_counts:
                             attack_counts[attack_type] += 1
 
+                    any_attack_count_gt_zero = any(value > 0 for value in attack_counts.values())
+                    
                     return render_template('gemini-protector-gui/home/index.html',
                                            _username=gemini_user.username,
                                            _protect_mode=gemini_config.global_protect_mode,
@@ -312,7 +318,9 @@ class _Gemini_GUI(object):
                                            # _gemini_predict_server_status=predict_server_status,
                                            # _gemini_predict_server=gemini_config.predict_server,
                                            _gemini_notification_channel=gemini_config.notification_channel,
-                                           _gemini_attack_counts=attack_counts
+                                           _gemini_attack_counts=attack_counts,
+                                           _any_attack_count_gt_zero=any_attack_count_gt_zero,
+                                           _gemini_beharvior_log_data=beharvior_log
                                            )
                 except Exception as e:
                     logger.error("[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format(
@@ -483,7 +491,7 @@ class _Gemini_GUI(object):
                             ip = ipaddress.ip_address(ip_address)
                             if ip:
                                 _Gemini.store_gemini_acl(
-                                    ipaddress=ip_address, isallow=access_type, desciption=description)
+                                    _ipaddress=ip_address, _isallow=access_type, _desciption=description)
                                 flash('ACL add successful', 'acl_success')
                             else:
                                 flash('ACL add failed', 'acl_fail')
@@ -615,7 +623,7 @@ class _Gemini_GUI(object):
 
                     record = _Gemini.get_gemini_detail_request_log(event_id)
                     if record:
-                        if record.predict is None:
+                        if record.score is None:
                             _Gemini.update_gemini_request_log(record.event_id)
                         return jsonify({
                             "status": True,
@@ -629,7 +637,7 @@ class _Gemini_GUI(object):
                             "response": record.response,
                             "res_content": str(record.res_content),
                             "attack_type": record.attack_type,
-                            "predict": record.predict,
+                            "score": record.score,
                             "hash": record.hash,
                             "latitude": record.latitude,
                             "longitude": record.longitude,
@@ -802,7 +810,7 @@ class _Gemini_GUI(object):
                     "[+] Connected to G-WVD")
             else:
                 logger.error(
-                    "[x] Cannot connected to G-WVD")
+                    "[x_x] Cannot connect to G-WVD")
                 while True:
                     try:
                         diagnostic = input(
@@ -830,6 +838,18 @@ class _Gemini_GUI(object):
                         logger.info(
                             "[!] Please check error log on G-WVD")
                         sys.exit()
+                    else:
+                        while True:
+                            try:
+                                answer = input("[?] Do you want continue without G-WVD (y/N): ") or "y"
+                            except Exception as e:
+                                logger.error(
+                                    "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini_GUI.handler_g_wvd_serve_health', e))  
+                                continue 
+                            else:
+                                break
+                        if answer == 'N' or answer == 'n':
+                            sys.exit()
                 else:
                     while True:
                         try:
@@ -841,10 +861,8 @@ class _Gemini_GUI(object):
                             continue
                         else:
                             break
-
                     if answer == 'N' or answer == 'n':
                         sys.exit()
-
         except Exception as e:
             logger.error(
                 "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini_GUI.handler_g_wvd_serve_health', e))

@@ -35,7 +35,7 @@ def setup_logging():
 
     # Creating a file handler for the error log.
     err_file_handler = logging.FileHandler(
-        'gemini-protector/log/gemini-protector_err.log')
+        'gemini-protector/log/gemini-protector-err.log')
     err_file_handler.setLevel(logging.ERROR)
     file_format = logging.Formatter(
         '%(asctime)s - %(levelname)s - %(message)s')

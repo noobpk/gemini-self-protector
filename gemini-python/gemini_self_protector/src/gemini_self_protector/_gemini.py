@@ -12,13 +12,15 @@ from datetime import datetime, timezone
 
 
 class _Gemini(object):
-
     def init_gemini_database(_working_directory):
         try:
             _Config(_working_directory)
         except Exception as e:
             logger.error(
-                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.update_gemini_config', e))
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format(
+                    "_Gemini.update_gemini_config", e
+                )
+            )
 
     def get_gemini_config() -> None:
         try:
@@ -26,14 +28,20 @@ class _Gemini(object):
             return _gemini_return
         except Exception as e:
             logger.error(
-                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.get_gemini_config', e))
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format(
+                    "_Gemini.get_gemini_config", e
+                )
+            )
 
     def update_gemini_config(_update_content):
         try:
             _Config.update_tb_config(_update_content)
         except Exception as e:
             logger.error(
-                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.update_gemini_config', e))
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format(
+                    "_Gemini.update_gemini_config", e
+                )
+            )
 
     def get_gemini_user() -> None:
         try:
@@ -41,14 +49,20 @@ class _Gemini(object):
             return _gemini_return
         except Exception as e:
             logger.error(
-                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.get_gemini_user', e))
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format(
+                    "_Gemini.get_gemini_user", e
+                )
+            )
 
     def update_gemini_user(_update_content):
         try:
             _Config.update_tb_user(_update_content)
         except Exception as e:
             logger.error(
-                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.update_gemini_user', e))
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format(
+                    "_Gemini.update_gemini_user", e
+                )
+            )
 
     def get_gemini_summary() -> None:
         try:
@@ -56,14 +70,84 @@ class _Gemini(object):
             return _gemini_return
         except Exception as e:
             logger.error(
-                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.get_gemini_summary', e))
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format(
+                    "_Gemini.get_gemini_summary", e
+                )
+            )
 
     def update_gemini_summary(_update_content):
         try:
             _Config.update_tb_summary(_update_content)
         except Exception as e:
             logger.error(
-                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.update_gemini_summary', e))
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format(
+                    "_Gemini.update_gemini_summary", e
+                )
+            )
+
+    def get_gemini_behavior_log() -> None:
+        try:
+            _gemini_return = _Config.get_tb_behavior_log()
+            return _gemini_return
+        except Exception as e:
+            logger.error(
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format(
+                    "_Gemini.get_gemini_behavior_log", e
+                )
+            )
+
+    def store_gemini_behavior_log(
+        _ipaddress,
+        _end_user_session,
+        _endpoint,
+        _useragent,
+        _method,
+        _status_code,
+        _start_time,
+        _end_time,
+        _elapsed_time,
+        _size,
+        _performance,
+    ) -> None:
+        try:
+            _gemini_return = _Config.store_tb_behavior_log(
+                _ipaddress,
+                _end_user_session,
+                _endpoint,
+                _useragent,
+                _method,
+                _status_code,
+                _start_time,
+                _end_time,
+                _elapsed_time,
+                _size,
+                _performance,
+            )
+            return _gemini_return
+        except Exception as e:
+            logger.error(
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format(
+                    "_Gemini.store_gemini_behavior_log", e
+                )
+            )
+
+    def update_gemini_behavior_log(
+        _behavior_id,
+        _status_code=None,
+        _start_time=None,
+        _end_time=None,
+        _elapsed_time=None,
+    ):
+        try:
+            _Config.update_record_behavior_log(
+                _behavior_id, _status_code, _start_time, _end_time, _elapsed_time
+            )
+        except Exception as e:
+            logger.error(
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format(
+                    "_Gemini.update_gemini_behavior_log", e
+                )
+            )
 
     def get_gemini_request_log() -> None:
         try:
@@ -71,7 +155,10 @@ class _Gemini(object):
             return _gemini_return
         except Exception as e:
             logger.error(
-                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.get_gemini_summary', e))
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format(
+                    "_Gemini.get_gemini_request_log", e
+                )
+            )
 
     def get_gemini_detail_request_log(_event_id) -> None:
         try:
@@ -79,22 +166,50 @@ class _Gemini(object):
             return _gemini_return
         except Exception as e:
             logger.error(
-                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.get_gemini_detail_request_log', e))
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format(
+                    "_Gemini.get_gemini_detail_request_log", e
+                )
+            )
 
-    def store_gemini_request_log(ipaddress, url, request, response, attack_type, predict, event_id, latitude, longitude):
+    def store_gemini_request_log(
+        ipaddress,
+        url,
+        request,
+        response,
+        attack_type,
+        predict,
+        event_id,
+        latitude,
+        longitude,
+    ):
         try:
             _Config.store_tb_request_log(
-                ipaddress, url, request, response, attack_type, predict, event_id, latitude, longitude)
+                ipaddress,
+                url,
+                request,
+                response,
+                attack_type,
+                predict,
+                event_id,
+                latitude,
+                longitude,
+            )
         except Exception as e:
             logger.error(
-                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.store_gemini_request_log', e))
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format(
+                    "_Gemini.store_gemini_request_log", e
+                )
+            )
 
     def update_gemini_request_log(_event_id):
         try:
             _Config.update_record_request_log(_event_id)
         except Exception as e:
             logger.error(
-                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.update_gemini_request_log', e))
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format(
+                    "_Gemini.update_gemini_request_log", e
+                )
+            )
 
     def get_gemini_acl():
         try:
@@ -102,28 +217,40 @@ class _Gemini(object):
             return _gemini_return
         except Exception as e:
             logger.error(
-                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.get_gemini_acl', e))
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format(
+                    "_Gemini.get_gemini_acl", e
+                )
+            )
 
     def store_gemini_acl(_ipaddress, _isallow, _desciption):
         try:
             _Config.store_tb_acl(_ipaddress, _isallow, _desciption)
         except Exception as e:
             logger.error(
-                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.store_gemini_acl', e))
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format(
+                    "_Gemini.store_gemini_acl", e
+                )
+            )
 
     def check_gemini_acl(_ip_address) -> None:
         try:
             return _Config.check_acl(_ip_address)
         except Exception as e:
             logger.error(
-                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.check_gemini_acl', e))
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format(
+                    "_Gemini.check_gemini_acl", e
+                )
+            )
 
     def remove_gemini_acl(_ip_address):
         try:
             _Config.remove_record_acl(_ip_address)
         except Exception as e:
             logger.error(
-                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.remove_gemini_acl', e))
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format(
+                    "_Gemini.remove_gemini_acl", e
+                )
+            )
 
     def get_gemini_audit_dependency() -> None:
         try:
@@ -131,7 +258,10 @@ class _Gemini(object):
             return _gemini_return
         except Exception as e:
             logger.error(
-                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.get_gemini_audit_dependency', e))
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format(
+                    "_Gemini.get_gemini_audit_dependency", e
+                )
+            )
 
     def get_gemini_feedback() -> None:
         try:
@@ -139,14 +269,20 @@ class _Gemini(object):
             return _gemini_return
         except Exception as e:
             logger.error(
-                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.get_gemini_feedback', e))
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format(
+                    "_Gemini.get_gemini_feedback", e
+                )
+            )
 
     def store_gemini_feedback(_sentence, _label):
         try:
             _Config.store_tb_feedback(_sentence, _label)
         except Exception as e:
             logger.error(
-                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.store_gemini_feedback', e))
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format(
+                    "_Gemini.store_gemini_feedback", e
+                )
+            )
 
     def export_gemini_feedback() -> str:
         try:
@@ -154,7 +290,10 @@ class _Gemini(object):
             return _gemini_return
         except Exception as e:
             logger.error(
-                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.export_gemini_feedback', e))
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format(
+                    "_Gemini.export_gemini_feedback", e
+                )
+            )
 
     def validate_g_serve_key(_key):
         try:
@@ -162,7 +301,10 @@ class _Gemini(object):
             return _gemini_return
         except Exception as e:
             logger.error(
-                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.validate_g_serve_key', e))
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format(
+                    "_Gemini.validate_g_serve_key", e
+                )
+            )
 
     def validator_protect_mode(_protect_mode) -> None:
         """
@@ -177,7 +319,10 @@ class _Gemini(object):
             return _gemini_return
         except Exception as e:
             logger.error(
-                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.validator_protect_mode', e))
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format(
+                    "_Gemini.validator_protect_mode", e
+                )
+            )
 
     def validator_http_method(_http_method):
         """
@@ -188,11 +333,14 @@ class _Gemini(object):
         :return: The return value is a dictionary.
         """
         try:
-           _gemini_return = _Validator.validate_http_method(_http_method)
-           return _gemini_return
+            _gemini_return = _Validator.validate_http_method(_http_method)
+            return _gemini_return
         except Exception as e:
             logger.error(
-                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.validator_http_method', e))
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format(
+                    "_Gemini.validator_http_method", e
+                )
+            )
 
     def validator_sensitive_value(_sensitive_value) -> None:
         """
@@ -202,48 +350,62 @@ class _Gemini(object):
         :return: The return value is a dictionary.
         """
         try:
-            _gemini_return = _Validator.validate_sensitive_value(
-                _sensitive_value)
+            _gemini_return = _Validator.validate_sensitive_value(_sensitive_value)
             return _gemini_return
         except Exception as e:
             logger.error(
-                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.validator_sensitive_value', e))
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format(
+                    "_Gemini.validator_sensitive_value", e
+                )
+            )
 
     def validator_app_path(_app_path) -> None:
         try:
-            _gemini_return = _Validator.validate_app_path(
-                _app_path)
+            _gemini_return = _Validator.validate_app_path(_app_path)
             return _gemini_return
         except Exception as e:
             logger.error(
-                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.validator_app_path', e))
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format(
+                    "_Gemini.validator_app_path", e
+                )
+            )
 
     def validator_notification_channel(_notification_channel) -> None:
         try:
             _gemini_return = _Validator.validate_notification_channel(
-                _notification_channel)
+                _notification_channel
+            )
             return _gemini_return
         except Exception as e:
             logger.error(
-                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.validator_notification_channel', e))
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format(
+                    "_Gemini.validator_notification_channel", e
+                )
+            )
 
     def validator_dashboard_password(_password, _confirm_password) -> None:
         try:
             _gemini_return = _Validator.validate_dashboard_password(
-                _password, _confirm_password)
+                _password, _confirm_password
+            )
             return _gemini_return
         except Exception as e:
             logger.error(
-                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.validator_dashboard_password', e))
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format(
+                    "_Gemini.validator_dashboard_password", e
+                )
+            )
 
     def validator_on_off_status(_on_off_status) -> None:
         try:
-            _gemini_return = _Validator.validate_one_off_status(
-                _on_off_status)
+            _gemini_return = _Validator.validate_one_off_status(_on_off_status)
             return _gemini_return
         except Exception as e:
             logger.error(
-                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.validator_safe_redirect_status', e))
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format(
+                    "_Gemini.validator_safe_redirect_status", e
+                )
+            )
 
     def validator_trust_domain(_trust_domain_list):
         """
@@ -254,18 +416,20 @@ class _Gemini(object):
         :return: The return is a list of dictionaries.
         """
         try:
-            _gemini_return = _Validator.validate_trust_domain(
-                _trust_domain_list)
+            _gemini_return = _Validator.validate_trust_domain(_trust_domain_list)
             return _gemini_return
         except Exception as e:
             logger.error(
-                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.validator_trust_domain', e))
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format(
+                    "_Gemini.validator_trust_domain", e
+                )
+            )
 
     def init_gemini_dashboard(_flask_template_folder, _flask_static_folder):
         """
         This function initializes the Gemini dashboard by initializing the Gemini template and static
         folders.
-        
+
         :param flask_template_folder: The parameter `flask_template_folder` is a string that represents
         the path to the folder where Flask templates are stored. Flask templates are used to generate
         HTML pages dynamically
@@ -279,7 +443,10 @@ class _Gemini(object):
             _Template.init_gemini_static(_flask_static_folder)
         except Exception as e:
             logger.error(
-                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.init_gemini_dashboard', e))
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format(
+                    "_Gemini.init_gemini_dashboard", e
+                )
+            )
 
     def init_gemini_app_path():
         """
@@ -287,11 +454,13 @@ class _Gemini(object):
         """
         try:
             gemimi_app_path = _Utils.create_path()
-            _Gemini.update_gemini_config(
-                {"app_path": gemimi_app_path})
+            _Gemini.update_gemini_config({"app_path": gemimi_app_path})
         except Exception as e:
             logger.error(
-                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.init_gemini_app_path', e))
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format(
+                    "_Gemini.init_gemini_app_path", e
+                )
+            )
 
     def load_gemini_log() -> None:
         """
@@ -299,22 +468,27 @@ class _Gemini(object):
         :return: A list of dictionaries.
         """
         try:
-            log_path = _Gemini.get_gemini_config('gemini_log_path')
+            log_path = _Gemini.get_gemini_config("gemini_log_path")
             data_log = []
-            with open(log_path+"/gemini-protetor-info.log") as f:
+            with open(log_path + "/gemini-protetor-info.log") as f:
                 for line in f:
-                    parts = line.strip().split(' - ')
+                    parts = line.strip().split(" - ")
                     if len(parts) != 3:
                         continue
-                    data_log.append({
-                        'time': parts[0],
-                        'status': parts[1],
-                        'message': parts[2],
-                    })
+                    data_log.append(
+                        {
+                            "time": parts[0],
+                            "status": parts[1],
+                            "message": parts[2],
+                        }
+                    )
             return data_log
         except Exception as e:
             logger.error(
-                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.load_gemini_log', e))
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format(
+                    "_Gemini.load_gemini_log", e
+                )
+            )
 
     def get_flask_client_ip() -> None:
         """
@@ -325,7 +499,10 @@ class _Gemini(object):
             return _Utils.flask_client_ip()
         except Exception as e:
             logger.error(
-                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.get_flask_client_ip', e))
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format(
+                    "_Gemini.get_flask_client_ip", e
+                )
+            )
 
     def generate_insident_ticket() -> None:
         """
@@ -336,35 +513,71 @@ class _Gemini(object):
             return _Utils.insident_ticket()
         except Exception as e:
             logger.error(
-                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.generate_insident_ticket', e))
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format(
+                    "_Gemini.generate_insident_ticket", e
+                )
+            )
 
-    def __load_protect_flask_request__(_gemini_protect_mode) -> None:
+    def __load_protect_flask_request__(
+        _gemini_protect_mode, _gemini_behavior_id
+    ) -> None:
         """
-        This function is used to load the flask protect mode
+        The function __load_protect_flask_request__ loads and protects a Flask request using the
+        _Protect class.
 
-        :param gemini_protect_mode: This is the mode that you want to use to protect your flask app
-        :return: The function _Protect.protect_flask(gemini_protect_mode)
+        :param _gemini_protect_mode: The parameter "_gemini_protect_mode" is used to specify the
+        protection mode for the Flask request. It determines the level of protection applied to the
+        request
+        :param _gemini_behavior_id: The `_gemini_behavior_id` parameter is an identifier for a specific
+        behavior in the Gemini system. It is used to determine the behavior that should be applied to
+        the Flask request
+        :return: the result of calling the `_Protect.__protect_flask_request__` method with the
+        `_gemini_protect_mode` and `_gemini_behavior_id` arguments.
         """
         try:
-            return _Protect.__protect_flask_request__(_gemini_protect_mode)
+            return _Protect.__protect_flask_request__(
+                _gemini_protect_mode, _gemini_behavior_id
+            )
         except Exception as e:
             logger.error(
-                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.__load_protect_flask_request__', e))
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format(
+                    "_Gemini.__load_protect_flask_request__", e
+                )
+            )
 
-    def __load_protect_flask_response__(_original_response, _gemini_protect_mode) -> None:
+    def __load_protect_flask_response__(
+        _original_response, _gemini_protect_mode, _gemini_behavior_id
+    ) -> None:
         """
-        This function is used to protect the flask response
+        The function __load_protect_flask_response__ is responsible for loading and protecting a Flask
+        response using the Gemini library.
 
-        :param original_response: The original response from the Flask app
-        :param gemini_protect_mode: This is the mode that you want to use to protect your application
-        :return: the result of the function call to __protect_flask_response__.
+        :param _original_response: The `_original_response` parameter is the original response object
+        that is returned by the Flask application. It contains the response data, headers, and status
+        code
+        :param _gemini_protect_mode: The parameter `_gemini_protect_mode` is used to specify the protect
+        mode for the Gemini protection feature. It determines how the response should be protected. The
+        value of this parameter can be one of the following:
+        :param _gemini_behavior_id: The `_gemini_behavior_id` parameter is an identifier for the
+        behavior being executed in the Gemini system. It is used to track and manage the behavior's
+        execution and results
+        :return: the result of calling the `_Protect.__protect_flask_response__()` function with the
+        provided arguments.
         """
         try:
             safe_redirect = _Gemini.get_gemini_config().safe_redirect
-            return _Protect.__protect_flask_response__(safe_redirect, _original_response, _gemini_protect_mode)
+            return _Protect.__protect_flask_response__(
+                safe_redirect,
+                _original_response,
+                _gemini_protect_mode,
+                _gemini_behavior_id,
+            )
         except Exception as e:
             logger.error(
-                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.__load_protect_flask_response__', e))
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format(
+                    "_Gemini.__load_protect_flask_response__", e
+                )
+            )
 
     def make_secure_response_header(_response) -> None:
         """
@@ -377,14 +590,20 @@ class _Gemini(object):
             return _Protect.__secure_response_header__(_response)
         except Exception as e:
             logger.error(
-                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.make_secure_response_header', e))
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format(
+                    "_Gemini.make_secure_response_header", e
+                )
+            )
 
     def make_secure_cookie(_app):
         try:
             _Protect.__secure_cookie__(_app)
         except Exception as e:
             logger.error(
-                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.make_secure_cookie', e))
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format(
+                    "_Gemini.make_secure_cookie", e
+                )
+            )
 
     def get_dependency_file():
         """
@@ -396,7 +615,10 @@ class _Gemini(object):
             return _Audit.__find_requirements_file__()
         except Exception as e:
             logger.error(
-                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.get_dependency_file', e))
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format(
+                    "_Gemini.get_dependency_file", e
+                )
+            )
 
     def __audit_dependency_vulnerability__(_file_path):
         """
@@ -409,7 +631,10 @@ class _Gemini(object):
             _Audit.__dependency_vulnerability__(_file_path)
         except Exception as e:
             logger.error(
-                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.__audit_dependency_vulnerability__', e))
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format(
+                    "_Gemini.__audit_dependency_vulnerability__", e
+                )
+            )
 
     def get_gemini_banner():
         """
@@ -420,7 +645,10 @@ class _Gemini(object):
             _Utils.load_banner()
         except Exception as e:
             logger.error(
-                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.get_gemini_banner', e))
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format(
+                    "_Gemini.get_gemini_banner", e
+                )
+            )
 
     def calulate_total_access():
         """
@@ -434,41 +662,58 @@ class _Gemini(object):
             app_path = _Gemini.get_gemini_config().app_path
             ignored_keyword = "gemini-protector-static"
 
-            if request.path.startswith(f"/{app_path}") or ignored_keyword in request.path:
+            if (
+                request.path.startswith(f"/{app_path}")
+                or ignored_keyword in request.path
+            ):
                 return None
 
             current_access = _Gemini.get_gemini_summary().total_request
             current_access += 1
-            _Gemini.update_gemini_summary(
-                {"total_request": current_access})
+            _Gemini.update_gemini_summary({"total_request": current_access})
         except Exception as e:
             logger.error(
-                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.calulate_total_access', e))
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format(
+                    "_Gemini.calulate_total_access", e
+                )
+            )
 
     def g_wvd_serve_health(_self_context=None) -> None:
         try:
             return _Utils.g_wvd_serve_health(_self_context)
         except Exception as e:
             logger.error(
-                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.g_wvd_serve_health', e))
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format(
+                    "_Gemini.g_wvd_serve_health", e
+                )
+            )
 
     def validator_g_wvd_serve(_serve, _key, _self_context=None) -> None:
         try:
             return _Validator.validator_g_wvd_serve(_serve, _key, _self_context)
         except Exception as e:
             logger.error(
-                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.validator_g_wvd_serve', e))
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format(
+                    "_Gemini.validator_g_wvd_serve", e
+                )
+            )
 
     def __load_mini_anti_dos__() -> None:
         try:
             return _Protect.__handle_mini_anti_dos__()
         except Exception as e:
             logger.error(
-                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.__load_mini_anti_dos__', e))
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format(
+                    "_Gemini.__load_mini_anti_dos__", e
+                )
+            )
 
     def g_serve_diagnostic() -> None:
         try:
             return _Utils.g_serve_diagnostic()
         except Exception as e:
             logger.error(
-                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format('_Gemini.g_serve_diagnostic', e))
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format(
+                    "_Gemini.g_serve_diagnostic", e
+                )
+            )
