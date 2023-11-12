@@ -269,6 +269,7 @@ class _Gemini_GUI(object):
                     gemini_config = _Gemini.get_gemini_config()
                     gemini_user = _Gemini.get_gemini_user()
                     request_log = _Gemini.get_gemini_request_log()
+                    beharvior_log = _Gemini.get_gemini_behavior_log()
                     # predict_server_status = _Gemini.health_check_predict_server()
 
                     sorted_request_log_data = sorted(
@@ -318,7 +319,8 @@ class _Gemini_GUI(object):
                                            # _gemini_predict_server=gemini_config.predict_server,
                                            _gemini_notification_channel=gemini_config.notification_channel,
                                            _gemini_attack_counts=attack_counts,
-                                           _any_attack_count_gt_zero=any_attack_count_gt_zero
+                                           _any_attack_count_gt_zero=any_attack_count_gt_zero,
+                                           _gemini_beharvior_log_data=beharvior_log
                                            )
                 except Exception as e:
                     logger.error("[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format(
@@ -821,7 +823,6 @@ class _Gemini_GUI(object):
                         break
                 if diagnostic == 'y' or diagnostic == 'Y':
                     code = _Gemini.g_serve_diagnostic()
-                    print("CODE", code)
                     if code == 200:
                         logger.info(
                             "[+] Connected to G-WVD")

@@ -123,214 +123,279 @@
                                 </div>
                             </div>
                             <!--[ request section ] end-->
-                            <div class="col-xl-8 col-md-6">
-                                <div class="card Recent-Users">
-                                    <div class="card-header">
-                                        <h5>Recent events</h5>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-8">
+                                <div id="recent-events">
+                                    <div class="card Recent-Users">
+                                        <div class="card-header">
+                                            <h5>Recent events</h5>
+                                        </div>
+                                        <div class="card-block table-border-style px-0 py-3">
+                                            <div class="table-responsive">
+                                                <table class="table table-hover">
+                                                    <thead>
+                                                        <tr>
+                                                            <th class="text-right"></th>
+                                                            <th>EventID</th>
+                                                            <th>Score</th>
+                                                            <th>Time</th>
+                                                            <th>Review</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        {% for row in _gemini_request_log_data %}
+                                                        <tr {%if row.review=='1' %} class="readed" {%else%}
+                                                            class="unread" {%endif%}>
+                                                            <td>
+                                                                <i class="feather icon-cloud-rain f-30 text-c-red"></i>
+                                                            </td>
+                                                            <td>
+                                                                <h6 id="{{ row.event_id }}" class="mb-1">{{ row.event_id
+                                                                    }}
+                                                                </h6>
+                                                                <p class="m-0">{{ row.attack_type }}</p>
+                                                            </td>
+                                                            <td>
+                                                                {%if row.score %}
+                                                                <h6 id="tb_score_value" class="text-muted">{{ row.score
+                                                                    | gemini_round_number
+                                                                    }}</h6>
+                                                                {%else%}
+                                                                <h6 id="tb_score_value" class="text-muted">{{ row.score
+                                                                    }}</h6>
+                                                                {%endif%}
+                                                            </td>
+                                                            <td>
+                                                                <h6 class="text-muted">{{ row.time |
+                                                                    gemini_datetime_format('%d
+                                                                    %B
+                                                                    %H:%M') }}</h6>
+                                                            </td>
+                                                            <td>
+                                                                <button type="button"
+                                                                    id="showModalBtn{{ row.event_id }}"
+                                                                    class="btn btn-warning showModalBtn"
+                                                                    style="padding: 4px 10px; border-radius: 10px;"><i
+                                                                        class="fa fa-crosshairs"
+                                                                        style="margin-right: 0px;"></i></button>
+                                                                {%if row.score %}
+                                                                <button type="button"
+                                                                    id="feedbackGoodBtn{{ row.event_id }}"
+                                                                    class="btn btn-success feedbackGoodBtn"
+                                                                    style="padding: 4px 10px; border-radius: 10px;" {%if
+                                                                    row.review=='1' %} disabled {%endif%}><i
+                                                                        class="fa fa-thumbs-up"
+                                                                        style="margin-right: 0px;"></i></button>
+                                                                <button type="button"
+                                                                    id="feedbackBadBtn{{ row.event_id }}"
+                                                                    class="btn btn-danger feedbackBadBtn"
+                                                                    style="padding: 4px 10px; border-radius: 10px;" {%if
+                                                                    row.review=='1' %} disabled {%endif%}><i
+                                                                        class="fa fa-thumbs-down"
+                                                                        style="margin-right: 0px;"></i></button>
+                                                                {%endif%}
+                                                            </td>
+                                                        </tr>
+                                                        {% endfor %}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div class="card-block table-border-style px-0 py-3">
-                                        <div class="table-responsive">
-                                            <table class="table table-hover">
+                                    <nav aria-label="Page navigation example">
+                                        <ul class="pagination">
+                                            {% if _current_page > 1 %}
+                                            <li class="page-item"><a class="page-link"
+                                                    href="?page={{ _current_page - 1 }}">Previous</a></li>
+                                            {% endif %}
+
+                                            {% if _current_page > 4 %}
+                                            <li class="page-item"><a class="page-link" href="?page=1">1</a></li>
+                                            <li class="page-item disabled"><span class="page-link">...</span></li>
+                                            {% endif %}
+
+                                            {% for page_num in range(_current_page - 2, _current_page + 3) %}
+                                            {% if page_num >= 1 and page_num <= _total_pages %} <li
+                                                class="page-item {% if page_num == _current_page %}active{% endif %}">
+                                                <a class="page-link" href="?page={{ page_num }}">{{ page_num }}</a>
+                                                </li>
+                                                {% endif %}
+                                                {% endfor %}
+
+                                                {% if _current_page < _total_pages - 3 %} <li
+                                                    class="page-item disabled">
+                                                    <span class="page-link">...</span>
+                                                    </li>
+                                                    <li class="page-item"><a class="page-link"
+                                                            href="?page={{ _total_pages }}">{{ _total_pages
+                                                            }}</a>
+                                                    </li>
+                                                    {% endif %}
+
+                                                    {% if _current_page < _total_pages %} <li class="page-item"><a
+                                                            class="page-link"
+                                                            href="?page={{ _current_page + 1 }}">Next</a>
+                                                        </li>
+                                                        {% endif %}
+                                        </ul>
+                                    </nav>
+                                </div>
+                                <br>
+                                <br>
+                                <br>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mode-info">
+                                    <div class="card card-event">
+                                        <div class="card-block">
+                                            <div class="row align-items-center justify-content-center">
+                                                <div class="col">
+                                                    <h5 class="m-0">Protect Mode</h5>
+                                                </div>
+                                                <div class="col-auto">
+                                                    <label
+                                                        class="label theme-bg2 text-white f-14 f-w-400 float-right">{{_sensitive_value}}%</label>
+                                                </div>
+                                            </div>
+                                            <h2 class="mt-3 f-w-300">{{_protect_mode|title}}<sub
+                                                    class="text-muted f-14">Global</sub></h2>
+                                            {% if _protect_mode == 'monitor' %}
+                                            <h6 class="text-muted mt-4 mb-0">Gemini is monitoring all requests</h6>
+                                            <i class="fa fa-binoculars text-c-purple f-50"></i>
+                                            {% elif _protect_mode == 'protection' %}
+                                            <h6 class="text-muted mt-4 mb-0">Gemini is blocking abnormal requests</h6>
+                                            <i class="fas fa-ban text-c-purple f-50"></i>
+                                            {% else %}
+                                            <h6 class="text-muted mt-4 mb-0">Gemini is sleeping</h6>
+                                            <i class="fas fa-power-off text-c-red f-50"></i>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="chart-vuln">
+                                    <div class="card card-event">
+                                        <div class="card-header">
+                                            <h5>Attack Type</h5>
+                                        </div>
+                                        <div class="card-block">
+                                            {%if _any_attack_count_gt_zero %}
+                                            <div id="morris-donut-chart" style="height:300px"></div>
+                                            {%else%}
+                                            <img class="img-square"
+                                                src="{{ url_for('static', filename='gemini-protector-static/images/widget/box.png') }}"
+                                                alt="Generic placeholder image">
+                                            {%endif%}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div id="user-beharvior">
+                                    <div class="card Recent-Users">
+                                        <div class="card-header">
+                                            <h5>End-user Beharvior</h5>
+                                        </div>
+                                        <div class="card-block table-border-style px-3 py-3">
+                                            <table id="myTable" class="display">
                                                 <thead>
                                                     <tr>
-                                                        <th class="text-right"></th>
-                                                        <th>EventID</th>
-                                                        <th>Score</th>
-                                                        <th>Time</th>
-                                                        <th>Review</th>
+                                                        <th>ID</th>
+                                                        <th>IP</th>
+                                                        <th>G-Session</th>
+                                                        <th>Endpoint</th>
+                                                        <th>User-Agent</th>
+                                                        <th>Method</th>
+                                                        <th>Status Code</th>
+                                                        <th>Size</th>
+                                                        <th>Elapsed Time</th>
+                                                        <th>Performance</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
-                                                    {% for row in _gemini_request_log_data %}
-                                                    <tr {%if row.review=='1' %} class="readed" {%else%} class="unread"
-                                                        {%endif%}>
-                                                        <td>
-                                                            <i class="feather icon-cloud-rain f-30 text-c-red"></i>
-                                                        </td>
-                                                        <td>
-                                                            <h6 id="{{ row.event_id }}" class="mb-1">{{ row.event_id }}
-                                                            </h6>
-                                                            <p class="m-0">{{ row.attack_type }}</p>
-                                                        </td>
-                                                        <td>
-                                                            {%if row.score %}
-                                                            <h6 id="tb_score_value" class="text-muted">{{ row.score
-                                                                | gemini_round_number
-                                                                }}</h6>
-                                                            {%else%}
-                                                            <h6 id="tb_score_value" class="text-muted">{{ row.score
-                                                                }}</h6>
-                                                            {%endif%}
-                                                        </td>
-                                                        <td>
-                                                            <h6 class="text-muted">{{ row.time |
-                                                                gemini_datetime_format('%d
-                                                                %B
-                                                                %H:%M') }}</h6>
-                                                        </td>
-                                                        <td>
-                                                            <button type="button" id="showModalBtn{{ row.event_id }}"
-                                                                class="btn btn-warning showModalBtn"
-                                                                style="padding: 4px 10px; border-radius: 10px;"><i
-                                                                    class="fa fa-crosshairs"
-                                                                    style="margin-right: 0px;"></i></button>
-                                                            {%if row.score %}
-                                                            <button type="button" id="feedbackGoodBtn{{ row.event_id }}"
-                                                                class="btn btn-success feedbackGoodBtn"
-                                                                style="padding: 4px 10px; border-radius: 10px;" {%if
-                                                                row.review=='1' %} disabled {%endif%}><i
-                                                                    class="fa fa-thumbs-up"
-                                                                    style="margin-right: 0px;"></i></button>
-                                                            <button type="button" id="feedbackBadBtn{{ row.event_id }}"
-                                                                class="btn btn-danger feedbackBadBtn"
-                                                                style="padding: 4px 10px; border-radius: 10px;" {%if
-                                                                row.review=='1' %} disabled {%endif%}><i
-                                                                    class="fa fa-thumbs-down"
-                                                                    style="margin-right: 0px;"></i></button>
-                                                            {%endif%}
-                                                        </td>
+                                                    {% for row in _gemini_beharvior_log_data %}
+                                                    <tr>
+                                                        <td>{{row.id}}</td>
+                                                        <td>{{row.ipaddress}}</td>
+                                                        <td>{{row.g_session}}</td>
+                                                        <td>{{row.endpoint}}</td>
+                                                        <td>{{row.useragent}}</td>
+                                                        <td>{{row.method}}</td>
+                                                        <td>{{row.status_code}}</td>
+                                                        <td>{{row.size}} KB</td>
+                                                        <td>{{row.elapsed_time | gemini_round_number}} ms</td>
+                                                        <td>{{row.performance}}</td>
                                                     </tr>
-                                                    {% endfor %}
+                                                    {%endfor%}
                                                 </tbody>
                                             </table>
                                         </div>
                                     </div>
                                 </div>
-                                <nav aria-label="Page navigation example">
-                                    <ul class="pagination">
-                                        {% if _current_page > 1 %}
-                                        <li class="page-item"><a class="page-link"
-                                                href="?page={{ _current_page - 1 }}">Previous</a></li>
-                                        {% endif %}
-
-                                        {% if _current_page > 4 %}
-                                        <li class="page-item"><a class="page-link" href="?page=1">1</a></li>
-                                        <li class="page-item disabled"><span class="page-link">...</span></li>
-                                        {% endif %}
-
-                                        {% for page_num in range(_current_page - 2, _current_page + 3) %}
-                                        {% if page_num >= 1 and page_num <= _total_pages %} <li
-                                            class="page-item {% if page_num == _current_page %}active{% endif %}">
-                                            <a class="page-link" href="?page={{ page_num }}">{{ page_num }}</a>
-                                            </li>
-                                            {% endif %}
-                                            {% endfor %}
-
-                                            {% if _current_page < _total_pages - 3 %} <li class="page-item disabled">
-                                                <span class="page-link">...</span>
-                                                </li>
-                                                <li class="page-item"><a class="page-link"
-                                                        href="?page={{ _total_pages }}">{{ _total_pages }}</a></li>
-                                                {% endif %}
-
-                                                {% if _current_page < _total_pages %} <li class="page-item"><a
-                                                        class="page-link" href="?page={{ _current_page + 1 }}">Next</a>
-                                                    </li>
-                                                    {% endif %}
-                                    </ul>
-                                </nav>
                             </div>
-                            <!-- [ statistics year chart ] start -->
-                            <div class="col-xl-4 col-md-6">
-                                <div class="card card-event">
-                                    <div class="card-block">
-                                        <div class="row align-items-center justify-content-center">
-                                            <div class="col">
-                                                <h5 class="m-0">Protect Mode</h5>
-                                            </div>
-                                            <div class="col-auto">
-                                                <label
-                                                    class="label theme-bg2 text-white f-14 f-w-400 float-right">{{_sensitive_value}}%</label>
-                                            </div>
-                                        </div>
-                                        <h2 class="mt-3 f-w-300">{{_protect_mode|title}}<sub
-                                                class="text-muted f-14">Global</sub></h2>
-                                        {% if _protect_mode == 'monitor' %}
-                                        <h6 class="text-muted mt-4 mb-0">Gemini is monitoring all requests</h6>
-                                        <i class="fa fa-binoculars text-c-purple f-50"></i>
-                                        {% elif _protect_mode == 'protection' %}
-                                        <h6 class="text-muted mt-4 mb-0">Gemini is blocking abnormal requests</h6>
-                                        <i class="fas fa-ban text-c-purple f-50"></i>
-                                        {% else %}
-                                        <h6 class="text-muted mt-4 mb-0">Gemini is sleeping</h6>
-                                        <i class="fas fa-power-off text-c-red f-50"></i>
-                                        {% endif %}
-                                    </div>
-                                </div>
-                                <div class="card">
-                                    <div class="card-header">
-                                        <h5>Abnormal Chart</h5>
-                                    </div>
-                                    <div class="card-block">
-                                        {%if _any_attack_count_gt_zero %}
-                                        <div id="morris-donut-chart" style="height:300px"></div>
-                                        {%else%}
-                                        <img class="img-square"
-                                            src="{{ url_for('static', filename='gemini-protector-static/images/widget/box.png') }}"
-                                            alt="Generic placeholder image">
-                                        {%endif%}
-                                    </div>
-                                </div>
-                            </div>
-                            <!-- [ statistics year chart ] end -->
-                            <div id="modalId" class="datta-example-modal">
-                                <div class="datta-example-modal-content">
-                                    <div class="col-md-6 col-xl-11">
-                                        <div class="card">
-                                            <div class="card-block">
-                                                <div class="row d-flex align-items-center">
+                        </div>
+                        <!-- [ statistics year chart ] start -->
+
+                        <!-- [ statistics year chart ] end -->
+                        <div id="modalId" class="datta-example-modal">
+                            <div class="datta-example-modal-content">
+                                <div class="col-md-6 col-xl-11">
+                                    <div class="card">
+                                        <div class="card-block">
+                                            <div class="row d-flex align-items-center">
+                                                <div class="col-auto">
+                                                    <i class="feather icon-cloud-rain f-30 text-c-red"></i>
+                                                </div>
+                                                <div class="col">
+                                                    <h3 class="f-w-300" id="event_id_value">eventid</h3>
                                                     <div class="col-auto">
-                                                        <i class="feather icon-cloud-rain f-30 text-c-red"></i>
+                                                        <label id="score_value"
+                                                            class="label border theme-bg2 text-white f-14 f-w-400 float-right"></label>
                                                     </div>
-                                                    <div class="col">
-                                                        <h3 class="f-w-300" id="event_id_value">eventid</h3>
-                                                        <div class="col-auto">
-                                                            <label id="score_value"
-                                                                class="label border theme-bg2 text-white f-14 f-w-400 float-right"></label>
-                                                        </div>
-                                                        <span class="d-block text-uppercase"
-                                                            id="attack_type_value">type</span>
-                                                    </div>
+                                                    <span class="d-block text-uppercase"
+                                                        id="attack_type_value">type</span>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="col-md-6 col-xl-11">
-                                        <div class="card">
-                                            <div class="card-header">
-                                                <h5>Event Description</h5>
-                                            </div>
-                                            <div class="card-body">
-                                                <dl class="dl-horizontal row">
-                                                    <dt class="col-sm-3">Time</dt>
-                                                    <dd class="col-sm-9" id="time_value"></dd>
-                                                    <dt class="col-sm-3">IP</dt>
-                                                    <dd class="col-sm-9" id="ip_value"></dd>
-                                                    <dt class="col-sm-3">Location</dt>
-                                                    <dd class="col-sm-9" id="location_value"></dd>
-                                                    <dt class="col-sm-3">URL</dt>
-                                                    <dd class="col-sm-9" id="url_value"></dd>
-                                                    <dt class="col-sm-3">User-Agent</dt>
-                                                    <dd class="col-sm-9" id="user_agent_value"></dd>
-                                                    <dt class="col-sm-3">Reques Header</dt>
-                                                    <dd class="col-sm-9" id="request_value"></dd>
-                                                    <dt class="col-sm-3">Request Arg/Body</dt>
-                                                    <dd class="col-sm-9" id="req_body_value"></dd>
-                                                    <dt class="col-sm-3">Response Header</dt>
-                                                    <dd class="col-sm-9" id="response_value"></dd>
-                                                    <dt class="col-sm-3">Response Content</dt>
-                                                    <dd class="col-sm-9" id="res_content_value"></dd>
-                                                    <dt class="col-sm-3">Hash</dt>
-                                                    <dd class="col-sm-9" id="hash"></dd>
-                                                </dl>
-                                            </div>
+                                </div>
+                                <div class="col-md-6 col-xl-11">
+                                    <div class="card">
+                                        <div class="card-header">
+                                            <h5>Event Description</h5>
+                                        </div>
+                                        <div class="card-body">
+                                            <dl class="dl-horizontal row">
+                                                <dt class="col-sm-3">Time</dt>
+                                                <dd class="col-sm-9" id="time_value"></dd>
+                                                <dt class="col-sm-3">IP</dt>
+                                                <dd class="col-sm-9" id="ip_value"></dd>
+                                                <dt class="col-sm-3">Location</dt>
+                                                <dd class="col-sm-9" id="location_value"></dd>
+                                                <dt class="col-sm-3">URL</dt>
+                                                <dd class="col-sm-9" id="url_value"></dd>
+                                                <dt class="col-sm-3">User-Agent</dt>
+                                                <dd class="col-sm-9" id="user_agent_value"></dd>
+                                                <dt class="col-sm-3">Reques Header</dt>
+                                                <dd class="col-sm-9" id="request_value"></dd>
+                                                <dt class="col-sm-3">Request Arg/Body</dt>
+                                                <dd class="col-sm-9" id="req_body_value"></dd>
+                                                <dt class="col-sm-3">Response Header</dt>
+                                                <dd class="col-sm-9" id="response_value"></dd>
+                                                <dt class="col-sm-3">Response Content</dt>
+                                                <dd class="col-sm-9" id="res_content_value"></dd>
+                                                <dt class="col-sm-3">Hash</dt>
+                                                <dd class="col-sm-9" id="hash"></dd>
+                                            </dl>
                                         </div>
                                     </div>
                                 </div>
-                                <button class="btn btn-secondary datta-example-modal-close" type="button">
-                                    <span>&times;</span>
-                                </button>
                             </div>
+                            <button class="btn btn-secondary datta-example-modal-close" type="button">
+                                <span>&times;</span>
+                            </button>
                         </div>
                         <div class="datta-example-modal-overlay"></div>
                         <!-- [ Main Content ] end -->
@@ -351,62 +416,69 @@
     src="{{ url_for('static', filename='gemini-protector-static/plugins/chart-morris/js/raphael.min.js') }}"></script>
 <script
     src="{{ url_for('static', filename='gemini-protector-static/plugins/chart-morris/js/morris.min.js') }}"></script>
+<script
+    src="{{ url_for('static', filename='gemini-protector-static/plugins/datatables/jquery.dataTables.js') }}"></script>
+<script>
+    $(document).ready(function () {
+        $('#myTable').DataTable();
+    });
+</script>
 <script>
     var graph = Morris.Donut({
         element: 'morris-donut-chart',
         data: [
-    {
-        value: `{{ _gemini_attack_counts['Malicious Request'] }}`,
-        label: 'Malicious Request'
-    },
-    {
-        value: `{{ _gemini_attack_counts['ACL Block'] }}`,
-        label: 'ACL Block'
-    },
-    {
-        value: `{{ _gemini_attack_counts['Malicious Response'] }}`,
-        label: 'Malicious Response'
-    },
-    {
-        value: `{{ _gemini_attack_counts['Unvalidated Redirects'] }}`,
-        label: 'Unvalidated Redirects'
-    },
-    {
-        value: `{{ _gemini_attack_counts['Large Requests'] }}`,
-        label: 'Large Requests'
-    },
-    {
-        value: `{{ _gemini_attack_counts['HTTP Method Tampering'] }}`,
-        label: 'HTTP Method Tampering'
-    },
-    {
-        value: `{{ _gemini_attack_counts['DOS'] }}`,
-        label: 'DOS/DDOS'
-    },
-    {
-        value: `{{ _gemini_attack_counts['Cross-Site Scripting'] }}`,
-        label: 'Cross-Site Scripting'
-    },
-    {
-        value: `{{ _gemini_attack_counts['SQL Injection'] }}`,
-        label: 'SQL Injection'
-    }
-        ],
-    colors: [
-        '#ce3322',
-        '#59dca6',
-        '#04a9f5',
-        '#1dc4e9',
-        '#A389D4',
-        '#fff26e',
-        '#a67b5b',
-        '#8c4db7',
-        '#0a7e8c'
-    ],
-        resize: true,
-            formatter: function (x) {
-                return "val : " + x
+            {
+                value: `{{ _gemini_attack_counts['Malicious Request'] }}`,
+                label: 'Malicious Request'
+            },
+            {
+                value: `{{ _gemini_attack_counts['ACL Block'] }}`,
+                label: 'ACL Block'
+            },
+            {
+                value: `{{ _gemini_attack_counts['Malicious Response'] }}`,
+                label: 'Malicious Response'
+            },
+            {
+                value: `{{ _gemini_attack_counts['Unvalidated Redirects'] }}`,
+                label: 'Unvalidated Redirects'
+            },
+            {
+                value: `{{ _gemini_attack_counts['Large Requests'] }}`,
+                label: 'Large Requests'
+            },
+            {
+                value: `{{ _gemini_attack_counts['HTTP Method Tampering'] }}`,
+                label: 'HTTP Method Tampering'
+            },
+            {
+                value: `{{ _gemini_attack_counts['DOS'] }}`,
+                label: 'DOS/DDOS'
+            },
+            {
+                value: `{{ _gemini_attack_counts['Cross-Site Scripting'] }}`,
+                label: 'Cross-Site Scripting'
+            },
+            {
+                value: `{{ _gemini_attack_counts['SQL Injection'] }}`,
+                label: 'SQL Injection'
             }
+        ],
+        colors: [
+            '#ce3322',
+            '#59dca6',
+            '#04a9f5',
+            '#1dc4e9',
+            '#A389D4',
+            '#fff26e',
+            '#a67b5b',
+            '#8c4db7',
+            '#0a7e8c'
+        ],
+        resize: true,
+        formatter: function (x) {
+            return "val : " + x
+        }
     });
 </script>
 {% with messages = get_flashed_messages(with_categories=true) %}
