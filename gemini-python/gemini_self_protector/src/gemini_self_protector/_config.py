@@ -1,21 +1,21 @@
+import csv
+import json
 import os
+
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+
 from ._logger import logger
-import json
-import csv
-from ipaddress import ip_address
-from datetime import datetime
 from ._model import (
     Base,
-    tb_User,
-    tb_Config,
-    tb_Summary,
-    tb_RequestLog,
     tb_AccessControlList,
+    tb_BehaviorLog,
+    tb_Config,
     tb_Dependency,
     tb_Feedback,
-    tb_BehaviorLog,
+    tb_RequestLog,
+    tb_Summary,
+    tb_User,
 )
 
 
@@ -28,6 +28,7 @@ class _Config(object):
             Session = sessionmaker(bind=engine)
             session = Session()
 
+            # trunk-ignore(bandit/B106)
             user = tb_User(username="superadmin", password="")
             config = tb_Config(
                 is_install=0,
@@ -354,7 +355,7 @@ class _Config(object):
             return acl
         except Exception as e:
             logger.error(
-                "[x_x] Something went wrong, please check your error message.\n Message - {0}".format(
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format(
                     "_Config.get_tb_acl", e
                 )
             )
@@ -449,7 +450,7 @@ class _Config(object):
             return dependency
         except Exception as e:
             logger.error(
-                "[x_x] Something went wrong, please check your error message.\n Message - {0}".format(
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format(
                     "_Config.get_tb_dependency", e
                 )
             )
@@ -477,8 +478,8 @@ class _Config(object):
             return feedback
         except Exception as e:
             logger.error(
-                "[x_x] Something went wrong, please check your error message.\n Message - {0}".format(
-                    "_Config.get_tb_dependency", e
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format(
+                    "_Config.get_tb_feedback", e
                 )
             )
 
@@ -516,7 +517,7 @@ class _Config(object):
             return csv_file_path
         except Exception as e:
             logger.error(
-                "[x_x] Something went wrong, please check your error message.\n Message - {0}".format(
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format(
                     "_Config.export_tb_feedback", e
                 )
             )
