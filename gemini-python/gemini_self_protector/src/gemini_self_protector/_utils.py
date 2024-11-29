@@ -13,7 +13,7 @@ from datetime import datetime, timezone
 import socket
 from hashlib import sha256
 from requests.exceptions import ConnectionError
-
+import psutil
 
 class _Utils(object):
     def g_wvd_serve_predict(_payload) -> None:
@@ -176,7 +176,7 @@ class _Utils(object):
 
     def load_banner():
         print(
-            """\033[1;31m \n
+            r"""\033[1;31m \n
              __   ___                    __   ___       ___     __   __   __  ___  ___  __  ___  __   __  
             / _` |__   |\/| | |\ | |    /__` |__  |    |__     |__) |__) /  \  |  |__  /  `  |  /  \ |__) 
             \__> |___  |  | | | \| |    .__/ |___ |___ |       |    |  \ \__/  |  |___ \__,  |  \__/ |  \ 
@@ -282,7 +282,7 @@ class _Utils(object):
             """Decode a string using the specified encoding type."""
 
             # Remove the invalid escape sequences  - # Remove the backslash
-            string = _string.replace("\%", "%").replace("\\", "").replace("<br/>", "")
+            string = _string.replace(r"\%", "%").replace("\\", "").replace("<br/>", "")
 
             string = string.encode().decode("unicode_escape")
 
@@ -308,7 +308,7 @@ class _Utils(object):
                 # Try second base64-decode
                 try:
                     string = (
-                        string.replace("\%", "%")
+                        string.replace(r"\%", "%")
                         .replace("\\", "")
                         .replace("<br/>", "")
                         .replace(" ", "")
@@ -394,6 +394,38 @@ class _Utils(object):
                 )
             )
 
+    def g_server_performance():
+        try:
+            server_metrix = {
+                "CPU": None,
+                "MEMORY": None,
+                "NETWORK_IN": None,
+                "NETWORK_OUT": None,
+                "DISK_READ": None,
+                "DISK_WRITE": None,
+            }
+
+            # Fetch CPU and memory metrics
+            server_metrix["CPU"] = psutil.cpu_percent(interval=1)
+            server_metrix["MEMORY"] = psutil.virtual_memory().percent
+
+            # Fetch network metrics
+            net_io = psutil.net_io_counters()
+            server_metrix["NETWORK_IN"] = net_io.bytes_recv  # Total bytes received
+            server_metrix["NETWORK_OUT"] = net_io.bytes_sent  # Total bytes sent
+
+            # Fetch disk metrics
+            disk_io = psutil.disk_io_counters()
+            server_metrix["DISK_READ"] = disk_io.read_bytes  # Total bytes read
+            server_metrix["DISK_WRITE"] = disk_io.write_bytes  # Total bytes written
+            
+            return server_metrix
+        except Exception as e:
+            logger.error(
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format(
+                    "_Utils.g_server_performance", e
+                )
+            )
 
 class _Validator(object):
     def validate_g_serve_key(_key) -> None:

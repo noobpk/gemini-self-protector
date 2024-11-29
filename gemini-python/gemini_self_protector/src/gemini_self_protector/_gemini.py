@@ -714,3 +714,13 @@ class _Gemini(object):
                     "_Gemini.g_serve_diagnostic", e
                 )
             )
+
+    def g_server_performance() -> None:
+        try:
+            return _Utils.g_server_performance()
+        except Exception as e:
+            logger.error(
+                "[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format(
+                    "_Gemini.g_server_performance", e
+                )
+            )
