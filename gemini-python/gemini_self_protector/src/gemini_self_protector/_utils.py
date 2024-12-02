@@ -396,6 +396,9 @@ class _Utils(object):
 
     def g_server_performance():
         try:
+            # Conversion factor for bytes to GB
+            BYTES_TO_GB = 1_073_741_824
+
             server_metrix = {
                 "CPU": None,
                 "MEMORY": None,
@@ -411,14 +414,19 @@ class _Utils(object):
 
             # Fetch network metrics
             net_io = psutil.net_io_counters()
-            server_metrix["NETWORK_IN"] = net_io.bytes_recv  # Total bytes received
-            server_metrix["NETWORK_OUT"] = net_io.bytes_sent  # Total bytes sent
+            server_metrix["NETWORK_IN"] = net_io.bytes_recv / BYTES_TO_GB  # Total bytes received
+            server_metrix["NETWORK_OUT"] = net_io.bytes_sent / BYTES_TO_GB # Total bytes sent
 
             # Fetch disk metrics
             disk_io = psutil.disk_io_counters()
-            server_metrix["DISK_READ"] = disk_io.read_bytes  # Total bytes read
-            server_metrix["DISK_WRITE"] = disk_io.write_bytes  # Total bytes written
-            
+            server_metrix["DISK_READ"] = disk_io.read_bytes / BYTES_TO_GB  # Total bytes read
+            server_metrix["DISK_WRITE"] = disk_io.write_bytes / BYTES_TO_GB  # Total bytes written
+
+            # Round all values to 2 decimal places
+            for key in server_metrix:
+                if isinstance(server_metrix[key], (float, int)):
+                    server_metrix[key] = round(server_metrix[key], 2)
+
             return server_metrix
         except Exception as e:
             logger.error(
