@@ -77,6 +77,10 @@ Gemini supports 3 modes and recommends sensitivity levels for the application to
 
 ## Screenshot
 
+### New Dashboard Metrix 
+
+![image](https://github.com/user-attachments/assets/d7733f82-fc81-42a2-99f6-b08d6f5255be)
+
 ### Dashboard
 
 <img width="1440" alt="image" src="https://github.com/noobpk/gemini-self-protector/assets/31820707/068048ef-42cf-4032-b064-137d69abccb6">
