@@ -327,7 +327,7 @@ class _Gemini_GUI(object):
                                            _gemini_attack_counts=attack_counts,
                                            _any_attack_count_gt_zero=any_attack_count_gt_zero,
                                            _gemini_beharvior_log_data=beharvior_log,
-                                           _server_perform=server_performance
+                                           _server_performance=server_performance
                                            )
                 except Exception as e:
                     logger.error("[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format(
