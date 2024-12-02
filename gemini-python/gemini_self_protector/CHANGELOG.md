@@ -1,6 +1,12 @@
 # Changelog
 
-## v0.1.5 (12/11/2023)
+## v0.1.6 (2/12/2024)
+
+- Fix bug
+- Refactor source code
+- Add new dashboard metrix
+
+## v0.1.6 (12/11/2023)
 
 - Fix bug
 - Refactor source code

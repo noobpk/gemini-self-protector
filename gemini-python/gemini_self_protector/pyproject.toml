@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "gemini_self_protector"
-version = "0.1.6"
+version = "0.1.7"
 description = "Runtime Application Self-Protection"
 authors = ["lethanhphuc"]
 license = "MIT"
@@ -16,6 +16,8 @@ cachetools = "^5.3.1"
 passlib = "^1.7.4"
 requests = "^2.31.0"
 tqdm = "^4.66.1"
+argon2-cffi = "^23.1.0"
+psutil = "^6.1.0"
 
 [tool.poetry.dev-dependencies]
 

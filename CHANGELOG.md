@@ -1,5 +1,12 @@
 # Changelog
 
+## 02/12/2024
+
+- Release v0.1.7 Gemini-self-protector for Flask
+- Fix bug
+- Refactor source code
+- Add new dashboard metrix
+
 ## 12/11/2023
 
 - Release v0.1.6 Gemini-self-protector for Flask

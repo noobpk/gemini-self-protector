@@ -1,7 +1,7 @@
 from flask import Flask, Blueprint, request, render_template, session, redirect, url_for, flash, jsonify, send_file
 from ._logger import logger
 from ._gemini import _Gemini
-from passlib.hash import argon2
+import argon2
 from datetime import datetime
 import ipaddress
 import re
@@ -12,6 +12,8 @@ from math import floor
 from tqdm import tqdm
 import urllib.parse
 import sys
+
+ph = argon2.PasswordHasher()
 
 class _Gemini_GUI(object):
 
@@ -148,7 +150,7 @@ class _Gemini_GUI(object):
                                     "g_serve_key": g_serve_key
                                 })
                                 _Gemini.update_gemini_user({
-                                    "password": argon2.hash(password),
+                                    "password": ph.hash(password),
                                 })
                                 logger.info(
                                     "[+] Install gemini-self-protector successful.!")
@@ -207,8 +209,11 @@ class _Gemini_GUI(object):
                         app_username = _Gemini.get_gemini_user().username
                         app_password = _Gemini.get_gemini_user().password
 
-                        password_check = argon2.verify(password, app_password)
-
+                        try:
+                            password_check = ph.verify(app_password, password)
+                        except argon2.exceptions.VerifyMismatchError:
+                            return render_template('gemini-protector-gui/accounts/login.html', msg="Incorrect Username / Password")
+                        
                         if username == app_username and password_check:
                             session['gemini_logged_in'] = True
                             flash('Welcome back {}!'.format(
@@ -241,7 +246,7 @@ class _Gemini_GUI(object):
                             return render_template('gemini-protector-gui/home/profile.html', msg="Invalid password")
 
                         _Gemini.update_gemini_config({
-                            "gemini_app_password": argon2.hash(password),
+                            "gemini_app_password": ph.hash(password),
                         })
                         logger.info("[+] Update password successful.")
                         return redirect(url_for('nested_service.gemini_login'))
@@ -271,6 +276,7 @@ class _Gemini_GUI(object):
                     request_log = _Gemini.get_gemini_request_log()
                     beharvior_log = _Gemini.get_gemini_behavior_log()
                     # predict_server_status = _Gemini.health_check_predict_server()
+                    server_performance = _Gemini.g_server_performance()
 
                     sorted_request_log_data = sorted(
                         request_log, key=lambda x: x.time)
@@ -281,7 +287,7 @@ class _Gemini_GUI(object):
                     start_index = (page - 1) * per_page
                     end_index = start_index + per_page
                     limited_request_log_data = sorted_request_log_data[start_index:end_index]
-
+                    
                     attack_counts = {
                         'Malicious Request': 0,
                         'ACL Block': 0,
@@ -320,7 +326,8 @@ class _Gemini_GUI(object):
                                            _gemini_notification_channel=gemini_config.notification_channel,
                                            _gemini_attack_counts=attack_counts,
                                            _any_attack_count_gt_zero=any_attack_count_gt_zero,
-                                           _gemini_beharvior_log_data=beharvior_log
+                                           _gemini_beharvior_log_data=beharvior_log,
+                                           _server_performance=server_performance
                                            )
                 except Exception as e:
                     logger.error("[x_x] Something went wrong at {0}, please check your error message.\n Message - {1}".format(

@@ -26,10 +26,108 @@
                                     <div class="card-block">
                                         <div class="row d-flex align-items-center">
                                             <div class="col-auto">
-                                                {%if _anti_dos %}
-                                                <i class="feather icon-activity f-30 text-c-green"></i>
+                                                {%if _server_performance['CPU'] < 80 %}
+                                                <i class="feather icon-cpu f-30 text-c-green"></i>
                                                 {%else%}
-                                                <i class="feather icon-activity f-30 text-c-red"></i>
+                                                <i class="feather icon-cpu f-30 text-c-red"></i>
+                                                {% endif %}
+                                            </div>
+                                            <div class="col">
+                                                <h3 class="f-w-300">{{_server_performance['CPU']}}%</h3>
+                                                <span class="d-block text-uppercase">CPU USAGE</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 col-xl-4">
+                                <div class="card">
+                                    <div class="card-block">
+                                        <div class="row d-flex align-items-center">
+                                            <div class="col-auto">
+                                                {%if _server_performance['MEMORY'] < 80 %}
+                                                <i class="feather icon-cpu f-30 text-c-green"></i>
+                                                {%else%}
+                                                <i class="feather icon-cpu f-30 text-c-red"></i>
+                                                {% endif %}
+                                            </div>
+                                            <div class="col">
+                                                <h3 class="f-w-300">{{_server_performance['MEMORY']}}%</h3>
+                                                <span class="d-block text-uppercase">MEMORY USAGE</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 col-xl-4">
+                                <div class="card">
+                                    <div class="card-block">
+                                        <div class="row d-flex align-items-center">
+                                            <div class="col-auto">
+                                                <i class="feather icon-activity f-30 text-c-green"></i>
+                                            </div>
+                                            <div class="col">
+                                                <h3 class="f-w-300">{{_server_performance['NETWORK_IN']}} GB</h3>
+                                                <span class="d-block text-uppercase">NETWORK IN</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 col-xl-4">
+                                <div class="card">
+                                    <div class="card-block">
+                                        <div class="row d-flex align-items-center">
+                                            <div class="col-auto">
+                                                <i class="feather icon-disc f-30 text-c-green"></i>
+                                            </div>
+                                            <div class="col">
+                                                <h3 class="f-w-300">{{_server_performance['DISK_READ']}} GB</h3>
+                                                <span class="d-block text-uppercase">DISK READ</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 col-xl-4">
+                                <div class="card">
+                                    <div class="card-block">
+                                        <div class="row d-flex align-items-center">
+                                            <div class="col-auto">
+                                                <i class="feather icon-disc f-30 text-c-green"></i>
+                                            </div>
+                                            <div class="col">
+                                                <h3 class="f-w-300">{{_server_performance['DISK_WRITE']}} GB</h3>
+                                                <span class="d-block text-uppercase">DISK WRITE</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 col-xl-4">
+                                <div class="card">
+                                    <div class="card-block">
+                                        <div class="row d-flex align-items-center">
+                                            <div class="col-auto">
+                                                <i class="feather icon-activity f-30 text-c-green"></i>
+                                            </div>
+                                            <div class="col">
+                                                <h3 class="f-w-300">{{_server_performance['NETWORK_OUT']}} GB</h3>
+                                                <span class="d-block text-uppercase">NETWORK OUT</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 col-xl-4">
+                                <div class="card">
+                                    <div class="card-block">
+                                        <div class="row d-flex align-items-center">
+                                            <div class="col-auto">
+                                                {%if _anti_dos %}
+                                                <i class="feather icon-shield f-30 text-c-green"></i>
+                                                {%else%}
+                                                <i class="feather icon-shield f-30 text-c-red"></i>
                                                 {% endif %}
                                             </div>
                                             <div class="col">

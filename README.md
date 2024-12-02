@@ -3,6 +3,7 @@
 Gemini - The Runtime Application Self Protection (RASP) Solution Combined With Deep Learning
 
 [![CodeQL](https://github.com/noobpk/gemini-self-protector/actions/workflows/codeql.yml/badge.svg?branch=main)](https://github.com/noobpk/gemini-self-protector/actions/workflows/codeql.yml)
+[![trivy](https://github.com/noobpk/gemini-self-protector/actions/workflows/trivy.yml/badge.svg?branch=main)](https://github.com/noobpk/gemini-self-protector/actions/workflows/trivy.yml)
 ![Static Badge](https://img.shields.io/badge/python-3.x-blue?logo=python)
 ![Static Badge](https://img.shields.io/badge/Deep%20Learning-orange)
 ![Static Badge](https://img.shields.io/badge/Convolutional%20Neural%20Network-yellow)
@@ -75,6 +76,10 @@ Gemini supports 3 modes and recommends sensitivity levels for the application to
 [Gemini-Self-Protector | Demo | Install - Configurate - Usage](https://youtu.be/sUJsJE29KcE)
 
 ## Screenshot
+
+### New Dashboard Metrix 
+
+![image](https://github.com/user-attachments/assets/d7733f82-fc81-42a2-99f6-b08d6f5255be)
 
 ### Dashboard
 
