@@ -77,6 +77,9 @@ class _Gemini_GUI(object):
 
             @nested_service.app_template_filter('gemini_round_number')
             def round_number(value, decimals=2):
+                if value is None:
+                    return None  # Return None if the input value is None
+                
                 multiplier = 10 ** decimals
                 return floor(value * multiplier + 0.5) / multiplier
 
