@@ -1,3 +1,5 @@
+## This project will be further developed under the name [Whale-Sentinel](https://github.com/YangYang-Research/whale-sentinel)
+
 # gemini-self-protector
 
 Gemini - The Runtime Application Self Protection (RASP) Solution Combined With Deep Learning
